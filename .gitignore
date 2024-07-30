@@ -1,0 +1,25 @@
+# Go-related
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+
+# Go workspace
+/bin
+/build
+
+# Editor and IDE
+.idea/
+*.iml
+*.iws
+*.ipr
+*.swp
+.DS_Store
+Thumbs.db
+
+# GoLand specific
+/.idea/
+/*.go.iml
