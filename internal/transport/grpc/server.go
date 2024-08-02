@@ -1,9 +1,9 @@
-package server
+package grpc
 
 import (
 	"fmt"
-	"github.com/lapkomo2018/goPetProjectServiceCollector/internal/transport/grpc/server/api"
-	grpcTest "github.com/lapkomo2018/goPetProjectServiceCollector/pkg/grpc/test"
+	"github.com/lapkomo2018/goTwitterAuthService/internal/transport/grpc/v1"
+	grpcTest "github.com/lapkomo2018/goTwitterAuthService/pkg/grpc/test"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 	"log"
@@ -27,7 +27,7 @@ func New(port int) *Server {
 }
 
 func (s *Server) Init() *Server {
-	grpcTest.RegisterTestServer(s.grpcServer, &api.Handler{})
+	grpcTest.RegisterTestServer(s.grpcServer, &v1.Handler{})
 
 	return s
 }

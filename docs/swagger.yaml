@@ -1,0 +1,130 @@
+basePath: /api/v1
+definitions:
+  echo.HTTPError:
+    properties:
+      message: {}
+    type: object
+  internal_transport_rest_v1.refreshTokenReq:
+    properties:
+      refresh_token:
+        type: string
+    required:
+    - refresh_token
+    type: object
+  internal_transport_rest_v1.tokensResp:
+    properties:
+      access_token:
+        type: string
+      refresh_token:
+        type: string
+    type: object
+  internal_transport_rest_v1.userLoginReq:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+      username:
+        type: string
+    required:
+    - password
+    type: object
+  internal_transport_rest_v1.userRegisterReq:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+      username:
+        type: string
+    required:
+    - email
+    - password
+    - username
+    type: object
+host: localhost:8080
+info:
+  contact: {}
+  description: Bombaclac
+  title: Twitter Auth Service
+  version: "1.0"
+paths:
+  /login:
+    post:
+      consumes:
+      - application/json
+      description: login bruh
+      parameters:
+      - description: user credentials
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/internal_transport_rest_v1.userLoginReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_transport_rest_v1.tokensResp'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      summary: User login
+      tags:
+      - User
+  /refresh:
+    post:
+      consumes:
+      - application/json
+      description: Refresh jwt token
+      parameters:
+      - description: refresh token
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/internal_transport_rest_v1.refreshTokenReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_transport_rest_v1.tokensResp'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      summary: Refresh token
+      tags:
+      - Token
+  /register:
+    post:
+      consumes:
+      - application/json
+      description: reg bruh
+      parameters:
+      - description: user credentials
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/internal_transport_rest_v1.userRegisterReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_transport_rest_v1.tokensResp'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      summary: User register
+      tags:
+      - User
+swagger: "2.0"

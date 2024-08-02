@@ -1,8 +1,8 @@
-package api
+package v1
 
 import (
 	"context"
-	grpcTest "github.com/lapkomo2018/goPetProjectServiceCollector/pkg/grpc/test"
+	grpcTest "github.com/lapkomo2018/goTwitterAuthService/pkg/grpc/test"
 	"log"
 )
 
