@@ -17,15 +17,18 @@ type User struct {
 }
 
 func (u *User) BeforeCreate(tx *gorm.DB) (err error) {
-	if u.Email == "" {
-		err = errors.New("email cannot be empty")
-	} else if u.Password == "" {
-		err = errors.New("password cannot be empty")
+	switch {
+	case u.Email == "":
+		return errors.New("email cannot be empty")
+	case u.Username == "":
+		return errors.New("username cannot be empty")
+	case u.Password == "":
+		return errors.New("password cannot be empty")
+	default:
+		return nil
 	}
-	return
 }
 
 func (u *User) AfterDelete(tx *gorm.DB) (err error) {
-	tx.Where("user_id = ?", u.ID).Delete(&RefreshToken{})
-	return
+	return tx.Where("user_id = ?", u.ID).Delete(&RefreshToken{}).Error
 }

@@ -1,0 +1,14 @@
+restServer:
+  port: 8080
+  bodyLimit: 25165824
+  allowedOrigins:
+    - "*"
+
+grpcServer:
+  port: 8081
+
+jwt:
+  secretKey: "accessPass"
+  tokenDuration: 5m
+  refreshSecretKey: "refreshPass"
+  refreshDuration: 168h # 7 days

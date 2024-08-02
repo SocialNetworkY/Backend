@@ -5,6 +5,7 @@ import (
 	"net/http"
 )
 
+// TODO: Implement functional in refreshToken
 func (h *Handler) initTokenApi(api *echo.Group) {
 	api.POST("/refresh", h.refreshToken)
 }

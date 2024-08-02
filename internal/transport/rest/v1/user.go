@@ -5,6 +5,7 @@ import (
 	"net/http"
 )
 
+// TODO: Implement functional in userLogin, userRegister
 func (h *Handler) initUserApi(api *echo.Group) {
 	api.POST("/login", h.userLogin)
 	api.POST("/register", h.userRegister)

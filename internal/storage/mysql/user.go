@@ -9,10 +9,15 @@ type UserStorage struct {
 	db *gorm.DB
 }
 
+// TODO: Implement functions Exists, Save, mb Delete
 func NewUserStorage(db *gorm.DB) *UserStorage {
 	return &UserStorage{
 		db: db,
 	}
+}
+
+func (us *UserStorage) Exists(user *core.User) error {
+	return nil
 }
 
 func (us *UserStorage) First(user *core.User, cond ...interface{}) error {

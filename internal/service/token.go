@@ -1,19 +1,39 @@
 package service
 
-import "github.com/lapkomo2018/goTwitterAuthService/internal/core"
+type (
+	RefreshTokenStorage interface {
+		SetToken(userID uint, refreshToken string) error
+	}
 
-type RefreshTokenStorage interface {
-	Create(refreshToken *core.RefreshToken) error
-	First(refreshToken *core.RefreshToken, cond ...interface{}) error
-	FindAll(dest interface{}, conds ...interface{}) error
-}
+	TokenManager interface {
+		Generate(userID uint) (accessToken string, refreshToken string, err error)
+		Verify(accessToken string) (userID uint, err error)
+		VerifyRefreshToken(refreshToken string) (userID uint, err error)
+	}
+)
 
 type TokenService struct {
-	storage RefreshTokenStorage
+	storage      RefreshTokenStorage
+	tokenManager TokenManager
 }
 
-func NewTokenService(refreshTokenStorage RefreshTokenStorage) *TokenService {
+// TODO: Implement functions Verify
+func NewTokenService(refreshTokenStorage RefreshTokenStorage, tokenManager TokenManager) *TokenService {
 	return &TokenService{
-		storage: refreshTokenStorage,
+		storage:      refreshTokenStorage,
+		tokenManager: tokenManager,
 	}
+}
+
+func (ts *TokenService) Generate(userID uint) (string, string, error) {
+	accessToken, refreshToken, err := ts.tokenManager.Generate(userID)
+	if err != nil {
+		return "", "", err
+	}
+
+	if err := ts.storage.SetToken(userID, accessToken); err != nil {
+		return "", "", err
+	}
+
+	return accessToken, refreshToken, nil
 }

@@ -23,3 +23,5 @@ Thumbs.db
 # GoLand specific
 /.idea/
 /*.go.iml
+
+.env
