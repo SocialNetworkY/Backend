@@ -7,6 +7,8 @@ import (
 	"github.com/lapkomo2018/goTwitterAuthService/internal/storage/mysql"
 	grpcServer "github.com/lapkomo2018/goTwitterAuthService/internal/transport/grpc"
 	restServer "github.com/lapkomo2018/goTwitterAuthService/internal/transport/rest"
+	"github.com/lapkomo2018/goTwitterAuthService/pkg/hash"
+	"github.com/lapkomo2018/goTwitterAuthService/pkg/jwt"
 	"log"
 	"os"
 	"os/signal"
@@ -39,18 +41,21 @@ func main() {
 		log.Fatal(err)
 	}
 
-	services := service.New(storages.User, storages.RefreshToken)
+	hasher := hash.NewSHA1Hasher(cfg.Hash.Salt)
+	tokenManager := jwt.NewManager(cfg.JWT.SecretKey, cfg.JWT.TokenDuration, cfg.JWT.RefreshSecretKey, cfg.JWT.RefreshDuration)
+	services := service.New(storages.User, storages.RefreshToken, tokenManager, hasher)
 
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 
 	go func() {
-		server := restServer.New(cfg.RestServer.BodyLimit, cfg.RestServer.AllowedOrigins).Init(services.User, storages.RefreshToken)
+		server := restServer.New(cfg.RestServer.BodyLimit, cfg.RestServer.AllowedOrigins).Init(services.User, services.Token)
 		if err := server.Run(cfg.RestServer.Port); err != nil {
 			log.Fatalf("Rest server err: %v", err)
 		}
 	}()
 
+	//TODO: Implement functions to grpc server, make proto file ...
 	go func() {
 		server := grpcServer.New(cfg.GrpcServer.Port).Init()
 		if err := server.Run(); err != nil {

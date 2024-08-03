@@ -12,3 +12,6 @@ jwt:
   tokenDuration: 5m
   refreshSecretKey: "refreshPass"
   refreshDuration: 168h # 7 days
+
+hash:
+  salt: "floppa"

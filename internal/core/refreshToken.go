@@ -6,8 +6,8 @@ import (
 )
 
 type RefreshToken struct {
-	UserID uint
-	Token  string `gorm:"primaryKey;unique"`
+	UserID uint   `gorm:"primaryKey;unique"`
+	Token  string `gorm:"unique"`
 }
 
 func (rt *RefreshToken) BeforeCreate(tx *gorm.DB) (err error) {

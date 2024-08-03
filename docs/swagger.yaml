@@ -20,13 +20,12 @@ definitions:
     type: object
   internal_transport_rest_v1.userLoginReq:
     properties:
-      email:
+      login:
         type: string
       password:
         type: string
-      username:
-        type: string
     required:
+    - login
     - password
     type: object
   internal_transport_rest_v1.userRegisterReq:

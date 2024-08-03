@@ -31,9 +31,24 @@ func (us *RefreshTokenStorage) SetToken(userID uint, refreshToken string) error 
 			Token:  refreshToken,
 		}
 
-		return us.db.Create(&newToken).Error
+		if err := us.db.Create(&newToken).Error; err != nil {
+			return err
+		}
+		return nil
 	}
 
 	existingToken.Token = refreshToken
-	return us.db.Save(&existingToken).Error
+	if err := us.db.Save(&existingToken).Error; err != nil {
+		return err
+	}
+	return nil
+}
+
+func (us *RefreshTokenStorage) GetToken(userID uint) (string, error) {
+	var existingToken core.RefreshToken
+	err := us.db.Where("user_id = ?", userID).First(&existingToken).Error
+	if err != nil {
+		return "", err
+	}
+	return existingToken.Token, nil
 }

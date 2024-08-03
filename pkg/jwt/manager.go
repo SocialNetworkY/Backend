@@ -13,10 +13,12 @@ type Manager struct {
 	refreshDuration  time.Duration
 }
 
-func NewManager(secretKey string, tokenDuration time.Duration) *Manager {
+func NewManager(accessTokenSecretKey string, accessTokenDuration time.Duration, refreshTokenSecretKey string, refreshTokenDuration time.Duration) *Manager {
 	return &Manager{
-		secretKey:     secretKey,
-		tokenDuration: tokenDuration,
+		secretKey:        accessTokenSecretKey,
+		tokenDuration:    accessTokenDuration,
+		refreshSecretKey: refreshTokenSecretKey,
+		refreshDuration:  refreshTokenDuration,
 	}
 }
 

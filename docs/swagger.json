@@ -162,16 +162,14 @@
         "internal_transport_rest_v1.userLoginReq": {
             "type": "object",
             "required": [
+                "login",
                 "password"
             ],
             "properties": {
-                "email": {
+                "login": {
                     "type": "string"
                 },
                 "password": {
-                    "type": "string"
-                },
-                "username": {
                     "type": "string"
                 }
             }

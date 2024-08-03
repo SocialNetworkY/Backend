@@ -23,6 +23,10 @@ type Config struct {
 		RefreshSecretKey string
 		RefreshDuration  time.Duration
 	}
+
+	Hash struct {
+		Salt string
+	}
 }
 
 func LoadConfig() (*Config, error) {

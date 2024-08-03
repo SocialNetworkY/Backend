@@ -7,9 +7,14 @@ import (
 
 type (
 	UserService interface {
+		Register(username, email, password string) (string, string, error)
+		Login(login, password string) (string, string, error)
 	}
 
 	TokenService interface {
+		Generate(userID uint) (string, string, error)
+		Verify(accessToken string) (userID uint, err error)
+		VerifyRefreshToken(refreshToken string) (userID uint, err error)
 	}
 
 	Handler struct {

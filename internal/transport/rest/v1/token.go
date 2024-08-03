@@ -5,7 +5,6 @@ import (
 	"net/http"
 )
 
-// TODO: Implement functional in refreshToken
 func (h *Handler) initTokenApi(api *echo.Group) {
 	api.POST("/refresh", h.refreshToken)
 }
@@ -20,7 +19,29 @@ func (h *Handler) initTokenApi(api *echo.Group) {
 // @Failure      default  {object}  echo.HTTPError
 // @Router       /refresh [post]
 func (h *Handler) refreshToken(c echo.Context) error {
-	return c.JSON(http.StatusNotImplemented, "not implemented")
+	var body refreshTokenReq
+	if err := c.Bind(&body); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+
+	if body.RefreshToken == "" {
+		return echo.NewHTTPError(http.StatusBadRequest, "token is empty")
+	}
+
+	userID, err := h.tokenService.VerifyRefreshToken(body.RefreshToken)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusUnauthorized, err.Error())
+	}
+
+	accessToken, refreshToken, err := h.tokenService.Generate(userID)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+
+	return c.JSON(http.StatusOK, tokensResp{
+		AccessToken:  accessToken,
+		RefreshToken: refreshToken,
+	})
 }
 
 type (
