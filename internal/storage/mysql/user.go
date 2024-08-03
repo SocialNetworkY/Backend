@@ -63,7 +63,7 @@ func (us *UserStorage) FindByLogin(login string) (*core.User, error) {
 	return nil, err
 }
 
-func (us *UserStorage) FindByID(id int64) (*core.User, error) {
+func (us *UserStorage) FindByID(id uint) (*core.User, error) {
 	user := &core.User{}
 	err := us.db.Where("id = ?", id).First(user).Error
 	if err != nil {

@@ -16,7 +16,7 @@ type (
 		ExistsByEmail(email string) (bool, error)
 		ExistsByUsername(username string) (bool, error)
 		FindByLogin(login string) (*core.User, error)
-		FindByID(id int64) (*core.User, error)
+		FindByID(id uint) (*core.User, error)
 		FindByUsername(username string) (*core.User, error)
 		FindByEmail(email string) (*core.User, error)
 		Add(user *core.User) error
@@ -24,14 +24,18 @@ type (
 		Delete(user *core.User) error
 	}
 
+	UserTokenService interface {
+		Generate(userID uint) (string, string, error)
+	}
+
 	UserService struct {
 		storage      UserStorage
-		tokenService *TokenService
+		tokenService UserTokenService
 		hasher       Hasher
 	}
 )
 
-func NewUserService(userStorage UserStorage, tokenService *TokenService, hasher Hasher) *UserService {
+func NewUserService(userStorage UserStorage, tokenService UserTokenService, hasher Hasher) *UserService {
 	return &UserService{
 		storage:      userStorage,
 		tokenService: tokenService,
@@ -82,4 +86,8 @@ func (us *UserService) Login(login, password string) (string, string, error) {
 	}
 
 	return us.tokenService.Generate(user.ID)
+}
+
+func (us *UserService) FindByID(id uint) (*core.User, error) {
+	return us.storage.FindByID(id)
 }

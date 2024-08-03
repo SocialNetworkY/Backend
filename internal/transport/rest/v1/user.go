@@ -2,13 +2,14 @@ package v1
 
 import (
 	"github.com/labstack/echo/v4"
+	"github.com/lapkomo2018/goTwitterAuthService/internal/core"
 	"net/http"
-	"regexp"
 )
 
 func (h *Handler) initUserApi(api *echo.Group) {
 	api.POST("/login", h.userLogin)
 	api.POST("/register", h.userRegister)
+	api.GET("/authenticate", h.userAuthenticate, h.authenticationMiddleware)
 }
 
 // @Summary      User login
@@ -77,8 +78,12 @@ func (h *Handler) userRegister(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, "username is empty")
 	case body.Password == "":
 		return echo.NewHTTPError(http.StatusBadRequest, "password is empty")
-	case !isEmailValid(body.Email):
+	case !h.validator.Email(body.Email):
 		return echo.NewHTTPError(http.StatusBadRequest, "email is invalid")
+	case !h.validator.Username(body.Username):
+		return echo.NewHTTPError(http.StatusBadRequest, "username is invalid")
+	case !h.validator.Password(body.Password):
+		return echo.NewHTTPError(http.StatusBadRequest, "password is invalid")
 	}
 
 	accessToken, refreshToken, err := h.userService.Register(body.Username, body.Email, body.Password)
@@ -92,15 +97,35 @@ func (h *Handler) userRegister(c echo.Context) error {
 	})
 }
 
-func isEmailValid(e string) bool {
-	emailRegex := regexp.MustCompile(`^[a-z0-9._%+\-]+@[a-z0-9.\-]+\.[a-z]{2,4}$`)
-	return emailRegex.MatchString(e)
-}
-
 type (
 	userRegisterReq struct {
 		Email    string `json:"email" binding:"required"`
 		Username string `json:"username" binding:"required"`
 		Password string `json:"password" binding:"required"`
+	}
+)
+
+// @Summary      Authenticate
+// @Description  Check user access token
+// @Tags         User
+// @Produce      json
+// @Security     ApiKeyAuth
+// @Success      200  {object}  userAuthenticateResp
+// @Failure      default  {object}  echo.HTTPError
+// @Router       /authenticate [get]
+func (h *Handler) userAuthenticate(c echo.Context) error {
+	user, ok := c.Get(userLocals).(*core.User)
+	if !ok {
+		return echo.NewHTTPError(http.StatusInternalServerError, "invalid user")
+	}
+
+	return c.JSON(http.StatusOK, userAuthenticateResp{
+		UserID: user.ID,
+	})
+}
+
+type (
+	userAuthenticateResp struct {
+		UserID uint `json:"user_id"`
 	}
 )

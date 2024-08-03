@@ -3,37 +3,43 @@ package grpc
 import (
 	"fmt"
 	"github.com/lapkomo2018/goTwitterAuthService/internal/transport/grpc/v1"
-	grpcTest "github.com/lapkomo2018/goTwitterAuthService/pkg/grpc/test"
+	grpcService "github.com/lapkomo2018/goTwitterAuthService/pkg/grpc/auth"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 	"log"
 	"net"
 )
 
-type Server struct {
-	port       int
-	grpcServer *grpc.Server
-}
+type (
+	Config struct {
+		Port int
+	}
 
-func New(port int) *Server {
-	log.Printf("Created grpc server with port: %d", port)
+	Server struct {
+		addr       string
+		grpcServer *grpc.Server
+	}
+)
+
+func New(config Config) *Server {
+	log.Printf("Creating grpc server with port: %d", config.Port)
 	grpcServ := grpc.NewServer()
 	reflection.Register(grpcServ)
 
 	return &Server{
-		port:       port,
+		addr:       fmt.Sprintf(":%d", config.Port),
 		grpcServer: grpcServ,
 	}
 }
 
-func (s *Server) Init() *Server {
-	grpcTest.RegisterTestServer(s.grpcServer, &v1.Handler{})
-
+func (s *Server) Init(authenticationService v1.AuthenticationService) *Server {
+	handler := v1.New(authenticationService)
+	grpcService.RegisterAuthenticationServer(s.grpcServer, handler)
 	return s
 }
 
 func (s *Server) Run() error {
-	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", s.port))
+	lis, err := net.Listen("tcp", s.addr)
 	if err != nil {
 		return err
 	}

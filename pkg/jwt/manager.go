@@ -6,19 +6,28 @@ import (
 	"time"
 )
 
-type Manager struct {
-	secretKey        string
-	tokenDuration    time.Duration
-	refreshSecretKey string
-	refreshDuration  time.Duration
-}
+type (
+	Config struct {
+		SecretKey        string
+		TokenDuration    time.Duration
+		RefreshSecretKey string
+		RefreshDuration  time.Duration
+	}
 
-func NewManager(accessTokenSecretKey string, accessTokenDuration time.Duration, refreshTokenSecretKey string, refreshTokenDuration time.Duration) *Manager {
+	Manager struct {
+		secretKey        string
+		tokenDuration    time.Duration
+		refreshSecretKey string
+		refreshDuration  time.Duration
+	}
+)
+
+func NewManager(config Config) *Manager {
 	return &Manager{
-		secretKey:        accessTokenSecretKey,
-		tokenDuration:    accessTokenDuration,
-		refreshSecretKey: refreshTokenSecretKey,
-		refreshDuration:  refreshTokenDuration,
+		secretKey:        config.SecretKey,
+		tokenDuration:    config.TokenDuration,
+		refreshSecretKey: config.RefreshSecretKey,
+		refreshDuration:  config.RefreshDuration,
 	}
 }
 

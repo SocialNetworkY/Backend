@@ -5,13 +5,19 @@ import (
 	"encoding/hex"
 )
 
-type SHA1Hasher struct {
-	salt string
-}
+type (
+	Config struct {
+		Salt string
+	}
 
-func NewSHA1Hasher(salt string) *SHA1Hasher {
+	SHA1Hasher struct {
+		salt string
+	}
+)
+
+func NewSHA1Hasher(config Config) *SHA1Hasher {
 	return &SHA1Hasher{
-		salt: salt,
+		salt: config.Salt,
 	}
 }
 

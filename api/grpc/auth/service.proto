@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+package test;
+
+option go_package = "github.com/lapkomo2018/goPetProjectServiceCollector/pkg/auth;auth";
+
+service Authentication {
+  rpc Authenticate(AuthenticateRequest) returns (AuthenticateResponse);
+}
+
+message AuthenticateRequest {
+  string auth = 1;
+}
+
+message AuthenticateResponse {
+  uint64 user_id = 1;
+}

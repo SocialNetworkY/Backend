@@ -1,32 +1,21 @@
 package config
 
 import (
+	"github.com/lapkomo2018/goTwitterAuthService/internal/transport/grpc"
+	"github.com/lapkomo2018/goTwitterAuthService/internal/transport/rest"
+	"github.com/lapkomo2018/goTwitterAuthService/pkg/hash"
+	"github.com/lapkomo2018/goTwitterAuthService/pkg/jwt"
+	"github.com/lapkomo2018/goTwitterAuthService/pkg/validation"
 	"github.com/spf13/viper"
 	"log"
-	"time"
 )
 
 type Config struct {
-	RestServer struct {
-		Port           int
-		BodyLimit      int
-		AllowedOrigins []string
-	}
-
-	GrpcServer struct {
-		Port int
-	}
-
-	JWT struct {
-		SecretKey        string
-		TokenDuration    time.Duration
-		RefreshSecretKey string
-		RefreshDuration  time.Duration
-	}
-
-	Hash struct {
-		Salt string
-	}
+	RestServer rest.Config
+	GrpcServer grpc.Config
+	JWT        jwt.Config
+	Hash       hash.Config
+	Validator  validation.Config
 }
 
 func LoadConfig() (*Config, error) {

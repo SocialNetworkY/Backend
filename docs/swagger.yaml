@@ -18,6 +18,11 @@ definitions:
       refresh_token:
         type: string
     type: object
+  internal_transport_rest_v1.userAuthenticateResp:
+    properties:
+      user_id:
+        type: integer
+    type: object
   internal_transport_rest_v1.userLoginReq:
     properties:
       login:
@@ -48,6 +53,25 @@ info:
   title: Twitter Auth Service
   version: "1.0"
 paths:
+  /authenticate:
+    get:
+      description: Check user access token
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_transport_rest_v1.userAuthenticateResp'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - ApiKeyAuth: []
+      summary: Authenticate
+      tags:
+      - User
   /login:
     post:
       consumes:
@@ -126,4 +150,9 @@ paths:
       summary: User register
       tags:
       - User
+securityDefinitions:
+  ApiKeyAuth:
+    in: header
+    name: Authorization
+    type: apiKey
 swagger: "2.0"

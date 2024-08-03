@@ -13,23 +13,32 @@ import (
 	_ "github.com/lapkomo2018/goTwitterAuthService/docs"
 )
 
-type Server struct {
-	echo *echo.Echo
-}
+type (
+	Config struct {
+		Port           int
+		BodyLimit      int
+		AllowedOrigins []string
+	}
 
-func New(bodyLimit int, corsWhiteList []string) *Server {
-	log.Printf("Creating rest server")
+	Server struct {
+		echo *echo.Echo
+		addr string
+	}
+)
+
+func New(config Config) *Server {
+	log.Printf("Creating rest server with port: %d", config.Port)
 
 	e := echo.New()
 
-	e.Use(middleware.BodyLimit(strconv.Itoa(bodyLimit)))
+	e.Use(middleware.BodyLimit(strconv.Itoa(config.BodyLimit)))
 	e.Use(middleware.LoggerWithConfig(middleware.LoggerConfig{
 		Format:           "${time_custom} | ${status} | ${latency_human} | ${remote_ip} | ${method} | ${uri} | ${error}\n",
 		CustomTimeFormat: "2006-01-02 15:04:05",
 	}))
 
 	corsConfig := middleware.CORSConfig{
-		AllowOrigins: corsWhiteList,
+		AllowOrigins: config.AllowedOrigins,
 	}
 	e.Use(middleware.CORSWithConfig(corsConfig))
 
@@ -41,10 +50,11 @@ func New(bodyLimit int, corsWhiteList []string) *Server {
 
 	return &Server{
 		echo: e,
+		addr: fmt.Sprintf(":%d", config.Port),
 	}
 }
 
-func (s *Server) Init(userService v1.UserService, tokenService v1.TokenService) *Server {
+func (s *Server) Init(userService v1.UserService, tokenService v1.TokenService, authenticationService v1.AuthenticationService, validator v1.Validator) *Server {
 	log.Println("Initializing server...")
 	s.echo.GET("/swagger/*", echoSwagger.WrapHandler)
 	s.echo.GET("/swagger", func(c echo.Context) error {
@@ -52,7 +62,7 @@ func (s *Server) Init(userService v1.UserService, tokenService v1.TokenService) 
 	})
 
 	log.Println("Initializing api...")
-	handlerV1 := v1.New(userService, tokenService)
+	handlerV1 := v1.New(userService, tokenService, authenticationService, validator)
 	api := s.echo.Group("/api")
 	{
 		handlerV1.Init(api)
@@ -61,7 +71,7 @@ func (s *Server) Init(userService v1.UserService, tokenService v1.TokenService) 
 	return s
 }
 
-func (s *Server) Run(port int) error {
+func (s *Server) Run() error {
 	log.Println("Starting server")
-	return s.echo.Start(fmt.Sprintf(":%d", port))
+	return s.echo.Start(s.addr)
 }
