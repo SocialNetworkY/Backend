@@ -25,3 +25,4 @@ Thumbs.db
 /*.go.iml
 
 .env
+docker-compose.yml

@@ -19,9 +19,10 @@ import (
 var cfg *config.Config
 
 func init() {
-	err := godotenv.Load()
+	var err error
+	err = godotenv.Load()
 	if err != nil {
-		log.Fatal(err)
+		log.Printf("Error loading .env file, proceeding without it: %v", err)
 	}
 
 	cfg, err = config.LoadConfig()
