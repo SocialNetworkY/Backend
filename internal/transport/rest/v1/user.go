@@ -4,12 +4,14 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/lapkomo2018/goTwitterAuthService/internal/core"
 	"net/http"
+	"time"
 )
 
 func (h *Handler) initUserApi(api *echo.Group) {
 	api.POST("/login", h.userLogin)
 	api.POST("/register", h.userRegister)
 	api.GET("/authenticate", h.userAuthenticate, h.authenticationMiddleware)
+	api.GET("/info", h.userInfo, h.authenticationMiddleware)
 }
 
 // @Summary      User login
@@ -27,11 +29,11 @@ func (h *Handler) userLogin(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
-	switch {
-	case body.Login == "":
-		return echo.NewHTTPError(http.StatusBadRequest, "login is empty")
-	case body.Password == "":
-		return echo.NewHTTPError(http.StatusBadRequest, "password is empty")
+	if err := h.validator.Login(body.Login); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+	if err := h.validator.Password(body.Password); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
 	accessToken, refreshToken, err := h.userService.Login(body.Login, body.Password)
@@ -71,19 +73,14 @@ func (h *Handler) userRegister(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
-	switch {
-	case body.Email == "":
-		return echo.NewHTTPError(http.StatusBadRequest, "email is empty")
-	case body.Username == "":
-		return echo.NewHTTPError(http.StatusBadRequest, "username is empty")
-	case body.Password == "":
-		return echo.NewHTTPError(http.StatusBadRequest, "password is empty")
-	case !h.validator.Email(body.Email):
-		return echo.NewHTTPError(http.StatusBadRequest, "email is invalid")
-	case !h.validator.Username(body.Username):
-		return echo.NewHTTPError(http.StatusBadRequest, "username is invalid")
-	case !h.validator.Password(body.Password):
-		return echo.NewHTTPError(http.StatusBadRequest, "password is invalid")
+	if err := h.validator.Email(body.Email); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+	if err := h.validator.Username(body.Username); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+	if err := h.validator.Password(body.Password); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
 	accessToken, refreshToken, err := h.userService.Register(body.Username, body.Email, body.Password)
@@ -127,5 +124,38 @@ func (h *Handler) userAuthenticate(c echo.Context) error {
 type (
 	userAuthenticateResp struct {
 		UserID uint `json:"user_id"`
+	}
+)
+
+// @Summary      Info
+// @Description  Get users info
+// @Tags         User
+// @Produce      json
+// @Security     ApiKeyAuth
+// @Success      200  {object} userInfoResp
+// @Failure      default  {object}  echo.HTTPError
+// @Router       /info [get]
+func (h *Handler) userInfo(c echo.Context) error {
+	user, ok := c.Get(userLocals).(*core.User)
+	if !ok {
+		return echo.NewHTTPError(http.StatusInternalServerError, "invalid user")
+	}
+
+	return c.JSON(http.StatusOK, userInfoResp{
+		ID:        user.ID,
+		Email:     user.Email,
+		Username:  user.Username,
+		CreatedAt: user.CreatedAt,
+		UpdatedAt: user.UpdatedAt,
+	})
+}
+
+type (
+	userInfoResp struct {
+		ID        uint      `json:"id"`
+		Email     string    `json:"email"`
+		Username  string    `json:"username"`
+		CreatedAt time.Time `json:"created_at"`
+		UpdatedAt time.Time `json:"updated_at"`
 	}
 )

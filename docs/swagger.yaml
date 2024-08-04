@@ -23,6 +23,40 @@ definitions:
       user_id:
         type: integer
     type: object
+  internal_transport_rest_v1.userChangeEmailReq:
+    properties:
+      email:
+        type: string
+    required:
+    - email
+    type: object
+  internal_transport_rest_v1.userChangePasswordReq:
+    properties:
+      password:
+        type: string
+    required:
+    - password
+    type: object
+  internal_transport_rest_v1.userChangeUsernameReq:
+    properties:
+      username:
+        type: string
+    required:
+    - username
+    type: object
+  internal_transport_rest_v1.userInfoResp:
+    properties:
+      created_at:
+        type: string
+      email:
+        type: string
+      id:
+        type: integer
+      updated_at:
+        type: string
+      username:
+        type: string
+    type: object
   internal_transport_rest_v1.userLoginReq:
     properties:
       login:
@@ -70,6 +104,103 @@ paths:
       security:
       - ApiKeyAuth: []
       summary: Authenticate
+      tags:
+      - User
+  /change/email:
+    post:
+      consumes:
+      - application/json
+      description: Change user email
+      parameters:
+      - description: new email
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/internal_transport_rest_v1.userChangeEmailReq'
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - ApiKeyAuth: []
+      summary: Change Email
+      tags:
+      - User
+  /change/password:
+    post:
+      consumes:
+      - application/json
+      description: Change user password
+      parameters:
+      - description: new password
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/internal_transport_rest_v1.userChangePasswordReq'
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - ApiKeyAuth: []
+      summary: Change Password
+      tags:
+      - User
+  /change/username:
+    post:
+      consumes:
+      - application/json
+      description: Change user username
+      parameters:
+      - description: new username
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/internal_transport_rest_v1.userChangeUsernameReq'
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - ApiKeyAuth: []
+      summary: Change Username
+      tags:
+      - User
+  /info:
+    get:
+      description: Get users info
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_transport_rest_v1.userInfoResp'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - ApiKeyAuth: []
+      summary: Info
       tags:
       - User
   /login:

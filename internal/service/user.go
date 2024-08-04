@@ -91,3 +91,50 @@ func (us *UserService) Login(login, password string) (string, string, error) {
 func (us *UserService) FindByID(id uint) (*core.User, error) {
 	return us.storage.FindByID(id)
 }
+
+func (us *UserService) ChangeEmail(id uint, email string) error {
+	user, err := us.storage.FindByID(id)
+	if err != nil {
+		return err
+	}
+
+	exists, err := us.storage.ExistsByEmail(email)
+	switch {
+	case err != nil:
+		return err
+	case exists:
+		return errors.New("email already taken")
+	}
+
+	user.Email = email
+	return us.storage.Save(user)
+}
+
+func (us *UserService) ChangeUsername(id uint, username string) error {
+	user, err := us.storage.FindByID(id)
+	if err != nil {
+		return err
+	}
+
+	exists, err := us.storage.ExistsByUsername(username)
+	switch {
+	case err != nil:
+		return err
+	case exists:
+		return errors.New("username already taken")
+	}
+
+	user.Username = username
+	return us.storage.Save(user)
+}
+
+func (us *UserService) ChangePassword(id uint, password string) error {
+	user, err := us.storage.FindByID(id)
+	if err != nil {
+		return err
+	}
+
+	hashedPassword := us.hasher.Hash(password)
+	user.Password = hashedPassword
+	return us.storage.Save(user)
+}

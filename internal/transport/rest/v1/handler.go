@@ -11,6 +11,9 @@ type (
 		Register(username, email, password string) (string, string, error)
 		Login(login, password string) (string, string, error)
 		FindByID(id uint) (*core.User, error)
+		ChangeEmail(id uint, email string) error
+		ChangeUsername(id uint, username string) error
+		ChangePassword(id uint, password string) error
 	}
 
 	TokenService interface {
@@ -24,9 +27,10 @@ type (
 	}
 
 	Validator interface {
-		Email(email string) bool
-		Username(username string) bool
-		Password(password string) bool
+		Login(login string) error
+		Email(email string) error
+		Username(username string) error
+		Password(password string) error
 	}
 
 	Handler struct {
@@ -56,5 +60,6 @@ func (h *Handler) Init(api *echo.Group) {
 	{
 		h.initUserApi(v1)
 		h.initTokenApi(v1)
+		h.initUserChangeApi(v1)
 	}
 }

@@ -1,6 +1,7 @@
 package validation
 
 import (
+	"errors"
 	"github.com/dlclark/regexp2"
 )
 
@@ -41,17 +42,38 @@ func NewValidator(config Config) (*Validator, error) {
 	}, nil
 }
 
-func (v *Validator) Email(email string) bool {
+func (v *Validator) Email(email string) error {
 	ok, _ := v.emailRegex.MatchString(email)
-	return ok
+	if !ok {
+		return errors.New("invalid email")
+	}
+	return nil
 }
 
-func (v *Validator) Username(username string) bool {
+func (v *Validator) Username(username string) error {
 	ok, _ := v.usernameRegex.MatchString(username)
-	return ok
+	if !ok {
+		return errors.New("invalid username")
+	}
+	return nil
 }
 
-func (v *Validator) Password(password string) bool {
+func (v *Validator) Password(password string) error {
 	ok, _ := v.passwordRegex.MatchString(password)
-	return ok
+	if !ok {
+		return errors.New("invalid password")
+	}
+	return nil
+}
+
+func (v *Validator) Login(login string) error {
+	err := v.Email(login)
+	if err == nil {
+		return nil
+	}
+	err = v.Username(login)
+	if err == nil {
+		return nil
+	}
+	return errors.New("invalid login")
 }
