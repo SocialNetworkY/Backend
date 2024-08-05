@@ -3,7 +3,7 @@ package grpc
 import (
 	"fmt"
 	"github.com/lapkomo2018/goTwitterAuthService/internal/transport/grpc/v1"
-	grpcService "github.com/lapkomo2018/goTwitterAuthService/pkg/grpc/auth"
+	grpcAuthService "github.com/lapkomo2018/goTwitterAuthService/pkg/grpc/auth"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 	"log"
@@ -34,7 +34,7 @@ func New(config Config) *Server {
 
 func (s *Server) Init(authenticationService v1.AuthenticationService) *Server {
 	handler := v1.New(authenticationService)
-	grpcService.RegisterAuthenticationServer(s.grpcServer, handler)
+	grpcAuthService.RegisterAuthenticationServer(s.grpcServer, handler)
 	return s
 }
 
