@@ -9,6 +9,6 @@ RUN go mod download
 
 COPY . .
 
-RUN go build -o /AuthServer cmd/app/main.go
+RUN go build -o /Server cmd/app/main.go
 
-CMD [ "/AuthServer" ]
+CMD [ "/Server" ]

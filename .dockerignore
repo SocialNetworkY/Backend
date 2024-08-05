@@ -1,3 +1,4 @@
 Makefile
 .env
 .gitignore
+/db_data
