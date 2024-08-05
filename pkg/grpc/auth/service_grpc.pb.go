@@ -2,7 +2,7 @@
 // versions:
 // - protoc-gen-go-grpc v1.2.0
 // - protoc             v5.27.2
-// source: api/grpc/auth/service.proto
+// source: api/grpc/authentication.proto
 
 package auth
 
@@ -35,7 +35,7 @@ func NewAuthenticationClient(cc grpc.ClientConnInterface) AuthenticationClient {
 
 func (c *authenticationClient) Authenticate(ctx context.Context, in *AuthenticateRequest, opts ...grpc.CallOption) (*AuthenticateResponse, error) {
 	out := new(AuthenticateResponse)
-	err := c.cc.Invoke(ctx, "/test.Authentication/Authenticate", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/authentication.Authentication/Authenticate", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -80,7 +80,7 @@ func _Authentication_Authenticate_Handler(srv interface{}, ctx context.Context, 
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/test.Authentication/Authenticate",
+		FullMethod: "/authentication.Authentication/Authenticate",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(AuthenticationServer).Authenticate(ctx, req.(*AuthenticateRequest))
@@ -92,7 +92,7 @@ func _Authentication_Authenticate_Handler(srv interface{}, ctx context.Context, 
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var Authentication_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "test.Authentication",
+	ServiceName: "authentication.Authentication",
 	HandlerType: (*AuthenticationServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
@@ -101,5 +101,5 @@ var Authentication_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "api/grpc/auth/service.proto",
+	Metadata: "api/grpc/authentication.proto",
 }
