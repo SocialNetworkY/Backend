@@ -1,19 +1,22 @@
 package service
 
 type Service struct {
-	User           *UserService
-	Token          *TokenService
-	Authentication *AuthenticationService
+	User            *UserService
+	Tokens          *TokensService
+	Authentication  *AuthenticationService
+	ActivationToken *ActivationTokenService
 }
 
-func New(userStorage UserStorage, refreshTokenStorage RefreshTokenStorage, tokenManager TokenManager, hasher Hasher) *Service {
-	tokenService := NewTokenService(refreshTokenStorage, tokenManager)
-	userService := NewUserService(userStorage, tokenService, hasher)
-	authenticationService := NewAuthenticationService(userService, tokenService)
+func New(userStorage UserStorage, refreshTokenStorage TokensRefreshTokenStorage, activationTokenStorage ActivationTokenStorage, tokenManager TokensManager, hasher Hasher) *Service {
+	activationTokenService := NewActivationTokenService(activationTokenStorage)
+	tokensService := NewTokensService(refreshTokenStorage, tokenManager)
+	userService := NewUserService(userStorage, tokensService, activationTokenService, hasher)
+	authenticationService := NewAuthenticationService(userService, tokensService)
 
 	return &Service{
-		User:           userService,
-		Token:          tokenService,
-		Authentication: authenticationService,
+		User:            userService,
+		Tokens:          tokensService,
+		Authentication:  authenticationService,
+		ActivationToken: activationTokenService,
 	}
 }

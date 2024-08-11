@@ -1,7 +1,6 @@
 package jwt
 
 import (
-	"errors"
 	"github.com/dgrijalva/jwt-go"
 	"time"
 )
@@ -40,13 +39,13 @@ func (manager *Manager) Generate(userID uint) (accessToken string, refreshToken 
 	// Generate access token
 	accessToken, err = manager.generateToken(userID, manager.secretKey, manager.tokenDuration)
 	if err != nil {
-		return "", "", err
+		return "", "", ErrGenerateAccessToken
 	}
 
 	// Generate refresh token
 	refreshToken, err = manager.generateToken(userID, manager.refreshSecretKey, manager.refreshDuration)
 	if err != nil {
-		return "", "", err
+		return "", "", ErrGenerateRefreshToken
 	}
 
 	return accessToken, refreshToken, nil
@@ -78,7 +77,7 @@ func (manager *Manager) verifyToken(tokenString, secretKey string) (userID uint,
 		&UserClaims{},
 		func(token *jwt.Token) (interface{}, error) {
 			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-				return nil, errors.New("unexpected token signing method")
+				return nil, ErrUnexpectedSigningMethod
 			}
 			return []byte(secretKey), nil
 		},
@@ -89,7 +88,7 @@ func (manager *Manager) verifyToken(tokenString, secretKey string) (userID uint,
 
 	claims, ok := token.Claims.(*UserClaims)
 	if !ok || !token.Valid {
-		return 0, errors.New("invalid token")
+		return 0, ErrInvalidToken
 	}
 
 	return claims.UserID, nil

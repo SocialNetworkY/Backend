@@ -80,6 +80,11 @@ definitions:
     - password
     - username
     type: object
+  internal_transport_rest_v1.userRegisterResp:
+    properties:
+      activation_token:
+        type: string
+    type: object
 host: localhost:8080
 info:
   contact: {}
@@ -87,6 +92,29 @@ info:
   title: Twitter Auth Service
   version: "1.0"
 paths:
+  /activate/{token}:
+    get:
+      description: Activate user
+      parameters:
+      - description: activation token
+        in: path
+        name: token
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_transport_rest_v1.tokensResp'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      summary: Activate
+      tags:
+      - User
   /authenticate:
     get:
       description: Check user access token
@@ -273,7 +301,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/internal_transport_rest_v1.tokensResp'
+            $ref: '#/definitions/internal_transport_rest_v1.userRegisterResp'
         default:
           description: ""
           schema:

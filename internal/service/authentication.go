@@ -1,7 +1,6 @@
 package service
 
 import (
-	"errors"
 	"github.com/lapkomo2018/goTwitterAuthService/internal/core"
 	"strings"
 )
@@ -10,7 +9,7 @@ type (
 	authSchemeHandler func(token string) (*core.User, error)
 
 	AuthenticationUserService interface {
-		FindByID(id uint) (*core.User, error)
+		Find(id uint) (*core.User, error)
 	}
 	AuthenticationTokenService interface {
 		Verify(accessToken string) (userID uint, err error)
@@ -39,7 +38,7 @@ func NewAuthenticationService(us AuthenticationUserService, ts AuthenticationTok
 func (as *AuthenticationService) Auth(auth string) (*core.User, error) {
 	authHeaderParts := strings.Split(auth, " ")
 	if len(authHeaderParts) != 2 {
-		return nil, errors.New("invalid auth string")
+		return nil, ErrAuthenticationInvalidAuthString
 	}
 
 	scheme := strings.ToLower(authHeaderParts[0])
@@ -56,5 +55,14 @@ func (as *AuthenticationService) bearerHandler(token string) (*core.User, error)
 		return nil, err
 	}
 
-	return as.userService.FindByID(userID)
+	user, err := as.userService.Find(userID)
+	if err != nil {
+		return nil, err
+	}
+
+	if !user.IsActivated {
+		return nil, ErrUserNotActivated
+	}
+
+	return user, nil
 }

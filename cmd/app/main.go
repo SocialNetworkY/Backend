@@ -52,13 +52,13 @@ func main() {
 	}
 	hasher := hash.NewSHA1Hasher(cfg.Hash)
 	tokenManager := jwt.NewManager(cfg.JWT)
-	services := service.New(storages.User, storages.RefreshToken, tokenManager, hasher)
+	services := service.New(storages.User, storages.RefreshToken, storages.ActivationToken, tokenManager, hasher)
 
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 
 	go func() {
-		server := restServer.New(cfg.RestServer).Init(services.User, services.Token, services.Authentication, validator)
+		server := restServer.New(cfg.RestServer).Init(services.User, services.Tokens, services.Authentication, validator)
 		if err := server.Run(); err != nil {
 			log.Fatalf("Rest server err: %v", err)
 		}

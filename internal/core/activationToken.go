@@ -1,6 +1,6 @@
 package core
 
-type RefreshToken struct {
+type ActivationToken struct {
 	UserID uint   `gorm:"primaryKey"`
 	Token  string `gorm:"unique"`
 }

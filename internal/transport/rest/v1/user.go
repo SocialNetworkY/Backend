@@ -10,6 +10,7 @@ import (
 func (h *Handler) initUserApi(api *echo.Group) {
 	api.POST("/login", h.userLogin)
 	api.POST("/register", h.userRegister)
+	api.GET("/activate/:token", h.userActivate)
 	api.GET("/authenticate", h.userAuthenticate, h.authenticationMiddleware)
 	api.GET("/info", h.userInfo, h.authenticationMiddleware)
 }
@@ -64,7 +65,7 @@ type (
 // @Accept       json
 // @Produce      json
 // @Param input body userRegisterReq true "user credentials"
-// @Success      200  {object}  tokensResp
+// @Success      200  {object}  userRegisterResp
 // @Failure      default  {object}  echo.HTTPError
 // @Router       /register [post]
 func (h *Handler) userRegister(c echo.Context) error {
@@ -83,14 +84,13 @@ func (h *Handler) userRegister(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
-	accessToken, refreshToken, err := h.userService.Register(body.Username, body.Email, body.Password)
+	activationToken, err := h.userService.Register(body.Username, body.Email, body.Password)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 
-	return c.JSON(http.StatusOK, tokensResp{
-		AccessToken:  accessToken,
-		RefreshToken: refreshToken,
+	return c.JSON(http.StatusOK, userRegisterResp{
+		ActivationToken: activationToken,
 	})
 }
 
@@ -100,7 +100,32 @@ type (
 		Username string `json:"username" binding:"required"`
 		Password string `json:"password" binding:"required"`
 	}
+	userRegisterResp struct {
+		ActivationToken string `json:"activation_token"`
+	}
 )
+
+// @Summary      Activate
+// @Description  Activate user
+// @Tags         User
+// @Produce      json
+// @Param token path string true "activation token"
+// @Success      200  {object}  tokensResp
+// @Failure      default  {object}  echo.HTTPError
+// @Router       /activate/{token} [get]
+func (h *Handler) userActivate(c echo.Context) error {
+	activationToken := c.Param("token")
+
+	accessToken, refreshToken, err := h.userService.Activate(activationToken)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusUnauthorized, err.Error())
+	}
+
+	return c.JSON(http.StatusOK, tokensResp{
+		AccessToken:  accessToken,
+		RefreshToken: refreshToken,
+	})
+}
 
 // @Summary      Authenticate
 // @Description  Check user access token

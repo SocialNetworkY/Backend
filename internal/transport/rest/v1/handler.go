@@ -8,9 +8,10 @@ import (
 
 type (
 	UserService interface {
-		Register(username, email, password string) (string, string, error)
+		Register(username, email, password string) (string, error)
 		Login(login, password string) (string, string, error)
-		FindByID(id uint) (*core.User, error)
+		Activate(token string) (string, string, error)
+		Find(id uint) (*core.User, error)
 		ChangeEmail(id uint, email string) error
 		ChangeUsername(id uint, username string) error
 		ChangePassword(id uint, password string) error

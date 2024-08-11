@@ -1,7 +1,6 @@
 package service
 
 import (
-	"errors"
 	"github.com/lapkomo2018/goTwitterAuthService/internal/core"
 )
 
@@ -16,7 +15,7 @@ type (
 		ExistsByEmail(email string) (bool, error)
 		ExistsByUsername(username string) (bool, error)
 		FindByLogin(login string) (*core.User, error)
-		FindByID(id uint) (*core.User, error)
+		Find(id uint) (*core.User, error)
 		FindByUsername(username string) (*core.User, error)
 		FindByEmail(email string) (*core.User, error)
 		Add(user *core.User) error
@@ -28,36 +27,45 @@ type (
 		Generate(userID uint) (string, string, error)
 	}
 
+	UserActivationTokenService interface {
+		Generate(userID uint) (string, error)
+		Get(userID uint) (*core.ActivationToken, error)
+		GetByToken(activationToken string) (*core.ActivationToken, error)
+		Delete(userID uint) error
+	}
+
 	UserService struct {
-		storage      UserStorage
-		tokenService UserTokenService
-		hasher       Hasher
+		storage                UserStorage
+		tokenService           UserTokenService
+		activationTokenService UserActivationTokenService
+		hasher                 Hasher
 	}
 )
 
-func NewUserService(userStorage UserStorage, tokenService UserTokenService, hasher Hasher) *UserService {
+func NewUserService(userStorage UserStorage, tokenService UserTokenService, activationTokenService UserActivationTokenService, hasher Hasher) *UserService {
 	return &UserService{
-		storage:      userStorage,
-		tokenService: tokenService,
-		hasher:       hasher,
+		storage:                userStorage,
+		tokenService:           tokenService,
+		activationTokenService: activationTokenService,
+		hasher:                 hasher,
 	}
 }
 
-func (us *UserService) Register(username, email, password string) (string, string, error) {
+func (us *UserService) Register(username, email, password string) (activationToken string, err error) {
 	exists, err := us.storage.ExistsByUsername(username)
 	switch {
 	case err != nil:
-		return "", "", err
+		return "", err
 	case exists:
-		return "", "", errors.New("username already taken")
+		return "", ErrUserUsernameTaken
 	}
 
 	exists, err = us.storage.ExistsByEmail(email)
 	switch {
 	case err != nil:
-		return "", "", err
+		return "", err
 	case exists:
-		return "", "", errors.New("email already taken")
+		return "", ErrUserEmailTaken
 	}
 
 	hashedPassword := us.hasher.Hash(password)
@@ -69,31 +77,68 @@ func (us *UserService) Register(username, email, password string) (string, strin
 	}
 
 	if err := us.storage.Add(user); err != nil {
-		return "", "", err
+		return "", err
 	}
 
-	return us.tokenService.Generate(user.ID)
+	activationToken, err = us.activationTokenService.Generate(user.ID)
+	if err != nil {
+		return "", err
+	}
+
+	return activationToken, nil
 }
 
 func (us *UserService) Login(login, password string) (string, string, error) {
 	user, err := us.storage.FindByLogin(login)
 	if err != nil {
-		return "", "", errors.New("user not found")
+		return "", "", err
 	}
 
 	if !us.hasher.Verify(user.Password, password) {
-		return "", "", errors.New("invalid password")
+		return "", "", ErrUserInvalidPassword
+	}
+
+	if !user.IsActivated {
+		return "", "", ErrUserNotActivated
 	}
 
 	return us.tokenService.Generate(user.ID)
 }
 
-func (us *UserService) FindByID(id uint) (*core.User, error) {
-	return us.storage.FindByID(id)
+func (us *UserService) Activate(activationToken string) (accessToken, refreshToken string, err error) {
+	token, err := us.activationTokenService.GetByToken(activationToken)
+	if err != nil {
+		return "", "", err
+	}
+
+	user, err := us.storage.Find(token.UserID)
+	if err != nil {
+		return "", "", err
+	}
+
+	user.IsActivated = true
+	if err := us.storage.Save(user); err != nil {
+		return "", "", err
+	}
+
+	accessToken, refreshToken, err = us.tokenService.Generate(user.ID)
+	if err != nil {
+		return "", "", err
+	}
+
+	if err := us.activationTokenService.Delete(token.UserID); err != nil {
+		return "", "", err
+	}
+
+	return accessToken, refreshToken, nil
+}
+
+func (us *UserService) Find(id uint) (*core.User, error) {
+	return us.storage.Find(id)
 }
 
 func (us *UserService) ChangeEmail(id uint, email string) error {
-	user, err := us.storage.FindByID(id)
+	user, err := us.storage.Find(id)
 	if err != nil {
 		return err
 	}
@@ -103,7 +148,7 @@ func (us *UserService) ChangeEmail(id uint, email string) error {
 	case err != nil:
 		return err
 	case exists:
-		return errors.New("email already taken")
+		return ErrUserEmailTaken
 	}
 
 	user.Email = email
@@ -111,7 +156,7 @@ func (us *UserService) ChangeEmail(id uint, email string) error {
 }
 
 func (us *UserService) ChangeUsername(id uint, username string) error {
-	user, err := us.storage.FindByID(id)
+	user, err := us.storage.Find(id)
 	if err != nil {
 		return err
 	}
@@ -121,7 +166,7 @@ func (us *UserService) ChangeUsername(id uint, username string) error {
 	case err != nil:
 		return err
 	case exists:
-		return errors.New("username already taken")
+		return ErrUserUsernameTaken
 	}
 
 	user.Username = username
@@ -129,7 +174,7 @@ func (us *UserService) ChangeUsername(id uint, username string) error {
 }
 
 func (us *UserService) ChangePassword(id uint, password string) error {
-	user, err := us.storage.FindByID(id)
+	user, err := us.storage.Find(id)
 	if err != nil {
 		return err
 	}

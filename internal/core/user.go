@@ -1,34 +1,28 @@
 package core
 
 import (
-	"errors"
 	"gorm.io/gorm"
 	"time"
 )
 
 type User struct {
-	ID        uint   `gorm:"primaryKey"`
-	Email     string `gorm:"unique"`
-	Username  string `gorm:"unique"`
-	Password  string
-	CreatedAt time.Time
-	UpdatedAt time.Time
-	DeletedAt gorm.DeletedAt `gorm:"index"`
-}
-
-func (u *User) BeforeCreate(tx *gorm.DB) (err error) {
-	switch {
-	case u.Email == "":
-		return errors.New("email cannot be empty")
-	case u.Username == "":
-		return errors.New("username cannot be empty")
-	case u.Password == "":
-		return errors.New("password cannot be empty")
-	default:
-		return nil
-	}
+	ID          uint   `gorm:"primaryKey"`
+	Email       string `gorm:"unique"`
+	Username    string `gorm:"unique"`
+	Password    string
+	IsActivated bool
+	CreatedAt   time.Time
+	UpdatedAt   time.Time
+	DeletedAt   gorm.DeletedAt `gorm:"index"`
 }
 
 func (u *User) AfterDelete(tx *gorm.DB) (err error) {
-	return tx.Where("user_id = ?", u.ID).Delete(&RefreshToken{}).Error
+	if err := tx.Where("user_id = ?", u.ID).Delete(&RefreshToken{}).Error; err != nil {
+		return ErrUserRefreshTokenDelete
+	}
+	if err := tx.Where("user_id = ?", u.ID).Delete(&ActivationToken{}).Error; err != nil {
+		return ErrUserActivationTokenDelete
+	}
+
+	return nil
 }

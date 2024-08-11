@@ -18,11 +18,11 @@ func NewRefreshTokenStorage(db *gorm.DB) *RefreshTokenStorage {
 	}
 }
 
-func (us *RefreshTokenStorage) SetToken(userID uint, refreshToken string) error {
+func (us *RefreshTokenStorage) Set(userID uint, refreshToken string) error {
 	var existingToken core.RefreshToken
 	err := us.db.Where("user_id = ?", userID).First(&existingToken).Error
 	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
-		return err
+		return ErrRefreshTokenSet
 	}
 
 	if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -32,23 +32,23 @@ func (us *RefreshTokenStorage) SetToken(userID uint, refreshToken string) error 
 		}
 
 		if err := us.db.Create(&newToken).Error; err != nil {
-			return err
+			return ErrRefreshTokenCreate
 		}
 		return nil
 	}
 
 	existingToken.Token = refreshToken
 	if err := us.db.Save(&existingToken).Error; err != nil {
-		return err
+		return ErrRefreshTokenSave
 	}
 	return nil
 }
 
-func (us *RefreshTokenStorage) GetToken(userID uint) (string, error) {
-	var existingToken core.RefreshToken
-	err := us.db.Where("user_id = ?", userID).First(&existingToken).Error
+func (us *RefreshTokenStorage) Get(userID uint) (string, error) {
+	existingToken := &core.RefreshToken{}
+	err := us.db.Where("user_id = ?", userID).First(existingToken).Error
 	if err != nil {
-		return "", err
+		return "", ErrRefreshTokenNotFound
 	}
 	return existingToken.Token, nil
 }

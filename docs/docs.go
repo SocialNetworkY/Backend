@@ -15,6 +15,41 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/activate/{token}": {
+            "get": {
+                "description": "Activate user",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User"
+                ],
+                "summary": "Activate",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "activation token",
+                        "name": "token",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/internal_transport_rest_v1.tokensResp"
+                        }
+                    },
+                    "default": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    }
+                }
+            }
+        },
         "/authenticate": {
             "get": {
                 "security": [
@@ -311,7 +346,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/internal_transport_rest_v1.tokensResp"
+                            "$ref": "#/definitions/internal_transport_rest_v1.userRegisterResp"
                         }
                     },
                     "default": {
@@ -444,6 +479,14 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "internal_transport_rest_v1.userRegisterResp": {
+            "type": "object",
+            "properties": {
+                "activation_token": {
                     "type": "string"
                 }
             }

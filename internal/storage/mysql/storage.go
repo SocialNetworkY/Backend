@@ -9,8 +9,9 @@ import (
 )
 
 type Storage struct {
-	User         *UserStorage
-	RefreshToken *RefreshTokenStorage
+	User            *UserStorage
+	RefreshToken    *RefreshTokenStorage
+	ActivationToken *ActivationTokenStorage
 }
 
 func New(dsn string) (*Storage, error) {
@@ -24,13 +25,14 @@ func New(dsn string) (*Storage, error) {
 	log.Println("Connected mysql")
 
 	log.Println("Starting AutoMigrating...")
-	if err := db.AutoMigrate(&core.RefreshToken{}, &core.User{}); err != nil {
+	if err := db.AutoMigrate(&core.User{}, &core.ActivationToken{}, &core.RefreshToken{}); err != nil {
 		return nil, err
 	}
 	log.Println("AutoMigrating completed")
 
 	return &Storage{
-		User:         NewUserStorage(db),
-		RefreshToken: NewRefreshTokenStorage(db),
+		User:            NewUserStorage(db),
+		RefreshToken:    NewRefreshTokenStorage(db),
+		ActivationToken: NewActivationTokenStorage(db),
 	}, nil
 }
