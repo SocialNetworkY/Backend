@@ -53,6 +53,7 @@ func (h *Handler) setAndReturnTokens(c echo.Context, accessToken, refreshToken s
 		Expires:  time.Now().Add(h.RefreshTokenDuration),
 		HttpOnly: true,
 		SameSite: http.SameSiteStrictMode,
+		Path:     "/",
 	})
 
 	return c.JSON(http.StatusOK, accessTokenResp{
