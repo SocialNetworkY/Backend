@@ -9,6 +9,7 @@ import (
 	"log"
 	"net/http"
 	"strconv"
+	"time"
 
 	_ "github.com/lapkomo2018/goTwitterAuthService/docs"
 )
@@ -54,7 +55,7 @@ func New(config Config) *Server {
 	}
 }
 
-func (s *Server) Init(userService v1.UserService, tokenService v1.TokenService, authenticationService v1.AuthenticationService, validator v1.Validator) *Server {
+func (s *Server) Init(userService v1.UserService, tokenService v1.TokenService, authenticationService v1.AuthenticationService, validator v1.Validator, refreshTokenDuration time.Duration) *Server {
 	log.Println("Initializing server...")
 	s.echo.GET("/swagger/*", echoSwagger.WrapHandler)
 	s.echo.GET("/swagger", func(c echo.Context) error {
@@ -62,7 +63,7 @@ func (s *Server) Init(userService v1.UserService, tokenService v1.TokenService, 
 	})
 
 	log.Println("Initializing api...")
-	handlerV1 := v1.New(userService, tokenService, authenticationService, validator)
+	handlerV1 := v1.New(userService, tokenService, authenticationService, validator, refreshTokenDuration)
 	api := s.echo.Group("/api")
 	{
 		handlerV1.Init(api)

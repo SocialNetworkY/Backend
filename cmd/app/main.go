@@ -58,7 +58,7 @@ func main() {
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 
 	go func() {
-		server := restServer.New(cfg.RestServer).Init(services.User, services.Tokens, services.Authentication, validator)
+		server := restServer.New(cfg.RestServer).Init(services.User, services.Tokens, services.Authentication, validator, cfg.JWT.RefreshDuration)
 		if err := server.Run(); err != nil {
 			log.Fatalf("Rest server err: %v", err)
 		}

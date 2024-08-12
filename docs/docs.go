@@ -38,7 +38,13 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/internal_transport_rest_v1.tokensResp"
+                            "$ref": "#/definitions/internal_transport_rest_v1.accessTokenResp"
+                        },
+                        "headers": {
+                            "Set-Cookie": {
+                                "type": "string",
+                                "description": "Refresh Token"
+                            }
                         }
                     },
                     "default": {
@@ -82,7 +88,7 @@ const docTemplate = `{
             }
         },
         "/change/email": {
-            "post": {
+            "patch": {
                 "security": [
                     {
                         "ApiKeyAuth": []
@@ -124,7 +130,7 @@ const docTemplate = `{
             }
         },
         "/change/password": {
-            "post": {
+            "patch": {
                 "security": [
                     {
                         "ApiKeyAuth": []
@@ -166,7 +172,7 @@ const docTemplate = `{
             }
         },
         "/change/username": {
-            "post": {
+            "patch": {
                 "security": [
                     {
                         "ApiKeyAuth": []
@@ -266,7 +272,13 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/internal_transport_rest_v1.tokensResp"
+                            "$ref": "#/definitions/internal_transport_rest_v1.accessTokenResp"
+                        },
+                        "headers": {
+                            "Set-Cookie": {
+                                "type": "string",
+                                "description": "Refresh Token"
+                            }
                         }
                     },
                     "default": {
@@ -293,20 +305,24 @@ const docTemplate = `{
                 "summary": "Refresh token",
                 "parameters": [
                     {
-                        "description": "refresh token",
-                        "name": "input",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/internal_transport_rest_v1.refreshTokenReq"
-                        }
+                        "type": "string",
+                        "description": "Refresh Token",
+                        "name": "refresh_token",
+                        "in": "header",
+                        "required": true
                     }
                 ],
                 "responses": {
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/internal_transport_rest_v1.tokensResp"
+                            "$ref": "#/definitions/internal_transport_rest_v1.accessTokenResp"
+                        },
+                        "headers": {
+                            "Set-Cookie": {
+                                "type": "string",
+                                "description": "Refresh Token"
+                            }
                         }
                     },
                     "default": {
@@ -366,24 +382,10 @@ const docTemplate = `{
                 "message": {}
             }
         },
-        "internal_transport_rest_v1.refreshTokenReq": {
-            "type": "object",
-            "required": [
-                "refresh_token"
-            ],
-            "properties": {
-                "refresh_token": {
-                    "type": "string"
-                }
-            }
-        },
-        "internal_transport_rest_v1.tokensResp": {
+        "internal_transport_rest_v1.accessTokenResp": {
             "type": "object",
             "properties": {
                 "access_token": {
-                    "type": "string"
-                },
-                "refresh_token": {
                     "type": "string"
                 }
             }

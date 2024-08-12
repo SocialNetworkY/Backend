@@ -9,9 +9,9 @@ import (
 func (h *Handler) initUserChangeApi(api *echo.Group) {
 	change := api.Group("/change")
 	{
-		change.POST("/email", h.userChangeEmail, h.authenticationMiddleware)
-		change.POST("/username", h.userChangeUsername, h.authenticationMiddleware)
-		change.POST("/password", h.userChangePassword, h.authenticationMiddleware)
+		change.PATCH("/email", h.userChangeEmail, h.authenticationMiddleware)
+		change.PATCH("/username", h.userChangeUsername, h.authenticationMiddleware)
+		change.PATCH("/password", h.userChangePassword, h.authenticationMiddleware)
 	}
 }
 
@@ -24,7 +24,7 @@ func (h *Handler) initUserChangeApi(api *echo.Group) {
 // @Param input body userChangeEmailReq true "new email"
 // @Success      204
 // @Failure      default  {object}  echo.HTTPError
-// @Router       /change/email [post]
+// @Router       /change/email [patch]
 func (h *Handler) userChangeEmail(c echo.Context) error {
 	user, ok := c.Get(userLocals).(*core.User)
 	if !ok {
@@ -62,7 +62,7 @@ type (
 // @Param input body userChangeUsernameReq true "new username"
 // @Success      204
 // @Failure      default  {object}  echo.HTTPError
-// @Router       /change/username [post]
+// @Router       /change/username [patch]
 func (h *Handler) userChangeUsername(c echo.Context) error {
 	user, ok := c.Get(userLocals).(*core.User)
 	if !ok {
@@ -100,7 +100,7 @@ type (
 // @Param input body userChangePasswordReq true "new password"
 // @Success      204
 // @Failure      default  {object}  echo.HTTPError
-// @Router       /change/password [post]
+// @Router       /change/password [patch]
 func (h *Handler) userChangePassword(c echo.Context) error {
 	user, ok := c.Get(userLocals).(*core.User)
 	if !ok {

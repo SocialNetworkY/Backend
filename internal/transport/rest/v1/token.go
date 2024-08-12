@@ -3,6 +3,7 @@ package v1
 import (
 	"github.com/labstack/echo/v4"
 	"net/http"
+	"time"
 )
 
 func (h *Handler) initTokenApi(api *echo.Group) {
@@ -14,21 +15,18 @@ func (h *Handler) initTokenApi(api *echo.Group) {
 // @Tags         Token
 // @Accept       json
 // @Produce      json
-// @Param input body refreshTokenReq true "refresh token"
-// @Success      200  {object}  tokensResp
+// @Param        refresh_token  header  string  true  "Refresh Token"
+// @Success      200  {object}  accessTokenResp
+// @Header       200  {string}  Set-Cookie  "Refresh Token"
 // @Failure      default  {object}  echo.HTTPError
 // @Router       /refresh [post]
 func (h *Handler) refreshToken(c echo.Context) error {
-	var body refreshTokenReq
-	if err := c.Bind(&body); err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	refreshTokenCookie, err := c.Cookie(refreshTokenCookieName)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusUnauthorized, err.Error())
 	}
 
-	if body.RefreshToken == "" {
-		return echo.NewHTTPError(http.StatusBadRequest, "token is empty")
-	}
-
-	userID, err := h.tokenService.VerifyRefreshToken(body.RefreshToken)
+	userID, err := h.tokenService.VerifyRefreshToken(refreshTokenCookie.Value)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusUnauthorized, err.Error())
 	}
@@ -38,18 +36,26 @@ func (h *Handler) refreshToken(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 
-	return c.JSON(http.StatusOK, tokensResp{
-		AccessToken:  accessToken,
-		RefreshToken: refreshToken,
-	})
+	return h.setAndReturnTokens(c, accessToken, refreshToken)
 }
 
 type (
-	refreshTokenReq struct {
-		RefreshToken string `json:"refresh_token" binding:"required"`
-	}
-	tokensResp struct {
-		AccessToken  string `json:"access_token"`
-		RefreshToken string `json:"refresh_token"`
+	accessTokenResp struct {
+		AccessToken string `json:"access_token"`
 	}
 )
+
+// func set refresh token cookie and return access token
+func (h *Handler) setAndReturnTokens(c echo.Context, accessToken, refreshToken string) error {
+	c.SetCookie(&http.Cookie{
+		Name:     refreshTokenCookieName,
+		Value:    refreshToken,
+		Expires:  time.Now().Add(h.RefreshTokenDuration),
+		HttpOnly: true,
+		SameSite: http.SameSiteStrictMode,
+	})
+
+	return c.JSON(http.StatusOK, accessTokenResp{
+		AccessToken: accessToken,
+	})
+}

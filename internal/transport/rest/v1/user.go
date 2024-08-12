@@ -21,7 +21,8 @@ func (h *Handler) initUserApi(api *echo.Group) {
 // @Accept       json
 // @Produce      json
 // @Param input body userLoginReq true "user credentials"
-// @Success      200  {object}  tokensResp
+// @Success      200  {object}  accessTokenResp
+// @Header       200  {string}  Set-Cookie  "Refresh Token"
 // @Failure      default  {object}  echo.HTTPError
 // @Router       /login [post]
 func (h *Handler) userLogin(c echo.Context) error {
@@ -45,11 +46,7 @@ func (h *Handler) userLogin(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 
-	return c.JSON(http.StatusOK, tokensResp{
-		AccessToken:  accessToken,
-		RefreshToken: refreshToken,
-	})
-
+	return h.setAndReturnTokens(c, accessToken, refreshToken)
 }
 
 type (
@@ -110,7 +107,8 @@ type (
 // @Tags         User
 // @Produce      json
 // @Param token path string true "activation token"
-// @Success      200  {object}  tokensResp
+// @Success      200  {object}  accessTokenResp
+// @Header       200  {string}  Set-Cookie  "Refresh Token"
 // @Failure      default  {object}  echo.HTTPError
 // @Router       /activate/{token} [get]
 func (h *Handler) userActivate(c echo.Context) error {
@@ -121,10 +119,7 @@ func (h *Handler) userActivate(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusUnauthorized, err.Error())
 	}
 
-	return c.JSON(http.StatusOK, tokensResp{
-		AccessToken:  accessToken,
-		RefreshToken: refreshToken,
-	})
+	return h.setAndReturnTokens(c, accessToken, refreshToken)
 }
 
 // @Summary      Authenticate

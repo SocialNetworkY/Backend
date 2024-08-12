@@ -4,18 +4,9 @@ definitions:
     properties:
       message: {}
     type: object
-  internal_transport_rest_v1.refreshTokenReq:
-    properties:
-      refresh_token:
-        type: string
-    required:
-    - refresh_token
-    type: object
-  internal_transport_rest_v1.tokensResp:
+  internal_transport_rest_v1.accessTokenResp:
     properties:
       access_token:
-        type: string
-      refresh_token:
         type: string
     type: object
   internal_transport_rest_v1.userAuthenticateResp:
@@ -106,8 +97,12 @@ paths:
       responses:
         "200":
           description: OK
+          headers:
+            Set-Cookie:
+              description: Refresh Token
+              type: string
           schema:
-            $ref: '#/definitions/internal_transport_rest_v1.tokensResp'
+            $ref: '#/definitions/internal_transport_rest_v1.accessTokenResp'
         default:
           description: ""
           schema:
@@ -135,7 +130,7 @@ paths:
       tags:
       - User
   /change/email:
-    post:
+    patch:
       consumes:
       - application/json
       description: Change user email
@@ -161,7 +156,7 @@ paths:
       tags:
       - User
   /change/password:
-    post:
+    patch:
       consumes:
       - application/json
       description: Change user password
@@ -187,7 +182,7 @@ paths:
       tags:
       - User
   /change/username:
-    post:
+    patch:
       consumes:
       - application/json
       description: Change user username
@@ -248,8 +243,12 @@ paths:
       responses:
         "200":
           description: OK
+          headers:
+            Set-Cookie:
+              description: Refresh Token
+              type: string
           schema:
-            $ref: '#/definitions/internal_transport_rest_v1.tokensResp'
+            $ref: '#/definitions/internal_transport_rest_v1.accessTokenResp'
         default:
           description: ""
           schema:
@@ -263,19 +262,22 @@ paths:
       - application/json
       description: Refresh jwt token
       parameters:
-      - description: refresh token
-        in: body
-        name: input
+      - description: Refresh Token
+        in: header
+        name: refresh_token
         required: true
-        schema:
-          $ref: '#/definitions/internal_transport_rest_v1.refreshTokenReq'
+        type: string
       produces:
       - application/json
       responses:
         "200":
           description: OK
+          headers:
+            Set-Cookie:
+              description: Refresh Token
+              type: string
           schema:
-            $ref: '#/definitions/internal_transport_rest_v1.tokensResp'
+            $ref: '#/definitions/internal_transport_rest_v1.accessTokenResp'
         default:
           description: ""
           schema:

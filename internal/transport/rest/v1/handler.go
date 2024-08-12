@@ -4,6 +4,7 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/lapkomo2018/goTwitterAuthService/internal/core"
 	"log"
+	"time"
 )
 
 type (
@@ -39,19 +40,22 @@ type (
 		tokenService          TokenService
 		authenticationService AuthenticationService
 		validator             Validator
+		RefreshTokenDuration  time.Duration
 	}
 )
 
 const (
-	userLocals = "user"
+	userLocals             = "user"
+	refreshTokenCookieName = "refresh_token"
 )
 
-func New(userService UserService, tokenService TokenService, authenticationService AuthenticationService, validator Validator) *Handler {
+func New(userService UserService, tokenService TokenService, authenticationService AuthenticationService, validator Validator, refreshTokenDuration time.Duration) *Handler {
 	return &Handler{
 		userService:           userService,
 		tokenService:          tokenService,
 		authenticationService: authenticationService,
 		validator:             validator,
+		RefreshTokenDuration:  refreshTokenDuration,
 	}
 }
 
