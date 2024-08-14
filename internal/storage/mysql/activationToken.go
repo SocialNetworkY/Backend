@@ -2,7 +2,7 @@ package mysql
 
 import (
 	"errors"
-	"github.com/lapkomo2018/goTwitterAuthService/internal/core"
+	"github.com/lapkomo2018/goTwitterAuthService/pkg/model"
 	"gorm.io/gorm"
 )
 
@@ -17,14 +17,14 @@ func NewActivationTokenStorage(db *gorm.DB) *ActivationTokenStorage {
 }
 
 func (ats *ActivationTokenStorage) Set(userID uint, activationToken string) error {
-	var existingToken core.ActivationToken
+	var existingToken model.ActivationToken
 	err := ats.db.Where("user_id = ?", userID).First(&existingToken).Error
 	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		return ErrActivationTokenSet
 	}
 
 	if errors.Is(err, gorm.ErrRecordNotFound) {
-		newToken := core.ActivationToken{
+		newToken := model.ActivationToken{
 			UserID: userID,
 			Token:  activationToken,
 		}
@@ -42,8 +42,8 @@ func (ats *ActivationTokenStorage) Set(userID uint, activationToken string) erro
 	return nil
 }
 
-func (ats *ActivationTokenStorage) Get(userID uint) (*core.ActivationToken, error) {
-	existingToken := &core.ActivationToken{}
+func (ats *ActivationTokenStorage) Get(userID uint) (*model.ActivationToken, error) {
+	existingToken := &model.ActivationToken{}
 	err := ats.db.Where("user_id = ?", userID).First(existingToken).Error
 	if err != nil {
 		return nil, err
@@ -51,8 +51,8 @@ func (ats *ActivationTokenStorage) Get(userID uint) (*core.ActivationToken, erro
 	return existingToken, nil
 }
 
-func (ats *ActivationTokenStorage) GetByToken(activationToken string) (*core.ActivationToken, error) {
-	existingToken := &core.ActivationToken{}
+func (ats *ActivationTokenStorage) GetByToken(activationToken string) (*model.ActivationToken, error) {
+	existingToken := &model.ActivationToken{}
 	err := ats.db.Where("token = ?", activationToken).First(existingToken).Error
 	if err != nil {
 		return nil, ErrActivationTokenNotFound
@@ -61,7 +61,7 @@ func (ats *ActivationTokenStorage) GetByToken(activationToken string) (*core.Act
 }
 
 func (ats *ActivationTokenStorage) Delete(userID uint) error {
-	err := ats.db.Where("user_id = ?", userID).Delete(&core.ActivationToken{}).Error
+	err := ats.db.Where("user_id = ?", userID).Delete(&model.ActivationToken{}).Error
 	if err != nil {
 		return ErrActivationTokenNotFound
 	}

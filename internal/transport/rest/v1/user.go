@@ -2,7 +2,7 @@ package v1
 
 import (
 	"github.com/labstack/echo/v4"
-	"github.com/lapkomo2018/goTwitterAuthService/internal/core"
+	"github.com/lapkomo2018/goTwitterAuthService/pkg/model"
 	"net/http"
 	"time"
 )
@@ -131,7 +131,7 @@ func (h *Handler) userActivate(c echo.Context) error {
 // @Failure      default  {object}  echo.HTTPError
 // @Router       /authenticate [get]
 func (h *Handler) userAuthenticate(c echo.Context) error {
-	user, ok := c.Get(userLocals).(*core.User)
+	user, ok := c.Get(userLocals).(*model.User)
 	if !ok {
 		return echo.NewHTTPError(http.StatusInternalServerError, "invalid user")
 	}
@@ -156,7 +156,7 @@ type (
 // @Failure      default  {object}  echo.HTTPError
 // @Router       /info [get]
 func (h *Handler) userInfo(c echo.Context) error {
-	user, ok := c.Get(userLocals).(*core.User)
+	user, ok := c.Get(userLocals).(*model.User)
 	if !ok {
 		return echo.NewHTTPError(http.StatusInternalServerError, "invalid user")
 	}

@@ -2,13 +2,13 @@ package v1
 
 import (
 	"context"
-	"github.com/lapkomo2018/goTwitterAuthService/internal/core"
 	grpcAuthService "github.com/lapkomo2018/goTwitterAuthService/pkg/grpc/auth"
+	"github.com/lapkomo2018/goTwitterAuthService/pkg/model"
 )
 
 type (
 	AuthenticationService interface {
-		Auth(auth string) (*core.User, error)
+		Auth(auth string) (*model.User, error)
 	}
 
 	Handler struct {

@@ -1,8 +1,6 @@
 package service
 
-import (
-	"github.com/lapkomo2018/goTwitterAuthService/internal/core"
-)
+import "github.com/lapkomo2018/goTwitterAuthService/pkg/model"
 
 type (
 	Hasher interface {
@@ -14,13 +12,13 @@ type (
 		ExistsByLogin(login string) (bool, error)
 		ExistsByEmail(email string) (bool, error)
 		ExistsByUsername(username string) (bool, error)
-		FindByLogin(login string) (*core.User, error)
-		Find(id uint) (*core.User, error)
-		FindByUsername(username string) (*core.User, error)
-		FindByEmail(email string) (*core.User, error)
-		Add(user *core.User) error
-		Save(user *core.User) error
-		Delete(user *core.User) error
+		FindByLogin(login string) (*model.User, error)
+		Find(id uint) (*model.User, error)
+		FindByUsername(username string) (*model.User, error)
+		FindByEmail(email string) (*model.User, error)
+		Add(user *model.User) error
+		Save(user *model.User) error
+		Delete(user *model.User) error
 	}
 
 	UserTokenService interface {
@@ -29,8 +27,8 @@ type (
 
 	UserActivationTokenService interface {
 		Generate(userID uint) (string, error)
-		Get(userID uint) (*core.ActivationToken, error)
-		GetByToken(activationToken string) (*core.ActivationToken, error)
+		Get(userID uint) (*model.ActivationToken, error)
+		GetByToken(activationToken string) (*model.ActivationToken, error)
 		Delete(userID uint) error
 	}
 
@@ -70,7 +68,7 @@ func (us *UserService) Register(username, email, password string) (activationTok
 
 	hashedPassword := us.hasher.Hash(password)
 
-	user := &core.User{
+	user := &model.User{
 		Email:    email,
 		Username: username,
 		Password: hashedPassword,
@@ -133,7 +131,7 @@ func (us *UserService) Activate(activationToken string) (accessToken, refreshTok
 	return accessToken, refreshToken, nil
 }
 
-func (us *UserService) Find(id uint) (*core.User, error) {
+func (us *UserService) Find(id uint) (*model.User, error) {
 	return us.storage.Find(id)
 }
 

@@ -2,7 +2,7 @@ package mysql
 
 import (
 	"errors"
-	"github.com/lapkomo2018/goTwitterAuthService/internal/core"
+	"github.com/lapkomo2018/goTwitterAuthService/pkg/model"
 	"gorm.io/gorm"
 )
 
@@ -19,14 +19,14 @@ func NewRefreshTokenStorage(db *gorm.DB) *RefreshTokenStorage {
 }
 
 func (us *RefreshTokenStorage) Set(userID uint, refreshToken string) error {
-	var existingToken core.RefreshToken
+	var existingToken model.RefreshToken
 	err := us.db.Where("user_id = ?", userID).First(&existingToken).Error
 	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		return ErrRefreshTokenSet
 	}
 
 	if errors.Is(err, gorm.ErrRecordNotFound) {
-		newToken := core.RefreshToken{
+		newToken := model.RefreshToken{
 			UserID: userID,
 			Token:  refreshToken,
 		}
@@ -45,7 +45,7 @@ func (us *RefreshTokenStorage) Set(userID uint, refreshToken string) error {
 }
 
 func (us *RefreshTokenStorage) Get(userID uint) (string, error) {
-	existingToken := &core.RefreshToken{}
+	existingToken := &model.RefreshToken{}
 	err := us.db.Where("user_id = ?", userID).First(existingToken).Error
 	if err != nil {
 		return "", ErrRefreshTokenNotFound

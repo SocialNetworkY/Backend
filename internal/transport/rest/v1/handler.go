@@ -2,7 +2,7 @@ package v1
 
 import (
 	"github.com/labstack/echo/v4"
-	"github.com/lapkomo2018/goTwitterAuthService/internal/core"
+	"github.com/lapkomo2018/goTwitterAuthService/pkg/model"
 	"log"
 	"time"
 )
@@ -12,7 +12,7 @@ type (
 		Register(username, email, password string) (string, error)
 		Login(login, password string) (string, string, error)
 		Activate(token string) (string, string, error)
-		Find(id uint) (*core.User, error)
+		Find(id uint) (*model.User, error)
 		ChangeEmail(id uint, email string) error
 		ChangeUsername(id uint, username string) error
 		ChangePassword(id uint, password string) error
@@ -25,7 +25,7 @@ type (
 	}
 
 	AuthenticationService interface {
-		Auth(auth string) (*core.User, error)
+		Auth(auth string) (*model.User, error)
 	}
 
 	Validator interface {

@@ -1,7 +1,7 @@
 package mysql
 
 import (
-	"github.com/lapkomo2018/goTwitterAuthService/internal/core"
+	"github.com/lapkomo2018/goTwitterAuthService/pkg/model"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
@@ -25,7 +25,7 @@ func New(dsn string) (*Storage, error) {
 	log.Println("Connected mysql")
 
 	log.Println("Starting AutoMigrating...")
-	if err := db.AutoMigrate(&core.User{}, &core.ActivationToken{}, &core.RefreshToken{}); err != nil {
+	if err := db.AutoMigrate(&model.User{}, &model.ActivationToken{}, &model.RefreshToken{}); err != nil {
 		return nil, err
 	}
 	log.Println("AutoMigrating completed")

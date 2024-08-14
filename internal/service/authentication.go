@@ -1,15 +1,15 @@
 package service
 
 import (
-	"github.com/lapkomo2018/goTwitterAuthService/internal/core"
+	"github.com/lapkomo2018/goTwitterAuthService/pkg/model"
 	"strings"
 )
 
 type (
-	authSchemeHandler func(token string) (*core.User, error)
+	authSchemeHandler func(token string) (*model.User, error)
 
 	AuthenticationUserService interface {
-		Find(id uint) (*core.User, error)
+		Find(id uint) (*model.User, error)
 	}
 	AuthenticationTokenService interface {
 		Verify(accessToken string) (userID uint, err error)
@@ -35,7 +35,7 @@ func NewAuthenticationService(us AuthenticationUserService, ts AuthenticationTok
 	return authService
 }
 
-func (as *AuthenticationService) Auth(auth string) (*core.User, error) {
+func (as *AuthenticationService) Auth(auth string) (*model.User, error) {
 	authHeaderParts := strings.Split(auth, " ")
 	if len(authHeaderParts) != 2 {
 		return nil, ErrAuthenticationInvalidAuthString
@@ -49,7 +49,7 @@ func (as *AuthenticationService) Auth(auth string) (*core.User, error) {
 	return handler(tokenString)
 }
 
-func (as *AuthenticationService) bearerHandler(token string) (*core.User, error) {
+func (as *AuthenticationService) bearerHandler(token string) (*model.User, error) {
 	userID, err := as.tokenService.Verify(token)
 	if err != nil {
 		return nil, err

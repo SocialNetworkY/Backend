@@ -3,14 +3,14 @@ package service
 import (
 	"crypto/rand"
 	"encoding/hex"
-	"github.com/lapkomo2018/goTwitterAuthService/internal/core"
+	"github.com/lapkomo2018/goTwitterAuthService/pkg/model"
 )
 
 type (
 	ActivationTokenStorage interface {
 		Set(userID uint, activationToken string) error
-		Get(userID uint) (*core.ActivationToken, error)
-		GetByToken(activationToken string) (*core.ActivationToken, error)
+		Get(userID uint) (*model.ActivationToken, error)
+		GetByToken(activationToken string) (*model.ActivationToken, error)
 		Delete(userID uint) error
 	}
 )
@@ -40,11 +40,11 @@ func (ts *ActivationTokenService) Generate(userID uint) (string, error) {
 	return activationToken, nil
 }
 
-func (ts *ActivationTokenService) Get(userID uint) (*core.ActivationToken, error) {
+func (ts *ActivationTokenService) Get(userID uint) (*model.ActivationToken, error) {
 	return ts.storage.Get(userID)
 }
 
-func (ts *ActivationTokenService) GetByToken(activationToken string) (*core.ActivationToken, error) {
+func (ts *ActivationTokenService) GetByToken(activationToken string) (*model.ActivationToken, error) {
 	return ts.storage.GetByToken(activationToken)
 }
 

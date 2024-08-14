@@ -2,7 +2,7 @@ package v1
 
 import (
 	"github.com/labstack/echo/v4"
-	"github.com/lapkomo2018/goTwitterAuthService/internal/core"
+	"github.com/lapkomo2018/goTwitterAuthService/pkg/model"
 	"net/http"
 )
 
@@ -26,7 +26,7 @@ func (h *Handler) initUserChangeApi(api *echo.Group) {
 // @Failure      default  {object}  echo.HTTPError
 // @Router       /change/email [patch]
 func (h *Handler) userChangeEmail(c echo.Context) error {
-	user, ok := c.Get(userLocals).(*core.User)
+	user, ok := c.Get(userLocals).(*model.User)
 	if !ok {
 		return echo.NewHTTPError(http.StatusInternalServerError, "invalid user")
 	}
@@ -64,7 +64,7 @@ type (
 // @Failure      default  {object}  echo.HTTPError
 // @Router       /change/username [patch]
 func (h *Handler) userChangeUsername(c echo.Context) error {
-	user, ok := c.Get(userLocals).(*core.User)
+	user, ok := c.Get(userLocals).(*model.User)
 	if !ok {
 		return echo.NewHTTPError(http.StatusInternalServerError, "invalid user")
 	}
@@ -102,7 +102,7 @@ type (
 // @Failure      default  {object}  echo.HTTPError
 // @Router       /change/password [patch]
 func (h *Handler) userChangePassword(c echo.Context) error {
-	user, ok := c.Get(userLocals).(*core.User)
+	user, ok := c.Get(userLocals).(*model.User)
 	if !ok {
 		return echo.NewHTTPError(http.StatusInternalServerError, "invalid user")
 	}
