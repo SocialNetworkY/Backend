@@ -45,6 +45,8 @@ func New(config Config) *Server {
 
 	e.Pre(middleware.RemoveTrailingSlash())
 
+	e.IPExtractor = echo.ExtractIPFromRealIPHeader()
+
 	e.GET("/ping", func(c echo.Context) error {
 		return c.String(http.StatusOK, "pong")
 	})
