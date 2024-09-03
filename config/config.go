@@ -11,6 +11,13 @@ import (
 )
 
 type Config struct {
+	Service struct {
+		Name string
+		Host string
+	}
+	Discovery struct {
+		Address string
+	}
 	RestServer rest.Config
 	GrpcServer grpc.Config
 	JWT        jwt.Config

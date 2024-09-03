@@ -1,3 +1,10 @@
+service:
+  name: "AuthService"
+  host: "localhost"
+
+discovery:
+  address: "localhost:8500"
+
 restServer:
   port: 8080
   bodyLimit: 25165824
