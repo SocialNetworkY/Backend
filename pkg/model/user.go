@@ -15,14 +15,3 @@ type User struct {
 	UpdatedAt   time.Time
 	DeletedAt   gorm.DeletedAt `gorm:"index"`
 }
-
-func (u *User) AfterDelete(tx *gorm.DB) (err error) {
-	if err := tx.Where("user_id = ?", u.ID).Delete(&RefreshToken{}).Error; err != nil {
-		return ErrUserRefreshTokenDelete
-	}
-	if err := tx.Where("user_id = ?", u.ID).Delete(&ActivationToken{}).Error; err != nil {
-		return ErrUserActivationTokenDelete
-	}
-
-	return nil
-}
