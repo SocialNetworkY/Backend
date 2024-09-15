@@ -3,7 +3,7 @@ service:
   host: "localhost"
 
 discovery:
-  address: "localhost:8500"
+  address: "consul:8500"
 
 restServer:
   port: 8080
