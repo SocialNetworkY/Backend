@@ -7,8 +7,8 @@ import (
 	"github.com/lapkomo2018/goTwitterAuthService/config"
 	"github.com/lapkomo2018/goTwitterAuthService/internal/service"
 	"github.com/lapkomo2018/goTwitterAuthService/internal/storage/mysql"
-	grpcServer "github.com/lapkomo2018/goTwitterAuthService/internal/transport/grpc"
-	restServer "github.com/lapkomo2018/goTwitterAuthService/internal/transport/rest"
+	"github.com/lapkomo2018/goTwitterAuthService/internal/transport/grpc"
+	"github.com/lapkomo2018/goTwitterAuthService/internal/transport/rest"
 	"github.com/lapkomo2018/goTwitterAuthService/pkg/discovery"
 	"github.com/lapkomo2018/goTwitterAuthService/pkg/discovery/consul"
 	"github.com/lapkomo2018/goTwitterAuthService/pkg/hash"
@@ -80,14 +80,14 @@ func main() {
 	services := service.New(storages.User, storages.RefreshToken, storages.ActivationToken, tokenManager, hasher)
 
 	go func() {
-		server := restServer.New(cfg.RestServer).Init(services.User, services.Tokens, services.Authentication, validator, cfg.JWT.RefreshDuration)
+		server := rest.New(cfg.RestServer).Init(services.User, services.Tokens, services.Authentication, validator, cfg.JWT.RefreshDuration)
 		if err := server.Run(); err != nil {
 			log.Fatalf("Rest server err: %v", err)
 		}
 	}()
 
 	go func() {
-		server := grpcServer.New(cfg.GrpcServer).Init(services.Authentication)
+		server := grpc.New(cfg.GrpcServer).Init(services.Authentication)
 		if err := server.Run(); err != nil {
 			log.Fatalf("Grpc server err: %v", err)
 		}
