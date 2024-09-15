@@ -1,0 +1,46 @@
+services:
+  server:
+    build: .
+    container_name: server
+    environment:
+      DB: myuser:strongpass@tcp(db:3306)/mydb?parseTime=true
+    ports:
+      - "4355:8080"
+      - "8081:8081"
+    networks:
+      - consul
+      - db
+    depends_on:
+      db:
+        condition: service_healthy
+
+  db:
+    image: mysql:latest
+    container_name: mysql_db
+    environment:
+      MYSQL_DATABASE: mydb
+      MYSQL_USER: myuser
+      MYSQL_PASSWORD: strongpass
+      MYSQL_ROOT_PASSWORD: verystrongpass
+    ports:
+      - "5677:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+    networks:
+        - db
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost" ]
+      timeout: 20s
+      retries: 10
+
+volumes:
+  db_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ./db_data
+
+networks:
+    consul:
+    db:
