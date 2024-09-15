@@ -2,7 +2,7 @@ package v1
 
 import (
 	"context"
-	grpcAuthService "github.com/lapkomo2018/goTwitterAuthService/pkg/grpc/auth"
+	"github.com/lapkomo2018/goTwitterAuthService/pkg/gen"
 	"github.com/lapkomo2018/goTwitterAuthService/pkg/model"
 )
 
@@ -12,7 +12,7 @@ type (
 	}
 
 	Handler struct {
-		grpcAuthService.UnimplementedAuthenticationServer
+		gen.UnimplementedAuthenticationServer
 		authenticationService AuthenticationService
 	}
 )
@@ -23,10 +23,10 @@ func New(authenticationService AuthenticationService) *Handler {
 	}
 }
 
-func (h *Handler) Authenticate(ctx context.Context, r *grpcAuthService.AuthenticateRequest) (*grpcAuthService.AuthenticateResponse, error) {
+func (h *Handler) Authenticate(ctx context.Context, r *gen.AuthenticateRequest) (*gen.AuthenticateResponse, error) {
 	user, err := h.authenticationService.Auth(r.GetAuth())
 	if err != nil {
 		return nil, err
 	}
-	return &grpcAuthService.AuthenticateResponse{UserId: uint64(user.ID)}, nil
+	return &gen.AuthenticateResponse{UserId: uint64(user.ID)}, nil
 }

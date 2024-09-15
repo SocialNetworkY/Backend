@@ -1,8 +1,5 @@
 syntax = "proto3";
-
-package authentication;
-
-option go_package = "github.com/lapkomo2018/goTwitterAuthService/pkg/grpc/auth";
+option go_package = "/gen";
 
 service Authentication {
   rpc Authenticate(AuthenticateRequest) returns (AuthenticateResponse);
