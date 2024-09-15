@@ -9,7 +9,7 @@ type User struct {
 	ID          uint   `gorm:"primaryKey"`
 	Email       string `gorm:"unique"`
 	Username    string `gorm:"unique"`
-	Password    string
+	Password    string `json:"-"`
 	IsActivated bool
 	CreatedAt   time.Time
 	UpdatedAt   time.Time
