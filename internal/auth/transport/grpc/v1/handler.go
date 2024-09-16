@@ -2,8 +2,8 @@ package v1
 
 import (
 	"context"
-	"github.com/lapkomo2018/goTwitterAuthService/pkg/gen"
-	"github.com/lapkomo2018/goTwitterAuthService/pkg/model"
+	"github.com/lapkomo2018/goTwitterServices/pkg/gen"
+	"github.com/lapkomo2018/goTwitterServices/pkg/model"
 )
 
 type (

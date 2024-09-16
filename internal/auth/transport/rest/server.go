@@ -4,14 +4,14 @@ import (
 	"fmt"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
-	v1 "github.com/lapkomo2018/goTwitterAuthService/internal/transport/rest/v1"
+	"github.com/lapkomo2018/goTwitterServices/internal/auth/transport/rest/v1"
 	echoSwagger "github.com/swaggo/echo-swagger"
 	"log"
 	"net/http"
 	"strconv"
 	"time"
 
-	_ "github.com/lapkomo2018/goTwitterAuthService/docs"
+	_ "github.com/lapkomo2018/goTwitterServices/docs"
 )
 
 type (

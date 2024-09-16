@@ -1,7 +1,7 @@
 package jwt
 
 import (
-	"github.com/dgrijalva/jwt-go"
+	"github.com/golang-jwt/jwt/v4"
 	"time"
 )
 
@@ -31,7 +31,7 @@ func NewManager(config Config) *Manager {
 }
 
 type UserClaims struct {
-	jwt.StandardClaims
+	jwt.RegisteredClaims
 	UserID uint `json:"user_id"`
 }
 
@@ -53,8 +53,8 @@ func (manager *Manager) Generate(userID uint) (accessToken string, refreshToken 
 
 func (manager *Manager) generateToken(userID uint, secretKey string, duration time.Duration) (string, error) {
 	claims := &UserClaims{
-		StandardClaims: jwt.StandardClaims{
-			ExpiresAt: time.Now().Add(duration).Unix(),
+		RegisteredClaims: jwt.RegisteredClaims{
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(duration)),
 		},
 		UserID: userID,
 	}

@@ -1,6 +1,6 @@
 package service
 
-import "github.com/lapkomo2018/goTwitterAuthService/pkg/model"
+import "github.com/lapkomo2018/goTwitterServices/pkg/model"
 
 type (
 	Hasher interface {

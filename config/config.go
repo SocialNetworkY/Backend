@@ -1,11 +1,11 @@
 package config
 
 import (
-	"github.com/lapkomo2018/goTwitterAuthService/internal/transport/grpc"
-	"github.com/lapkomo2018/goTwitterAuthService/internal/transport/rest"
-	"github.com/lapkomo2018/goTwitterAuthService/pkg/hash"
-	"github.com/lapkomo2018/goTwitterAuthService/pkg/jwt"
-	"github.com/lapkomo2018/goTwitterAuthService/pkg/validation"
+	"github.com/lapkomo2018/goTwitterServices/internal/auth/transport/grpc"
+	"github.com/lapkomo2018/goTwitterServices/internal/auth/transport/rest"
+	"github.com/lapkomo2018/goTwitterServices/pkg/hash"
+	"github.com/lapkomo2018/goTwitterServices/pkg/jwt"
+	"github.com/lapkomo2018/goTwitterServices/pkg/validation"
 	"github.com/spf13/viper"
 	"log"
 )

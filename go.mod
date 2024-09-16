@@ -1,10 +1,10 @@
-module github.com/lapkomo2018/goTwitterAuthService
+module github.com/lapkomo2018/goTwitterServices
 
 go 1.22
 
 require (
-	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/dlclark/regexp2 v1.11.2
+	github.com/golang-jwt/jwt/v4 v4.5.0
 	github.com/hashicorp/consul/api v1.29.4
 	github.com/joho/godotenv v1.5.1
 	github.com/labstack/echo/v4 v4.12.0

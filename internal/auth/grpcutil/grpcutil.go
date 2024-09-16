@@ -2,7 +2,7 @@ package grpcutil
 
 import (
 	"context"
-	"github.com/lapkomo2018/goTwitterAuthService/pkg/discovery"
+	"github.com/lapkomo2018/goTwitterServices/pkg/discovery"
 	"google.golang.org/grpc"
 	"math/rand"
 )

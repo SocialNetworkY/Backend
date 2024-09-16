@@ -2,7 +2,7 @@ package v1
 
 import (
 	"github.com/labstack/echo/v4"
-	"github.com/lapkomo2018/goTwitterAuthService/pkg/model"
+	"github.com/lapkomo2018/goTwitterServices/pkg/model"
 	"net/http"
 )
 

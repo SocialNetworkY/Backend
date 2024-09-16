@@ -2,8 +2,8 @@ package grpc
 
 import (
 	"fmt"
-	"github.com/lapkomo2018/goTwitterAuthService/internal/transport/grpc/v1"
-	"github.com/lapkomo2018/goTwitterAuthService/pkg/gen"
+	"github.com/lapkomo2018/goTwitterServices/internal/auth/transport/grpc/v1"
+	"github.com/lapkomo2018/goTwitterServices/pkg/gen"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 	"log"

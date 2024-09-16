@@ -1,7 +1,7 @@
 package mysql
 
 import (
-	"github.com/lapkomo2018/goTwitterAuthService/pkg/model"
+	"github.com/lapkomo2018/goTwitterServices/pkg/model"
 	"gorm.io/gorm"
 )
 

@@ -5,7 +5,7 @@ import (
 	"errors"
 	"fmt"
 	consul "github.com/hashicorp/consul/api"
-	"github.com/lapkomo2018/goTwitterAuthService/pkg/discovery"
+	"github.com/lapkomo2018/goTwitterServices/pkg/discovery"
 	"strconv"
 	"strings"
 )

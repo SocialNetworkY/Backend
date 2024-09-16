@@ -1,6 +1,6 @@
 package grpc
 
-import "github.com/lapkomo2018/goTwitterAuthService/pkg/discovery"
+import "github.com/lapkomo2018/goTwitterServices/pkg/discovery"
 
 // Gateway represents the gRPC gateway for the user service.
 type Gateway struct {
