@@ -3,7 +3,7 @@ package service
 import (
 	"crypto/rand"
 	"encoding/hex"
-	"github.com/lapkomo2018/goTwitterServices/pkg/model"
+	"github.com/lapkomo2018/goTwitterServices/internal/auth/model"
 )
 
 type (

@@ -2,7 +2,7 @@ package mysql
 
 import (
 	"errors"
-	"github.com/lapkomo2018/goTwitterServices/pkg/model"
+	"github.com/lapkomo2018/goTwitterServices/internal/auth/model"
 	"gorm.io/gorm"
 )
 
