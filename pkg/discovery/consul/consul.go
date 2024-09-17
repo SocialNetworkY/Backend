@@ -28,7 +28,7 @@ func NewRegistry(addr string) (*Registry, error) {
 }
 
 // Register creates a service record in the registry
-func (r *Registry) Register(ctx context.Context, instanceID, serviceName, hostPort string) error {
+func (r *Registry) Register(ctx context.Context, instanceID, serviceName, hostPort string, tags []string) error {
 	parts := strings.Split(hostPort, ":")
 	if len(parts) != 2 {
 		return errors.New("hostPort must be in the format <host>:<port>, example: localhost:8080")
@@ -43,6 +43,7 @@ func (r *Registry) Register(ctx context.Context, instanceID, serviceName, hostPo
 		ID:    instanceID,
 		Name:  serviceName,
 		Port:  port,
+		Tags:  tags,
 		Check: &consul.AgentServiceCheck{CheckID: instanceID, TTL: "5s"},
 	})
 }
@@ -53,8 +54,8 @@ func (r *Registry) Deregister(ctx context.Context, instanceID, _ string) error {
 }
 
 // ServiceAddresses returns the list of addresses of active instances of the service
-func (r *Registry) ServiceAddresses(ctx context.Context, serviceName string) ([]string, error) {
-	services, _, err := r.client.Health().Service(serviceName, "", true, nil)
+func (r *Registry) ServiceAddresses(ctx context.Context, serviceName, tag string) ([]string, error) {
+	services, _, err := r.client.Health().Service(serviceName, tag, true, nil)
 	if err != nil {
 		return nil, err
 	} else if len(services) == 0 {

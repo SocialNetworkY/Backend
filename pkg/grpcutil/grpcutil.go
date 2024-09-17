@@ -7,10 +7,12 @@ import (
 	"math/rand"
 )
 
+const TagGRPC = "grpc"
+
 // ServiceConnection returns a connection to a random service
 // instance from the provided service name.
 func ServiceConnection(ctx context.Context, serviceName string, registry discovery.Registry) (*grpc.ClientConn, error) {
-	addrs, err := registry.ServiceAddresses(ctx, serviceName)
+	addrs, err := registry.ServiceAddresses(ctx, serviceName, TagGRPC)
 	if err != nil {
 		return nil, err
 	}

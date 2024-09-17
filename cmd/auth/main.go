@@ -3,7 +3,12 @@ package main
 import (
 	"context"
 	"fmt"
-	"github.com/joho/godotenv"
+	"log"
+	"os"
+	"os/signal"
+	"syscall"
+	"time"
+
 	"github.com/lapkomo2018/goTwitterServices/config"
 	"github.com/lapkomo2018/goTwitterServices/internal/auth/service"
 	"github.com/lapkomo2018/goTwitterServices/internal/auth/storage/mysql"
@@ -14,11 +19,13 @@ import (
 	"github.com/lapkomo2018/goTwitterServices/pkg/hash"
 	"github.com/lapkomo2018/goTwitterServices/pkg/jwt"
 	"github.com/lapkomo2018/goTwitterServices/pkg/validation"
-	"log"
-	"os"
-	"os/signal"
-	"syscall"
-	"time"
+
+	"github.com/joho/godotenv"
+)
+
+const (
+	TagRest = "rest"
+	TagGRPC = "grpc"
 )
 
 var cfg *config.Config
@@ -52,20 +59,34 @@ func main() {
 		log.Fatalf("could not create registry: %v", err)
 	}
 	ctx := context.Background()
-	hostPort := fmt.Sprintf("%s:%d", cfg.Service.Host, cfg.RestServer.Port)
-	instanceID := discovery.GenerateInstanceID(cfg.Service.Name, hostPort)
-	if err := registry.Register(ctx, instanceID, cfg.Service.Name, hostPort); err != nil {
-		log.Fatalf("could not register service: %v", err)
+
+	// Register REST service
+	restHostPort := fmt.Sprintf("%s:%d", cfg.Service.Host, cfg.RestServer.Port)
+	restInstanceID := discovery.GenerateInstanceID(cfg.Service.Name, restHostPort)
+	if err := registry.Register(ctx, restInstanceID, cfg.Service.Name, restHostPort, []string{TagRest}); err != nil {
+		log.Fatalf("could not register rest service: %v", err)
 	}
+	defer registry.Deregister(ctx, restInstanceID, cfg.Service.Name)
+
+	// Register gRPC service
+	grpcHostPort := fmt.Sprintf("%s:%d", cfg.Service.Host, cfg.GrpcServer.Port)
+	grpcInstanceID := discovery.GenerateInstanceID(cfg.Service.Name, grpcHostPort)
+	if err := registry.Register(ctx, grpcInstanceID, cfg.Service.Name, grpcHostPort, []string{TagGRPC}); err != nil {
+		log.Fatalf("could not register grpc service: %v", err)
+	}
+	defer registry.Deregister(ctx, grpcInstanceID, cfg.Service.Name)
+
 	go func() {
 		for {
-			if err := registry.ReportHealthyState(instanceID, cfg.Service.Name); err != nil {
-				log.Printf("could not report healthy state: %v", err)
+			if err := registry.ReportHealthyState(restInstanceID, cfg.Service.Name); err != nil {
+				log.Printf("could not report rest healthy state: %v", err)
+			}
+			if err := registry.ReportHealthyState(grpcInstanceID, cfg.Service.Name); err != nil {
+				log.Printf("could not report grpc healthy state: %v", err)
 			}
 			time.Sleep(1 * time.Second)
 		}
 	}()
-	defer registry.Deregister(ctx, instanceID, cfg.Service.Name)
 
 	storages, err := mysql.New(os.Getenv("DB"))
 	if err != nil {

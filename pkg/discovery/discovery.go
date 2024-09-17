@@ -7,11 +7,11 @@ import (
 
 type Registry interface {
 	// Register a service with registry
-	Register(ctx context.Context, instanceID, serviceName, hostPort string) error
+	Register(ctx context.Context, instanceID, serviceName, hostPort string, tags []string) error
 	// Deregister a service with registry
 	Deregister(ctx context.Context, instanceID, serviceName string) error
 	// ServiceAddresses returns the addresses of instances that provide the service
-	ServiceAddresses(ctx context.Context, serviceID string) ([]string, error)
+	ServiceAddresses(ctx context.Context, serviceName, tag string) ([]string, error)
 	// ReportHealthyState reports the health status of the service
 	ReportHealthyState(instanceID, serviceName string) error
 }
