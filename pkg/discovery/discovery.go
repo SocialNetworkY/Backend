@@ -3,11 +3,13 @@ package discovery
 import (
 	"context"
 	"errors"
+	"fmt"
+	"time"
 )
 
 type Registry interface {
 	// Register a service with registry
-	Register(ctx context.Context, instanceID, serviceName, hostPort string, tags []string) error
+	Register(ctx context.Context, instanceID, serviceName string, port int, tags []string) error
 	// Deregister a service with registry
 	Deregister(ctx context.Context, instanceID, serviceName string) error
 	// ServiceAddresses returns the addresses of instances that provide the service
@@ -20,6 +22,6 @@ type Registry interface {
 var ErrNotFound = errors.New("no service addresses found")
 
 // GenerateInstanceID generates a unique instance ID for the service
-func GenerateInstanceID(serviceName, hostPort string) string {
-	return serviceName + "@" + hostPort
+func GenerateInstanceID(serviceName string, port int) string {
+	return fmt.Sprintf("%s@%d_%d", serviceName, port, time.Now().Unix())
 }

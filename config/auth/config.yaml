@@ -1,9 +1,5 @@
 service:
   name: "AuthService"
-  host: "localhost"
-
-discovery:
-  address: "consul:8500"
 
 restServer:
   port: 8080
@@ -15,13 +11,8 @@ grpcServer:
   port: 8081
 
 jwt:
-  secretKey: "accessPass"
   tokenDuration: 5m
-  refreshSecretKey: "refreshPass"
   refreshDuration: 168h # 7 days
-
-hash:
-  salt: "floppa"
 
 validator:
   emailRegex: "^[a-z0-9._%+\\-]+@[a-z0-9.\\-]+\\.[a-z]{2,4}$"

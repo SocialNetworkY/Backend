@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"os"
 	"os/signal"
@@ -10,6 +9,7 @@ import (
 	"time"
 
 	"github.com/lapkomo2018/goTwitterServices/config"
+	"github.com/lapkomo2018/goTwitterServices/internal/auth/model"
 	"github.com/lapkomo2018/goTwitterServices/internal/auth/service"
 	"github.com/lapkomo2018/goTwitterServices/internal/auth/storage/mysql"
 	"github.com/lapkomo2018/goTwitterServices/internal/auth/transport/grpc"
@@ -19,14 +19,6 @@ import (
 	"github.com/lapkomo2018/goTwitterServices/pkg/hash"
 	"github.com/lapkomo2018/goTwitterServices/pkg/jwt"
 	"github.com/lapkomo2018/goTwitterServices/pkg/validation"
-
-	"github.com/joho/godotenv"
-)
-
-type (
-	Env struct {
-		DB string
-	}
 )
 
 const (
@@ -35,21 +27,19 @@ const (
 )
 
 var (
-	cfg *config.Config
-	env *Env
+	cfg *model.Config
+	env *model.Env
 )
 
 func init() {
 	var err error
-	err = godotenv.Load()
+
+	env, err = model.ParseEnv()
 	if err != nil {
-		log.Printf("Error loading .env file, proceeding without it: %v", err)
-	}
-	env = &Env{
-		DB: os.Getenv("DB"),
+		log.Fatal(err)
 	}
 
-	cfg, err = config.LoadConfig()
+	cfg, err = config.LoadConfig[model.Config]()
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -66,24 +56,22 @@ func init() {
 // @host      localhost:8080
 // @BasePath  /api/v1
 func main() {
-	registry, err := consul.NewRegistry(cfg.Discovery.Address)
+	registry, err := consul.NewRegistry(env.DiscoveryAddr)
 	if err != nil {
 		log.Fatalf("could not create registry: %v", err)
 	}
 	ctx := context.Background()
 
 	// Register REST service
-	restHostPort := fmt.Sprintf("%s:%d", cfg.Service.Host, cfg.RestServer.Port)
-	restInstanceID := discovery.GenerateInstanceID(cfg.Service.Name, restHostPort)
-	if err := registry.Register(ctx, restInstanceID, cfg.Service.Name, restHostPort, []string{TagRest}); err != nil {
+	restInstanceID := discovery.GenerateInstanceID(cfg.Service.Name, env.ExternalRestPort)
+	if err := registry.Register(ctx, restInstanceID, cfg.Service.Name, env.ExternalRestPort, []string{TagRest}); err != nil {
 		log.Fatalf("could not register rest service: %v", err)
 	}
 	defer registry.Deregister(ctx, restInstanceID, cfg.Service.Name)
 
 	// Register gRPC service
-	grpcHostPort := fmt.Sprintf("%s:%d", cfg.Service.Host, cfg.GrpcServer.Port)
-	grpcInstanceID := discovery.GenerateInstanceID(cfg.Service.Name, grpcHostPort)
-	if err := registry.Register(ctx, grpcInstanceID, cfg.Service.Name, grpcHostPort, []string{TagGRPC}); err != nil {
+	grpcInstanceID := discovery.GenerateInstanceID(cfg.Service.Name, env.ExternalGrpcPort)
+	if err := registry.Register(ctx, grpcInstanceID, cfg.Service.Name, env.ExternalGrpcPort, []string{TagGRPC}); err != nil {
 		log.Fatalf("could not register grpc service: %v", err)
 	}
 	defer registry.Deregister(ctx, grpcInstanceID, cfg.Service.Name)
@@ -108,8 +96,8 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	hasher := hash.NewSHA1Hasher(cfg.Hash)
-	tokenManager := jwt.NewManager(cfg.JWT)
+	hasher := hash.NewSHA1Hasher(env.HashSalt)
+	tokenManager := jwt.NewManager(cfg.JWT, env.JWTSecret, env.JWTRefreshSecret)
 	services := service.New(storages.User, storages.RefreshToken, storages.ActivationToken, tokenManager, hasher)
 
 	go func() {

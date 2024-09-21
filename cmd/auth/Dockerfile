@@ -13,5 +13,5 @@ RUN CGO_ENABLED=0 go build -o /server cmd/auth/main.go
 
 FROM alpine:latest
 COPY --from=builder server .
-COPY --from=builder /app/config/config.yaml /config/config.yaml
+COPY --from=builder /app/config/auth/config.yaml /config/config.yaml
 CMD ["/server"]

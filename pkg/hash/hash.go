@@ -6,18 +6,14 @@ import (
 )
 
 type (
-	Config struct {
-		Salt string
-	}
-
 	SHA1Hasher struct {
 		salt string
 	}
 )
 
-func NewSHA1Hasher(config Config) *SHA1Hasher {
+func NewSHA1Hasher(salt string) *SHA1Hasher {
 	return &SHA1Hasher{
-		salt: config.Salt,
+		salt: salt,
 	}
 }
 

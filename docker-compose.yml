@@ -16,6 +16,13 @@ services:
     container_name: auth-service
     environment:
       DB: myuser:strongpass@tcp(auth-db:3306)/mydb?parseTime=true
+      DISCOVERY_ADDR: consul:8500
+      EXTERNAL_REST_PORT: 8080
+      EXTERNAL_GRPC_PORT: 8081
+      HASH_SALT: "hashSalt"
+      JWT_SECRET: "accessPass"
+      JWT_REFRESH: "refreshPass"
+
     ports:
       - "4355:8080" # Rest
       - "8081:8081" # gRPC

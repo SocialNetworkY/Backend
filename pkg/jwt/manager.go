@@ -7,10 +7,8 @@ import (
 
 type (
 	Config struct {
-		SecretKey        string
-		TokenDuration    time.Duration
-		RefreshSecretKey string
-		RefreshDuration  time.Duration
+		TokenDuration   time.Duration
+		RefreshDuration time.Duration
 	}
 
 	Manager struct {
@@ -21,12 +19,12 @@ type (
 	}
 )
 
-func NewManager(config Config) *Manager {
+func NewManager(cfg Config, secret, refreshSecret string) *Manager {
 	return &Manager{
-		secretKey:        config.SecretKey,
-		tokenDuration:    config.TokenDuration,
-		refreshSecretKey: config.RefreshSecretKey,
-		refreshDuration:  config.RefreshDuration,
+		secretKey:        secret,
+		tokenDuration:    cfg.TokenDuration,
+		refreshSecretKey: refreshSecret,
+		refreshDuration:  cfg.RefreshDuration,
 	}
 }
 

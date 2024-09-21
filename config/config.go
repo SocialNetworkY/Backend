@@ -1,31 +1,12 @@
 package config
 
 import (
-	"github.com/lapkomo2018/goTwitterServices/internal/auth/transport/grpc"
-	"github.com/lapkomo2018/goTwitterServices/internal/auth/transport/rest"
-	"github.com/lapkomo2018/goTwitterServices/pkg/hash"
-	"github.com/lapkomo2018/goTwitterServices/pkg/jwt"
-	"github.com/lapkomo2018/goTwitterServices/pkg/validation"
-	"github.com/spf13/viper"
 	"log"
+
+	"github.com/spf13/viper"
 )
 
-type Config struct {
-	Service struct {
-		Name string
-		Host string
-	}
-	Discovery struct {
-		Address string
-	}
-	RestServer rest.Config
-	GrpcServer grpc.Config
-	JWT        jwt.Config
-	Hash       hash.Config
-	Validator  validation.Config
-}
-
-func LoadConfig() (*Config, error) {
+func LoadConfig[T any]() (*T, error) {
 	log.Println("Loading config...")
 
 	viper.AddConfigPath("./config")
@@ -35,7 +16,7 @@ func LoadConfig() (*Config, error) {
 		return nil, err
 	}
 
-	var config Config
+	var config T
 	if err := viper.Unmarshal(&config); err != nil {
 		return nil, err
 	}

@@ -2,12 +2,9 @@ package consul
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	consul "github.com/hashicorp/consul/api"
 	"github.com/lapkomo2018/goTwitterServices/pkg/discovery"
-	"strconv"
-	"strings"
 )
 
 // Registry defines a Consul-based service discovery registry
@@ -28,17 +25,7 @@ func NewRegistry(addr string) (*Registry, error) {
 }
 
 // Register creates a service record in the registry
-func (r *Registry) Register(ctx context.Context, instanceID, serviceName, hostPort string, tags []string) error {
-	parts := strings.Split(hostPort, ":")
-	if len(parts) != 2 {
-		return errors.New("hostPort must be in the format <host>:<port>, example: localhost:8080")
-	}
-
-	port, err := strconv.Atoi(parts[1])
-	if err != nil {
-		return err
-	}
-
+func (r *Registry) Register(ctx context.Context, instanceID, serviceName string, port int, tags []string) error {
 	return r.client.Agent().ServiceRegister(&consul.AgentServiceRegistration{
 		ID:    instanceID,
 		Name:  serviceName,

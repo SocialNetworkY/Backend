@@ -21,13 +21,13 @@ type (
 	}
 )
 
-func New(config Config) *Server {
-	log.Printf("Creating grpc server with port: %d", config.Port)
+func New(cfg Config) *Server {
+	log.Printf("Creating grpc server with port: %d", cfg.Port)
 	grpcServ := grpc.NewServer()
 	reflection.Register(grpcServ)
 
 	return &Server{
-		addr:       fmt.Sprintf(":%d", config.Port),
+		addr:       fmt.Sprintf(":%d", cfg.Port),
 		grpcServer: grpcServ,
 	}
 }

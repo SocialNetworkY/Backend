@@ -27,19 +27,19 @@ type (
 	}
 )
 
-func New(config Config) *Server {
-	log.Printf("Creating rest server with port: %d", config.Port)
+func New(cfg Config) *Server {
+	log.Printf("Creating rest server with port: %d", cfg.Port)
 
 	e := echo.New()
 
-	e.Use(middleware.BodyLimit(strconv.Itoa(config.BodyLimit)))
+	e.Use(middleware.BodyLimit(strconv.Itoa(cfg.BodyLimit)))
 	e.Use(middleware.LoggerWithConfig(middleware.LoggerConfig{
 		Format:           "${time_custom} | ${status} | ${latency_human} | ${remote_ip} | ${method} | ${uri} | ${error}\n",
 		CustomTimeFormat: "2006-01-02 15:04:05",
 	}))
 
 	corsConfig := middleware.CORSConfig{
-		AllowOrigins: config.AllowedOrigins,
+		AllowOrigins: cfg.AllowedOrigins,
 	}
 	e.Use(middleware.CORSWithConfig(corsConfig))
 
@@ -53,7 +53,7 @@ func New(config Config) *Server {
 
 	return &Server{
 		echo: e,
-		addr: fmt.Sprintf(":%d", config.Port),
+		addr: fmt.Sprintf(":%d", cfg.Port),
 	}
 }
 
