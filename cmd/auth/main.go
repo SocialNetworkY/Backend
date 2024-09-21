@@ -27,7 +27,7 @@ const (
 )
 
 var (
-	cfg *model.Config
+	cfg *config.AuthConfig
 	env *model.Env
 )
 
@@ -39,7 +39,7 @@ func init() {
 		log.Fatal(err)
 	}
 
-	cfg, err = config.LoadConfig[model.Config]()
+	cfg, err = config.LoadConfig[config.AuthConfig]()
 	if err != nil {
 		log.Fatal(err)
 	}

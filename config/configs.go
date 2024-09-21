@@ -1,4 +1,4 @@
-package model
+package config
 
 import (
 	"github.com/lapkomo2018/goTwitterServices/internal/auth/transport/grpc"
@@ -7,7 +7,7 @@ import (
 	"github.com/lapkomo2018/goTwitterServices/pkg/validation"
 )
 
-type Config struct {
+type AuthConfig struct {
 	Service struct {
 		Name string
 	}
