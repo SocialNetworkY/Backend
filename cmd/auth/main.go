@@ -23,18 +23,30 @@ import (
 	"github.com/joho/godotenv"
 )
 
+type (
+	Env struct {
+		DB string
+	}
+)
+
 const (
 	TagRest = "rest"
 	TagGRPC = "grpc"
 )
 
-var cfg *config.Config
+var (
+	cfg *config.Config
+	env *Env
+)
 
 func init() {
 	var err error
 	err = godotenv.Load()
 	if err != nil {
 		log.Printf("Error loading .env file, proceeding without it: %v", err)
+	}
+	env = &Env{
+		DB: os.Getenv("DB"),
 	}
 
 	cfg, err = config.LoadConfig()
@@ -45,7 +57,7 @@ func init() {
 
 // @title           Twitter Auth Service
 // @version         1.0
-// @description     Bombaclac
+// @description     Twitter Auth Service
 
 // @securityDefinitions.apikey ApiKeyAuth
 // @in header
@@ -88,7 +100,7 @@ func main() {
 		}
 	}()
 
-	storages, err := mysql.New(os.Getenv("DB"))
+	storages, err := mysql.New(env.DB)
 	if err != nil {
 		log.Fatal(err)
 	}
