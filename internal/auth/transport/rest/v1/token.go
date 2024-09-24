@@ -41,7 +41,7 @@ func (h *Handler) refreshToken(c echo.Context) error {
 
 type (
 	accessTokenResp struct {
-		AccessToken string `json:"access_token"`
+		Token string `json:"token"`
 	}
 )
 
@@ -57,6 +57,6 @@ func (h *Handler) setAndReturnTokens(c echo.Context, accessToken, refreshToken s
 	})
 
 	return c.JSON(http.StatusOK, accessTokenResp{
-		AccessToken: accessToken,
+		Token: accessToken,
 	})
 }
