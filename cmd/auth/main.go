@@ -108,7 +108,7 @@ func main() {
 	}()
 
 	go func() {
-		server := grpc.New(cfg.GrpcServer).Init(services.Authentication)
+		server := grpc.New(cfg.GrpcServer).Init(services.Authentication, services.User)
 		if err := server.Run(); err != nil {
 			log.Fatalf("Grpc server err: %v", err)
 		}

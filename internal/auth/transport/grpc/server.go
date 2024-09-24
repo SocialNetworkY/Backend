@@ -32,9 +32,9 @@ func New(cfg Config) *Server {
 	}
 }
 
-func (s *Server) Init(authenticationService v1.AuthenticationService) *Server {
-	handler := v1.New(authenticationService)
-	gen.RegisterAuthenticationServer(s.grpcServer, handler)
+func (s *Server) Init(as v1.AuthenticationService, us v1.UserService) *Server {
+	handler := v1.New(as, us)
+	gen.RegisterAuthServer(s.grpcServer, handler)
 	return s
 }
 
