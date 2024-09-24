@@ -10,8 +10,8 @@ import (
 
 	"github.com/lapkomo2018/goTwitterServices/config"
 	"github.com/lapkomo2018/goTwitterServices/internal/auth/model"
+	"github.com/lapkomo2018/goTwitterServices/internal/auth/repository/mysql"
 	"github.com/lapkomo2018/goTwitterServices/internal/auth/service"
-	"github.com/lapkomo2018/goTwitterServices/internal/auth/storage/mysql"
 	"github.com/lapkomo2018/goTwitterServices/internal/auth/transport/grpc"
 	"github.com/lapkomo2018/goTwitterServices/internal/auth/transport/rest"
 	"github.com/lapkomo2018/goTwitterServices/pkg/discovery"
