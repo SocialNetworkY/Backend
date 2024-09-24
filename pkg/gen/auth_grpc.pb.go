@@ -18,86 +18,158 @@ import (
 // Requires gRPC-Go v1.32.0 or later.
 const _ = grpc.SupportPackageIsVersion7
 
-// AuthenticationClient is the client API for Authentication service.
+// AuthClient is the client API for Auth service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
-type AuthenticationClient interface {
-	Authenticate(ctx context.Context, in *AuthenticateRequest, opts ...grpc.CallOption) (*AuthenticateResponse, error)
+type AuthClient interface {
+	CheckAuth(ctx context.Context, in *CheckAuthRequest, opts ...grpc.CallOption) (*CheckAuthResponse, error)
+	UpdateUsernameEmail(ctx context.Context, in *UpdateUsernameEmailRequest, opts ...grpc.CallOption) (*UpdateUsernameEmailResponse, error)
+	DeleteUser(ctx context.Context, in *DeleteUserRequest, opts ...grpc.CallOption) (*DeleteUserResponse, error)
 }
 
-type authenticationClient struct {
+type authClient struct {
 	cc grpc.ClientConnInterface
 }
 
-func NewAuthenticationClient(cc grpc.ClientConnInterface) AuthenticationClient {
-	return &authenticationClient{cc}
+func NewAuthClient(cc grpc.ClientConnInterface) AuthClient {
+	return &authClient{cc}
 }
 
-func (c *authenticationClient) Authenticate(ctx context.Context, in *AuthenticateRequest, opts ...grpc.CallOption) (*AuthenticateResponse, error) {
-	out := new(AuthenticateResponse)
-	err := c.cc.Invoke(ctx, "/Authentication/Authenticate", in, out, opts...)
+func (c *authClient) CheckAuth(ctx context.Context, in *CheckAuthRequest, opts ...grpc.CallOption) (*CheckAuthResponse, error) {
+	out := new(CheckAuthResponse)
+	err := c.cc.Invoke(ctx, "/Auth/CheckAuth", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-// AuthenticationServer is the server API for Authentication service.
-// All implementations must embed UnimplementedAuthenticationServer
+func (c *authClient) UpdateUsernameEmail(ctx context.Context, in *UpdateUsernameEmailRequest, opts ...grpc.CallOption) (*UpdateUsernameEmailResponse, error) {
+	out := new(UpdateUsernameEmailResponse)
+	err := c.cc.Invoke(ctx, "/Auth/UpdateUsernameEmail", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *authClient) DeleteUser(ctx context.Context, in *DeleteUserRequest, opts ...grpc.CallOption) (*DeleteUserResponse, error) {
+	out := new(DeleteUserResponse)
+	err := c.cc.Invoke(ctx, "/Auth/DeleteUser", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// AuthServer is the server API for Auth service.
+// All implementations must embed UnimplementedAuthServer
 // for forward compatibility
-type AuthenticationServer interface {
-	Authenticate(context.Context, *AuthenticateRequest) (*AuthenticateResponse, error)
-	mustEmbedUnimplementedAuthenticationServer()
+type AuthServer interface {
+	CheckAuth(context.Context, *CheckAuthRequest) (*CheckAuthResponse, error)
+	UpdateUsernameEmail(context.Context, *UpdateUsernameEmailRequest) (*UpdateUsernameEmailResponse, error)
+	DeleteUser(context.Context, *DeleteUserRequest) (*DeleteUserResponse, error)
+	mustEmbedUnimplementedAuthServer()
 }
 
-// UnimplementedAuthenticationServer must be embedded to have forward compatible implementations.
-type UnimplementedAuthenticationServer struct {
+// UnimplementedAuthServer must be embedded to have forward compatible implementations.
+type UnimplementedAuthServer struct {
 }
 
-func (UnimplementedAuthenticationServer) Authenticate(context.Context, *AuthenticateRequest) (*AuthenticateResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Authenticate not implemented")
+func (UnimplementedAuthServer) CheckAuth(context.Context, *CheckAuthRequest) (*CheckAuthResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CheckAuth not implemented")
 }
-func (UnimplementedAuthenticationServer) mustEmbedUnimplementedAuthenticationServer() {}
+func (UnimplementedAuthServer) UpdateUsernameEmail(context.Context, *UpdateUsernameEmailRequest) (*UpdateUsernameEmailResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateUsernameEmail not implemented")
+}
+func (UnimplementedAuthServer) DeleteUser(context.Context, *DeleteUserRequest) (*DeleteUserResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteUser not implemented")
+}
+func (UnimplementedAuthServer) mustEmbedUnimplementedAuthServer() {}
 
-// UnsafeAuthenticationServer may be embedded to opt out of forward compatibility for this service.
-// Use of this interface is not recommended, as added methods to AuthenticationServer will
+// UnsafeAuthServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to AuthServer will
 // result in compilation errors.
-type UnsafeAuthenticationServer interface {
-	mustEmbedUnimplementedAuthenticationServer()
+type UnsafeAuthServer interface {
+	mustEmbedUnimplementedAuthServer()
 }
 
-func RegisterAuthenticationServer(s grpc.ServiceRegistrar, srv AuthenticationServer) {
-	s.RegisterService(&Authentication_ServiceDesc, srv)
+func RegisterAuthServer(s grpc.ServiceRegistrar, srv AuthServer) {
+	s.RegisterService(&Auth_ServiceDesc, srv)
 }
 
-func _Authentication_Authenticate_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(AuthenticateRequest)
+func _Auth_CheckAuth_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CheckAuthRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(AuthenticationServer).Authenticate(ctx, in)
+		return srv.(AuthServer).CheckAuth(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/Authentication/Authenticate",
+		FullMethod: "/Auth/CheckAuth",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AuthenticationServer).Authenticate(ctx, req.(*AuthenticateRequest))
+		return srv.(AuthServer).CheckAuth(ctx, req.(*CheckAuthRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-// Authentication_ServiceDesc is the grpc.ServiceDesc for Authentication service.
+func _Auth_UpdateUsernameEmail_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateUsernameEmailRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AuthServer).UpdateUsernameEmail(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/Auth/UpdateUsernameEmail",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AuthServer).UpdateUsernameEmail(ctx, req.(*UpdateUsernameEmailRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Auth_DeleteUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteUserRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AuthServer).DeleteUser(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/Auth/DeleteUser",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AuthServer).DeleteUser(ctx, req.(*DeleteUserRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+// Auth_ServiceDesc is the grpc.ServiceDesc for Auth service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
-var Authentication_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "Authentication",
-	HandlerType: (*AuthenticationServer)(nil),
+var Auth_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "Auth",
+	HandlerType: (*AuthServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "Authenticate",
-			Handler:    _Authentication_Authenticate_Handler,
+			MethodName: "CheckAuth",
+			Handler:    _Auth_CheckAuth_Handler,
+		},
+		{
+			MethodName: "UpdateUsernameEmail",
+			Handler:    _Auth_UpdateUsernameEmail_Handler,
+		},
+		{
+			MethodName: "DeleteUser",
+			Handler:    _Auth_DeleteUser_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
