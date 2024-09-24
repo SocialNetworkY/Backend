@@ -183,3 +183,12 @@ func (us *UserService) ChangePassword(id uint, password string) error {
 	user.Password = hashedPassword
 	return us.storage.Save(user)
 }
+
+func (us *UserService) Delete(id uint) error {
+	user, err := us.storage.Find(id)
+	if err != nil {
+		return err
+	}
+
+	return us.storage.Delete(user)
+}
