@@ -24,7 +24,7 @@ services:
       JWT_REFRESH: "refreshPass"
 
     ports:
-      - "4355:8080" # Rest
+      - "8080:8080" # Rest
       - "8081:8081" # gRPC
     networks:
       - consul
