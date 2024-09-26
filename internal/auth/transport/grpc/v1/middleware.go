@@ -5,7 +5,6 @@ import (
 	"github.com/lapkomo2018/goTwitterServices/internal/auth/model"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
-	"log"
 	"net/http"
 )
 
@@ -18,10 +17,8 @@ func (h *Handler) getUserFromMetadata(ctx context.Context) (*model.User, error) 
 	if !ok {
 		return nil, status.Errorf(http.StatusUnauthorized, "missing metadata")
 	}
-	log.Printf("md: %+v", md)
 
 	authHeader, ok := md[authorizationMetadata]
-	log.Printf("authHeader: %v", authHeader)
 	if !ok || len(authHeader) == 0 {
 		return nil, status.Errorf(http.StatusUnauthorized, "missing Authorization header")
 	}

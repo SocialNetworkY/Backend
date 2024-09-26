@@ -1,6 +1,8 @@
 package service
 
 import (
+	"context"
+	"fmt"
 	"github.com/lapkomo2018/goTwitterServices/internal/auth/model"
 )
 
@@ -34,20 +36,27 @@ type (
 		Delete(userID uint) error
 	}
 
+	UserGateway interface {
+		CreateUser(ctx context.Context, auth string, userID, role uint, username, email string) error
+		GetUserRole(ctx context.Context, auth string, userID uint) (uint, error)
+	}
+
 	UserService struct {
 		storage                UserStorage
 		tokenService           UserTokenService
 		activationTokenService UserActivationTokenService
 		hasher                 Hasher
+		userGateway            UserGateway
 	}
 )
 
-func NewUserService(userStorage UserStorage, tokenService UserTokenService, activationTokenService UserActivationTokenService, hasher Hasher) *UserService {
+func NewUserService(userStorage UserStorage, tokenService UserTokenService, activationTokenService UserActivationTokenService, hasher Hasher, ug UserGateway) *UserService {
 	return &UserService{
 		storage:                userStorage,
 		tokenService:           tokenService,
 		activationTokenService: activationTokenService,
 		hasher:                 hasher,
+		userGateway:            ug,
 	}
 }
 
@@ -123,6 +132,10 @@ func (us *UserService) Activate(activationToken string) (accessToken, refreshTok
 
 	accessToken, refreshToken, err = us.tokenService.Generate(user.ID)
 	if err != nil {
+		return "", "", err
+	}
+
+	if err := us.userGateway.CreateUser(context.Background(), fmt.Sprintf("Bearer %s", accessToken), user.ID, model.RoleUser, user.Username, user.Email); err != nil {
 		return "", "", err
 	}
 

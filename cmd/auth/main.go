@@ -9,16 +9,18 @@ import (
 	"time"
 
 	"github.com/lapkomo2018/goTwitterServices/config"
-	"github.com/lapkomo2018/goTwitterServices/internal/auth/model"
-	"github.com/lapkomo2018/goTwitterServices/internal/auth/repository/mysql"
-	"github.com/lapkomo2018/goTwitterServices/internal/auth/service"
-	"github.com/lapkomo2018/goTwitterServices/internal/auth/transport/grpc"
-	"github.com/lapkomo2018/goTwitterServices/internal/auth/transport/rest"
 	"github.com/lapkomo2018/goTwitterServices/pkg/discovery"
 	"github.com/lapkomo2018/goTwitterServices/pkg/discovery/consul"
 	"github.com/lapkomo2018/goTwitterServices/pkg/hash"
 	"github.com/lapkomo2018/goTwitterServices/pkg/jwt"
 	"github.com/lapkomo2018/goTwitterServices/pkg/validation"
+
+	userService "github.com/lapkomo2018/goTwitterServices/internal/auth/gateway/user/grpc"
+	"github.com/lapkomo2018/goTwitterServices/internal/auth/model"
+	"github.com/lapkomo2018/goTwitterServices/internal/auth/repository/mysql"
+	"github.com/lapkomo2018/goTwitterServices/internal/auth/service"
+	"github.com/lapkomo2018/goTwitterServices/internal/auth/transport/grpc"
+	"github.com/lapkomo2018/goTwitterServices/internal/auth/transport/rest"
 )
 
 type Config struct {
@@ -106,7 +108,8 @@ func main() {
 	}
 	hasher := hash.NewSHA1Hasher(env.HashSalt)
 	tokenManager := jwt.NewManager(cfg.JWT, env.JWTSecret, env.JWTRefreshSecret)
-	services := service.New(storages.User, storages.RefreshToken, storages.ActivationToken, tokenManager, hasher)
+	userGateway := userService.New(registry)
+	services := service.New(storages.User, storages.RefreshToken, storages.ActivationToken, tokenManager, hasher, userGateway)
 
 	go func() {
 		server := rest.New(cfg.RestServer).Init(services.User, services.Tokens, services.Authentication, validator, cfg.JWT.RefreshDuration)

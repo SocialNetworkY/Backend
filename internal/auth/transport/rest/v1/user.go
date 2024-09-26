@@ -13,6 +13,7 @@ func (h *Handler) initUserApi(api *echo.Group) {
 	api.GET("/activate/:token", h.userActivate)
 	api.GET("/authenticate", h.userAuthenticate, h.authenticationMiddleware)
 	api.GET("/info", h.userInfo, h.authenticationMiddleware)
+	api.PATCH("/change-password", h.userChangePassword, h.authenticationMiddleware)
 }
 
 // @Summary      User login
@@ -177,5 +178,43 @@ type (
 		Username  string    `json:"username"`
 		CreatedAt time.Time `json:"created_at"`
 		UpdatedAt time.Time `json:"updated_at"`
+	}
+)
+
+// @Summary      Change Password
+// @Description  Change user password
+// @Tags         User
+// @Accept       json
+// @Produce      json
+// @Security     ApiKeyAuth
+// @Param input body userChangePasswordReq true "new password"
+// @Success      204
+// @Failure      default  {object}  echo.HTTPError
+// @Router       /change/password [patch]
+func (h *Handler) userChangePassword(c echo.Context) error {
+	user, ok := c.Get(userLocals).(*model.User)
+	if !ok {
+		return echo.NewHTTPError(http.StatusInternalServerError, "invalid user")
+	}
+
+	var body userChangePasswordReq
+	if err := c.Bind(&body); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+
+	if err := h.validator.Password(body.Password); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+
+	if err := h.userService.ChangePassword(user.ID, body.Password); err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+
+	return c.NoContent(http.StatusNoContent)
+}
+
+type (
+	userChangePasswordReq struct {
+		Password string `json:"password" binding:"required"`
 	}
 )

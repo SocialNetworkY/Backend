@@ -13,8 +13,6 @@ type (
 		Login(login, password string) (string, string, error)
 		Activate(token string) (string, string, error)
 		Find(id uint) (*model.User, error)
-		ChangeEmail(id uint, email string) error
-		ChangeUsername(id uint, username string) error
 		ChangePassword(id uint, password string) error
 	}
 
@@ -65,6 +63,5 @@ func (h *Handler) Init(api *echo.Group) {
 	{
 		h.initUserApi(v1)
 		h.initTokenApi(v1)
-		h.initUserChangeApi(v1)
 	}
 }

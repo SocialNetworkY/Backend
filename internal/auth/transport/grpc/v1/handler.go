@@ -18,7 +18,7 @@ type (
 	}
 
 	Handler struct {
-		gen.UnimplementedAuthServer
+		gen.UnimplementedAuthServiceServer
 		as AuthenticationService
 		us UserService
 	}

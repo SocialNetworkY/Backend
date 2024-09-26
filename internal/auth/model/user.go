@@ -15,3 +15,10 @@ type User struct {
 	UpdatedAt   time.Time
 	DeletedAt   gorm.DeletedAt `gorm:"index"`
 }
+
+const (
+	RoleUser      = 0
+	RoleAdminLvl1 = 1
+	RoleAdminLvl2 = 2
+	RoleAdminLvl3 = 3
+)

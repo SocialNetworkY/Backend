@@ -34,7 +34,7 @@ func New(cfg Config) *Server {
 
 func (s *Server) Init(as v1.AuthenticationService, us v1.UserService) *Server {
 	handler := v1.New(as, us)
-	gen.RegisterAuthServer(s.grpcServer, handler)
+	gen.RegisterAuthServiceServer(s.grpcServer, handler)
 	return s
 }
 

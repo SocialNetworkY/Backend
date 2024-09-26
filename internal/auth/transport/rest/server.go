@@ -11,7 +11,7 @@ import (
 	"strconv"
 	"time"
 
-	_ "github.com/lapkomo2018/goTwitterServices/docs"
+	_ "github.com/lapkomo2018/goTwitterServices/docs/auth"
 )
 
 type (
