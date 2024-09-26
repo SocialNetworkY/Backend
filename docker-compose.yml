@@ -22,7 +22,6 @@ services:
       HASH_SALT: "hashSalt"
       JWT_SECRET: "accessPass"
       JWT_REFRESH: "refreshPass"
-
     ports:
       - "8080:8080" # Rest
       - "8081:8081" # gRPC
@@ -52,6 +51,45 @@ services:
       timeout: 20s
       retries: 10
 
+  user-service:
+    build:
+        context: .
+        dockerfile: cmd/user/Dockerfile
+    container_name: user-service
+    environment:
+        DB: myuser:strongpass@tcp(user-db:3306)/mydb?parseTime=true
+        DISCOVERY_ADDR: consul:8500
+        EXTERNAL_REST_PORT: 8082
+        EXTERNAL_GRPC_PORT: 8083
+    ports:
+      - "8082:8082" # Rest
+      - "8083:8083" # gRPC
+    networks:
+        - consul
+        - user
+    depends_on:
+      user-db:
+        condition: service_healthy
+
+  user-db:
+    image: mysql:latest
+    container_name: user-db
+    environment:
+      MYSQL_DATABASE: mydb
+      MYSQL_USER: myuser
+      MYSQL_PASSWORD: strongpass
+      MYSQL_ROOT_PASSWORD: verystrongpass
+    ports:
+      - "5678:3306"
+    volumes:
+      - user_db_data:/var/lib/mysql
+    networks:
+        - user
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost" ]
+      timeout: 20s
+      retries: 10
+
 volumes:
   auth_db_data:
     driver: local
@@ -59,7 +97,14 @@ volumes:
       type: none
       o: bind
       device: ./db/auth
+  user_db_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ./db/user
 
 networks:
     consul:
     auth:
+    user:

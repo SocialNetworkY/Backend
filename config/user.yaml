@@ -1,0 +1,11 @@
+service:
+  name: "UserService"
+
+restServer:
+  port: 8080
+  bodyLimit: 25165824
+  allowedOrigins:
+    - "*"
+
+grpcServer:
+  port: 8081

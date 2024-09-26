@@ -4,38 +4,46 @@ definitions:
     properties:
       message: {}
     type: object
-  internal_transport_rest_v1.accessTokenResp:
+  internal_user_transport_rest_v1.getUserResponse:
     properties:
-      access_token:
+      avatar:
+        type: string
+      nickname:
+        type: string
+      role:
+        type: integer
+      user_id:
+        type: integer
+      username:
         type: string
     type: object
-  internal_transport_rest_v1.userAuthenticateResp:
+  internal_user_transport_rest_v1.putUserRequest:
+    properties:
+      email:
+        type: string
+      nickname:
+        type: string
+      username:
+        type: string
+    type: object
+  v1.accessTokenResp:
+    properties:
+      token:
+        type: string
+    type: object
+  v1.userAuthenticateResp:
     properties:
       user_id:
         type: integer
     type: object
-  internal_transport_rest_v1.userChangeEmailReq:
-    properties:
-      email:
-        type: string
-    required:
-    - email
-    type: object
-  internal_transport_rest_v1.userChangePasswordReq:
+  v1.userChangePasswordReq:
     properties:
       password:
         type: string
     required:
     - password
     type: object
-  internal_transport_rest_v1.userChangeUsernameReq:
-    properties:
-      username:
-        type: string
-    required:
-    - username
-    type: object
-  internal_transport_rest_v1.userInfoResp:
+  v1.userInfoResp:
     properties:
       created_at:
         type: string
@@ -48,7 +56,7 @@ definitions:
       username:
         type: string
     type: object
-  internal_transport_rest_v1.userLoginReq:
+  v1.userLoginReq:
     properties:
       login:
         type: string
@@ -58,7 +66,7 @@ definitions:
     - login
     - password
     type: object
-  internal_transport_rest_v1.userRegisterReq:
+  v1.userRegisterReq:
     properties:
       email:
         type: string
@@ -71,18 +79,92 @@ definitions:
     - password
     - username
     type: object
-  internal_transport_rest_v1.userRegisterResp:
+  v1.userRegisterResp:
     properties:
       activation_token:
         type: string
     type: object
-host: localhost:8080
+host: localhost:8082
 info:
   contact: {}
-  description: Bombaclac
-  title: Twitter Auth Service
+  description: Social Network Y UserService
+  title: Social Network Y UserService
   version: "1.0"
 paths:
+  /{userID}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete user
+      parameters:
+      - description: User ID
+        in: path
+        name: userID
+        required: true
+        type: integer
+      - description: Authorization
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+      summary: Delete user
+      tags:
+      - user
+    put:
+      consumes:
+      - application/json
+      description: Update user
+      parameters:
+      - description: User ID
+        in: path
+        name: userID
+        required: true
+        type: integer
+      - description: Authorization
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Request body
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/internal_user_transport_rest_v1.putUserRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+      summary: Update user
+      tags:
+      - user
+  /{username}:
+    get:
+      consumes:
+      - application/json
+      description: Get user by username
+      parameters:
+      - description: Username
+        in: path
+        name: username
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_user_transport_rest_v1.getUserResponse'
+      summary: Get user by username
+      tags:
+      - user
   /activate/{token}:
     get:
       description: Activate user
@@ -102,7 +184,7 @@ paths:
               description: Refresh Token
               type: string
           schema:
-            $ref: '#/definitions/internal_transport_rest_v1.accessTokenResp'
+            $ref: '#/definitions/v1.accessTokenResp'
         default:
           description: ""
           schema:
@@ -119,7 +201,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/internal_transport_rest_v1.userAuthenticateResp'
+            $ref: '#/definitions/v1.userAuthenticateResp'
         default:
           description: ""
           schema:
@@ -127,32 +209,6 @@ paths:
       security:
       - ApiKeyAuth: []
       summary: Authenticate
-      tags:
-      - User
-  /change/email:
-    patch:
-      consumes:
-      - application/json
-      description: Change user email
-      parameters:
-      - description: new email
-        in: body
-        name: input
-        required: true
-        schema:
-          $ref: '#/definitions/internal_transport_rest_v1.userChangeEmailReq'
-      produces:
-      - application/json
-      responses:
-        "204":
-          description: No Content
-        default:
-          description: ""
-          schema:
-            $ref: '#/definitions/echo.HTTPError'
-      security:
-      - ApiKeyAuth: []
-      summary: Change Email
       tags:
       - User
   /change/password:
@@ -166,7 +222,7 @@ paths:
         name: input
         required: true
         schema:
-          $ref: '#/definitions/internal_transport_rest_v1.userChangePasswordReq'
+          $ref: '#/definitions/v1.userChangePasswordReq'
       produces:
       - application/json
       responses:
@@ -181,32 +237,6 @@ paths:
       summary: Change Password
       tags:
       - User
-  /change/username:
-    patch:
-      consumes:
-      - application/json
-      description: Change user username
-      parameters:
-      - description: new username
-        in: body
-        name: input
-        required: true
-        schema:
-          $ref: '#/definitions/internal_transport_rest_v1.userChangeUsernameReq'
-      produces:
-      - application/json
-      responses:
-        "204":
-          description: No Content
-        default:
-          description: ""
-          schema:
-            $ref: '#/definitions/echo.HTTPError'
-      security:
-      - ApiKeyAuth: []
-      summary: Change Username
-      tags:
-      - User
   /info:
     get:
       description: Get users info
@@ -216,7 +246,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/internal_transport_rest_v1.userInfoResp'
+            $ref: '#/definitions/v1.userInfoResp'
         default:
           description: ""
           schema:
@@ -237,7 +267,7 @@ paths:
         name: input
         required: true
         schema:
-          $ref: '#/definitions/internal_transport_rest_v1.userLoginReq'
+          $ref: '#/definitions/v1.userLoginReq'
       produces:
       - application/json
       responses:
@@ -248,7 +278,7 @@ paths:
               description: Refresh Token
               type: string
           schema:
-            $ref: '#/definitions/internal_transport_rest_v1.accessTokenResp'
+            $ref: '#/definitions/v1.accessTokenResp'
         default:
           description: ""
           schema:
@@ -277,7 +307,7 @@ paths:
               description: Refresh Token
               type: string
           schema:
-            $ref: '#/definitions/internal_transport_rest_v1.accessTokenResp'
+            $ref: '#/definitions/v1.accessTokenResp'
         default:
           description: ""
           schema:
@@ -296,14 +326,14 @@ paths:
         name: input
         required: true
         schema:
-          $ref: '#/definitions/internal_transport_rest_v1.userRegisterReq'
+          $ref: '#/definitions/v1.userRegisterReq'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/internal_transport_rest_v1.userRegisterResp'
+            $ref: '#/definitions/v1.userRegisterResp'
         default:
           description: ""
           schema:
