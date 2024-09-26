@@ -6,6 +6,10 @@ import (
 	"github.com/spf13/viper"
 )
 
+type Service struct {
+	Name string
+}
+
 func LoadConfig[T any]() (*T, error) {
 	log.Println("Loading config...")
 

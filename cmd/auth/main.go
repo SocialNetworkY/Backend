@@ -21,13 +21,21 @@ import (
 	"github.com/lapkomo2018/goTwitterServices/pkg/validation"
 )
 
+type Config struct {
+	Service    config.Service
+	RestServer rest.Config
+	GrpcServer grpc.Config
+	JWT        jwt.Config
+	Validator  validation.Config
+}
+
 const (
 	TagRest = "rest"
 	TagGRPC = "grpc"
 )
 
 var (
-	cfg *config.AuthConfig
+	cfg *Config
 	env *model.Env
 )
 
@@ -39,7 +47,7 @@ func init() {
 		log.Fatal(err)
 	}
 
-	cfg, err = config.LoadConfig[config.AuthConfig]()
+	cfg, err = config.LoadConfig[Config]()
 	if err != nil {
 		log.Fatal(err)
 	}
