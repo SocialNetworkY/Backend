@@ -13,7 +13,7 @@ type Gateway struct {
 }
 
 const (
-	AuthServiceName = "auth"
+	AuthServiceName = "AuthService"
 )
 
 // New creates a new Gateway.

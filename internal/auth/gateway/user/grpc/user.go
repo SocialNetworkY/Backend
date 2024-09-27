@@ -13,7 +13,7 @@ type Gateway struct {
 	registry discovery.Registry
 }
 
-const UserServiceName = "user"
+const UserServiceName = "UserService"
 
 // New creates a new Gateway.
 func New(r discovery.Registry) *Gateway {
