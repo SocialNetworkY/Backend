@@ -62,8 +62,8 @@ services:
         EXTERNAL_REST_PORT: 8082
         EXTERNAL_GRPC_PORT: 8083
     ports:
-      - "8082:8082" # Rest
-      - "8083:8083" # gRPC
+      - "8082:8080" # Rest
+      - "8083:8081" # gRPC
     networks:
         - consul
         - user
