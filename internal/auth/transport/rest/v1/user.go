@@ -16,16 +16,6 @@ func (h *Handler) initUserApi(api *echo.Group) {
 	api.PATCH("/change-password", h.userChangePassword, h.authenticationMiddleware)
 }
 
-// @Summary      User login
-// @Description  login bruh
-// @Tags         User
-// @Accept       json
-// @Produce      json
-// @Param input body userLoginReq true "user credentials"
-// @Success      200  {object}  accessTokenResp
-// @Header       200  {string}  Set-Cookie  "Refresh Token"
-// @Failure      default  {object}  echo.HTTPError
-// @Router       /login [post]
 func (h *Handler) userLogin(c echo.Context) error {
 	var body userLoginReq
 	if err := c.Bind(&body); err != nil {
@@ -57,15 +47,6 @@ type (
 	}
 )
 
-// @Summary      User register
-// @Description  reg bruh
-// @Tags         User
-// @Accept       json
-// @Produce      json
-// @Param input body userRegisterReq true "user credentials"
-// @Success      200  {object}  userRegisterResp
-// @Failure      default  {object}  echo.HTTPError
-// @Router       /register [post]
 func (h *Handler) userRegister(c echo.Context) error {
 	var body userRegisterReq
 	if err := c.Bind(&body); err != nil {
@@ -103,15 +84,6 @@ type (
 	}
 )
 
-// @Summary      Activate
-// @Description  Activate user
-// @Tags         User
-// @Produce      json
-// @Param token path string true "activation token"
-// @Success      200  {object}  accessTokenResp
-// @Header       200  {string}  Set-Cookie  "Refresh Token"
-// @Failure      default  {object}  echo.HTTPError
-// @Router       /activate/{token} [get]
 func (h *Handler) userActivate(c echo.Context) error {
 	activationToken := c.Param("token")
 
@@ -123,14 +95,6 @@ func (h *Handler) userActivate(c echo.Context) error {
 	return h.setAndReturnTokens(c, accessToken, refreshToken)
 }
 
-// @Summary      Authenticate
-// @Description  Check user access token
-// @Tags         User
-// @Produce      json
-// @Security     ApiKeyAuth
-// @Success      200  {object}  userAuthenticateResp
-// @Failure      default  {object}  echo.HTTPError
-// @Router       /authenticate [get]
 func (h *Handler) userAuthenticate(c echo.Context) error {
 	user, ok := c.Get(userLocals).(*model.User)
 	if !ok {
@@ -148,14 +112,6 @@ type (
 	}
 )
 
-// @Summary      Info
-// @Description  Get users info
-// @Tags         User
-// @Produce      json
-// @Security     ApiKeyAuth
-// @Success      200  {object} userInfoResp
-// @Failure      default  {object}  echo.HTTPError
-// @Router       /info [get]
 func (h *Handler) userInfo(c echo.Context) error {
 	user, ok := c.Get(userLocals).(*model.User)
 	if !ok {
@@ -181,16 +137,6 @@ type (
 	}
 )
 
-// @Summary      Change Password
-// @Description  Change user password
-// @Tags         User
-// @Accept       json
-// @Produce      json
-// @Security     ApiKeyAuth
-// @Param input body userChangePasswordReq true "new password"
-// @Success      204
-// @Failure      default  {object}  echo.HTTPError
-// @Router       /change/password [patch]
 func (h *Handler) userChangePassword(c echo.Context) error {
 	user, ok := c.Get(userLocals).(*model.User)
 	if !ok {

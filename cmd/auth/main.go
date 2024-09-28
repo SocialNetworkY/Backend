@@ -55,16 +55,6 @@ func init() {
 	}
 }
 
-// @title           Twitter Auth Service
-// @version         1.0
-// @description     Twitter Auth Service
-
-// @securityDefinitions.apikey ApiKeyAuth
-// @in header
-// @name Authorization
-
-// @host      localhost:8080
-// @BasePath  /api/v1
 func main() {
 	registry, err := consul.NewRegistry(env.DiscoveryAddr)
 	if err != nil {

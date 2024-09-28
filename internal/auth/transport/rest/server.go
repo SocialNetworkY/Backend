@@ -5,13 +5,10 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/lapkomo2018/goTwitterServices/internal/auth/transport/rest/v1"
-	echoSwagger "github.com/swaggo/echo-swagger"
 	"log"
 	"net/http"
 	"strconv"
 	"time"
-
-	_ "github.com/lapkomo2018/goTwitterServices/docs/auth"
 )
 
 type (
@@ -59,11 +56,6 @@ func New(cfg Config) *Server {
 
 func (s *Server) Init(userService v1.UserService, tokenService v1.TokenService, authenticationService v1.AuthenticationService, validator v1.Validator, refreshTokenDuration time.Duration) *Server {
 	log.Println("Initializing server...")
-	s.echo.GET("/swagger/*", echoSwagger.WrapHandler)
-	s.echo.GET("/swagger", func(c echo.Context) error {
-		return c.Redirect(http.StatusMovedPermanently, "/swagger/index.html")
-	})
-
 	log.Println("Initializing api...")
 	handlerV1 := v1.New(userService, tokenService, authenticationService, validator, refreshTokenDuration)
 	api := s.echo.Group("/api")

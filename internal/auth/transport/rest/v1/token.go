@@ -10,16 +10,6 @@ func (h *Handler) initTokenApi(api *echo.Group) {
 	api.POST("/refresh", h.refreshToken)
 }
 
-// @Summary      Refresh token
-// @Description  Refresh jwt token
-// @Tags         Token
-// @Accept       json
-// @Produce      json
-// @Param        refresh_token  header  string  true  "Refresh Token"
-// @Success      200  {object}  accessTokenResp
-// @Header       200  {string}  Set-Cookie  "Refresh Token"
-// @Failure      default  {object}  echo.HTTPError
-// @Router       /refresh [post]
 func (h *Handler) refreshToken(c echo.Context) error {
 	refreshTokenCookie, err := c.Cookie(refreshTokenCookieName)
 	if err != nil {
