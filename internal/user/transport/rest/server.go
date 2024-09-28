@@ -6,12 +6,10 @@ import (
 	"net/http"
 	"strconv"
 
-	_ "github.com/lapkomo2018/goTwitterServices/docs/user"
 	"github.com/lapkomo2018/goTwitterServices/internal/user/transport/rest/v1"
 
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
-	echoSwagger "github.com/swaggo/echo-swagger"
 )
 
 type (
@@ -59,11 +57,6 @@ func New(cfg Config) *Server {
 
 func (s *Server) Init(us v1.UserService, ag v1.AuthGateway) *Server {
 	log.Println("Initializing server...")
-	s.echo.GET("/swagger/*", echoSwagger.WrapHandler)
-	s.echo.GET("/swagger", func(c echo.Context) error {
-		return c.Redirect(http.StatusMovedPermanently, "/swagger/index.html")
-	})
-
 	log.Println("Initializing api...")
 	handlerV1 := v1.New(us, ag)
 	api := s.echo.Group("/api")

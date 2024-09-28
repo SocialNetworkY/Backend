@@ -50,16 +50,6 @@ func init() {
 	}
 }
 
-// @title           Social Network Y UserService
-// @version         1.0
-// @description     Social Network Y UserService
-
-// @securityDefinitions.apikey ApiKeyAuth
-// @in header
-// @name Authorization
-
-// @host      localhost:8082
-// @BasePath  /api/v1
 func main() {
 	registry, err := consul.NewRegistry(env.DiscoveryAddr)
 	if err != nil {

@@ -18,14 +18,6 @@ func (h *Handler) initUserApi(api *echo.Group) {
 	api.GET(fmt.Sprintf("/:%s", paramUserID), h.putUser, h.authenticationMiddleware)
 }
 
-// @Summary Get user by username
-// @Description Get user by username
-// @Tags user
-// @Accept json
-// @Produce json
-// @Param username path string true "Username"
-// @Success 200 {object} getUserResponse
-// @Router /{username} [get]
 func (h *Handler) getUser(c echo.Context) error {
 	username := c.Param(paramUsername)
 	user, err := h.us.FindByUsername(username)
@@ -52,16 +44,6 @@ type (
 	}
 )
 
-// @Summary Update user
-// @Description Update user
-// @Tags user
-// @Accept json
-// @Produce json
-// @Param userID path int true "User ID"
-// @Param Authorization header string true "Authorization"
-// @Param request body putUserRequest true "Request body"
-// @Success 200
-// @Router /{userID} [put]
 func (h *Handler) putUser(c echo.Context) error {
 	requester, ok := c.Get(userLocals).(*model.User)
 	if !ok {
@@ -118,15 +100,6 @@ type (
 	}
 )
 
-// @Summary Delete user
-// @Description Delete user
-// @Tags user
-// @Accept json
-// @Produce json
-// @Param userID path int true "User ID"
-// @Param Authorization header string true "Authorization"
-// @Success 200
-// @Router /{userID} [delete]
 func (h *Handler) deleteUser(c echo.Context) error {
 	requester, ok := c.Get(userLocals).(*model.User)
 	if !ok {

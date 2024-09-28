@@ -1,9 +1,4 @@
-.PHONY: docs proto
-
-# Command to generate documentation
-docs:
-	swag init --output docs/auth --parseDependency --parseInternal -g cmd/auth/main.go
-	swag init --output docs/user --parseDependency --parseInternal -g cmd/user/main.go
+.PHONY: proto
 
 # Command to generate proto files
 proto:
