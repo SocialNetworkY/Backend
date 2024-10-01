@@ -2,27 +2,24 @@ package grpc
 
 import (
 	"context"
-	"github.com/lapkomo2018/goTwitterServices/pkg/discovery"
 	"github.com/lapkomo2018/goTwitterServices/pkg/gen"
 	"github.com/lapkomo2018/goTwitterServices/pkg/grpcutil"
 )
 
 // Gateway represents the gRPC gateway for the user service.
 type Gateway struct {
-	registry discovery.Registry
+	addr string
 }
-
-const (
-	AuthServiceName = "AuthService"
-)
 
 // New creates a new Gateway.
-func New(r discovery.Registry) *Gateway {
-	return &Gateway{registry: r}
+func New(addr string) *Gateway {
+	return &Gateway{
+		addr: addr,
+	}
 }
 
-func (g *Gateway) CheckAuth(ctx context.Context, auth string) (uint, error) {
-	conn, err := grpcutil.ServiceConnection(ctx, AuthServiceName, g.registry)
+func (g *Gateway) Authenticate(ctx context.Context, auth string) (uint, error) {
+	conn, err := grpcutil.ServiceConnection(g.addr)
 	if err != nil {
 		return 0, err
 	}
@@ -38,7 +35,7 @@ func (g *Gateway) CheckAuth(ctx context.Context, auth string) (uint, error) {
 }
 
 func (g *Gateway) UpdateUsernameEmail(ctx context.Context, auth string, id uint, username, email string) error {
-	conn, err := grpcutil.ServiceConnection(ctx, AuthServiceName, g.registry)
+	conn, err := grpcutil.ServiceConnection(g.addr)
 	if err != nil {
 		return err
 	}
@@ -58,7 +55,7 @@ func (g *Gateway) UpdateUsernameEmail(ctx context.Context, auth string, id uint,
 }
 
 func (g *Gateway) DeleteUser(ctx context.Context, auth string, id uint) error {
-	conn, err := grpcutil.ServiceConnection(ctx, AuthServiceName, g.registry)
+	conn, err := grpcutil.ServiceConnection(g.addr)
 	if err != nil {
 		return err
 	}

@@ -63,22 +63,40 @@ services:
       timeout: 20s
       retries: 10
 
-  user-service:
+  user-http-service:
     build:
-        context: .
-        dockerfile: cmd/user/Dockerfile
-    container_name: user-service
+      context: .
+      dockerfile: cmd/user/http/Dockerfile
+    container_name: user-http-service
     environment:
-        DB: myuser:strongpass@tcp(user-db:3306)/mydb?parseTime=true
-        DISCOVERY_ADDR: consul:8500
-        EXTERNAL_REST_PORT: 8082
-        EXTERNAL_GRPC_PORT: 8083
+      DB: myuser:strongpass@tcp(user-db:3306)/mydb?parseTime=true
+      PORT: 8082
+      AUTH_SERVICE_HTTP_ADDR: auth-http-service:8080
+      AUTH_SERVICE_GRPC_ADDR: auth-grpc-service:8081
     ports:
-      - "8082:8080" # Rest
-      - "8083:8081" # gRPC
+      - "8082:8082"
     networks:
-        - consul
-        - user
+      - services
+      - user
+    depends_on:
+      user-db:
+        condition: service_healthy
+
+  user-grpc-service:
+    build:
+      context: .
+      dockerfile: cmd/user/grpc/Dockerfile
+    container_name: user-grpc-service
+    environment:
+      DB: myuser:strongpass@tcp(user-db:3306)/mydb?parseTime=true
+      PORT: 8083
+      AUTH_SERVICE_HTTP_ADDR: auth-http-service:8080
+      AUTH_SERVICE_GRPC_ADDR: auth-grpc-service:8081
+    ports:
+      - "8083:8083"
+    networks:
+      - services
+      - user
     depends_on:
       user-db:
         condition: service_healthy
@@ -117,6 +135,6 @@ volumes:
       device: ./db/user
 
 networks:
-    consul:
-    auth:
-    user:
+  services:
+  auth:
+  user:

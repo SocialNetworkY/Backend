@@ -9,9 +9,9 @@ RUN go mod download
 
 COPY . .
 
-RUN CGO_ENABLED=0 go build -o /server cmd/user/main.go
+RUN CGO_ENABLED=0 go build -o /server cmd/user/http/main.go
 
 FROM alpine:latest
 COPY --from=builder server .
-COPY --from=builder /app/config/user.yaml /config/config.yaml
+COPY --from=builder /app/configs/user.yaml /config.yaml
 CMD ["/server"]

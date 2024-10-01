@@ -1,0 +1,6 @@
+httpServer:
+  bodyLimit: 25165824
+  allowedOrigins:
+    - "*"
+
+grpcServer:
