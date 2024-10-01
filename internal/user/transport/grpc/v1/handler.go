@@ -14,7 +14,7 @@ type (
 	}
 
 	AuthGateway interface {
-		CheckAuth(ctx context.Context, auth string) (uint, error)
+		Authenticate(ctx context.Context, auth string) (uint, error)
 	}
 
 	Handler struct {

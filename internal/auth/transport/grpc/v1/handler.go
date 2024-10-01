@@ -31,13 +31,13 @@ func New(as AuthenticationService, us UserService) *Handler {
 	}
 }
 
-func (h *Handler) CheckAuth(ctx context.Context, r *gen.CheckAuthRequest) (*gen.CheckAuthResponse, error) {
+func (h *Handler) Authenticate(ctx context.Context, r *gen.AuthenticateRequest) (*gen.AuthenticateResponse, error) {
 	user, err := h.getUserFromMetadata(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	return &gen.CheckAuthResponse{UserId: uint64(user.ID)}, nil
+	return &gen.AuthenticateResponse{UserId: uint64(user.ID)}, nil
 }
 
 // TODO: Fix this (Need update credentials for user from request id)

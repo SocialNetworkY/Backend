@@ -29,7 +29,7 @@ func (g *Gateway) CheckAuth(ctx context.Context, auth string) (uint, error) {
 	defer conn.Close()
 	client := gen.NewAuthServiceClient(conn)
 
-	resp, err := client.CheckAuth(grpcutil.PutAuth(ctx, auth), &gen.CheckAuthRequest{})
+	resp, err := client.Authenticate(grpcutil.PutAuth(ctx, auth), &gen.AuthenticateRequest{})
 	if err != nil {
 		return 0, err
 	}

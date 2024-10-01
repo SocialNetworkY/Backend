@@ -2,15 +2,15 @@ syntax = "proto3";
 option go_package = "/gen";
 
 service AuthService {
-  rpc CheckAuth(CheckAuthRequest) returns (CheckAuthResponse);
+  rpc Authenticate(AuthenticateRequest) returns (AuthenticateResponse);
   rpc UpdateUsernameEmail(UpdateUsernameEmailRequest) returns (UpdateUsernameEmailResponse);
   rpc DeleteUser(DeleteUserRequest) returns (DeleteUserResponse);
 }
 
-message CheckAuthRequest {
+message AuthenticateRequest {
 }
 
-message CheckAuthResponse {
+message AuthenticateResponse {
   uint64 user_id = 1;
 }
 

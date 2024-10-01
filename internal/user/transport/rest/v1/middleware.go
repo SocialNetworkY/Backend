@@ -16,7 +16,7 @@ func (h *Handler) authenticationMiddleware(next echo.HandlerFunc) echo.HandlerFu
 			return echo.NewHTTPError(http.StatusUnauthorized, "Missing Authorization header")
 		}
 
-		userID, err := h.ag.CheckAuth(c.Request().Context(), authHeader)
+		userID, err := h.ag.Authenticate(c.Request().Context(), authHeader)
 		if err != nil {
 			return echo.NewHTTPError(http.StatusUnauthorized, err.Error())
 		}

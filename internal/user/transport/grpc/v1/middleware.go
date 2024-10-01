@@ -33,7 +33,7 @@ func (h *Handler) getUserIDFromMetadata(ctx context.Context) (uint, error) {
 	}
 
 	token := authHeader[0]
-	userID, err := h.ag.CheckAuth(ctx, token)
+	userID, err := h.ag.Authenticate(ctx, token)
 	if err != nil {
 		return 0, status.Errorf(http.StatusUnauthorized, err.Error())
 	}
