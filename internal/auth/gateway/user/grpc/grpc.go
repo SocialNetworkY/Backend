@@ -3,25 +3,25 @@ package grpc
 import (
 	"context"
 	"errors"
-	"github.com/lapkomo2018/goTwitterServices/pkg/discovery"
+
 	"github.com/lapkomo2018/goTwitterServices/pkg/gen"
 	"github.com/lapkomo2018/goTwitterServices/pkg/grpcutil"
 )
 
 // Gateway represents the gRPC gateway for the user service.
 type Gateway struct {
-	registry discovery.Registry
+	addr string
 }
 
-const UserServiceName = "UserService"
-
 // New creates a new Gateway.
-func New(r discovery.Registry) *Gateway {
-	return &Gateway{registry: r}
+func New(addr string) *Gateway {
+	return &Gateway{
+		addr: addr,
+	}
 }
 
 func (g *Gateway) CreateUser(ctx context.Context, auth string, userID, role uint, username, email string) error {
-	conn, err := grpcutil.ServiceConnection(ctx, UserServiceName, g.registry)
+	conn, err := grpcutil.ServiceConnection(g.addr)
 	if err != nil {
 		return err
 	}
@@ -45,7 +45,7 @@ func (g *Gateway) CreateUser(ctx context.Context, auth string, userID, role uint
 }
 
 func (g *Gateway) GetUserRole(ctx context.Context, auth string, userID uint) (uint, error) {
-	conn, err := grpcutil.ServiceConnection(ctx, UserServiceName, g.registry)
+	conn, err := grpcutil.ServiceConnection(g.addr)
 	if err != nil {
 		return 0, err
 	}

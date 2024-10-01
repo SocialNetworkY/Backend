@@ -13,7 +13,6 @@ import (
 
 type (
 	Config struct {
-		Port           int
 		BodyLimit      int
 		AllowedOrigins []string
 	}
@@ -24,8 +23,8 @@ type (
 	}
 )
 
-func New(cfg Config) *Server {
-	log.Printf("Creating rest server with port: %d", cfg.Port)
+func New(cfg Config, port int) *Server {
+	log.Printf("Creating rest server with port: %d", port)
 
 	e := echo.New()
 
@@ -50,7 +49,7 @@ func New(cfg Config) *Server {
 
 	return &Server{
 		echo: e,
-		addr: fmt.Sprintf(":%d", cfg.Port),
+		addr: fmt.Sprintf(":%d", port),
 	}
 }
 

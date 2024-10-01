@@ -7,11 +7,11 @@ COPY go.sum ./
 
 RUN go mod download
 
-COPY . .
+COPY .. .
 
-RUN CGO_ENABLED=0 go build -o /server cmd/auth/main.go
+RUN CGO_ENABLED=0 go build -o /server cmd/auth/http/main.go
 
 FROM alpine:latest
 COPY --from=builder server .
-COPY --from=builder /app/config/auth.yaml /config/config.yaml
+COPY --from=builder /app/configs/auth.yaml /config.yaml
 CMD ["/server"]

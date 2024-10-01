@@ -12,7 +12,6 @@ import (
 
 type (
 	Config struct {
-		Port int
 	}
 
 	Server struct {
@@ -21,13 +20,15 @@ type (
 	}
 )
 
-func New(cfg Config) *Server {
-	log.Printf("Creating grpc server with port: %d", cfg.Port)
-	grpcServ := grpc.NewServer()
+func New(cfg Config, port int) *Server {
+	log.Printf("Creating grpc server with port: %d", port)
+	grpcServ := grpc.NewServer(
+		grpc.UnaryInterceptor(UnaryServerInterceptor()),
+	)
 	reflection.Register(grpcServ)
 
 	return &Server{
-		addr:       fmt.Sprintf(":%d", cfg.Port),
+		addr:       fmt.Sprintf(":%d", port),
 		grpcServer: grpcServ,
 	}
 }

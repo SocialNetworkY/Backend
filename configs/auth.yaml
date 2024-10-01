@@ -1,14 +1,9 @@
-service:
-  name: "AuthService"
-
-restServer:
-  port: 8080
+httpServer:
   bodyLimit: 25165824
   allowedOrigins:
     - "*"
 
 grpcServer:
-  port: 8081
 
 jwt:
   tokenDuration: 5m
