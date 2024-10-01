@@ -60,9 +60,5 @@ func (as *AuthenticationService) bearerHandler(token string) (*model.User, error
 		return nil, err
 	}
 
-	if !user.IsActivated {
-		return nil, ErrUserNotActivated
-	}
-
 	return user, nil
 }

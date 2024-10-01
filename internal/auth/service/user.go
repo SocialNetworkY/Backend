@@ -125,17 +125,17 @@ func (us *UserService) Activate(activationToken string) (accessToken, refreshTok
 		return "", "", err
 	}
 
-	user.IsActivated = true
-	if err := us.storage.Save(user); err != nil {
-		return "", "", err
-	}
-
 	accessToken, refreshToken, err = us.tokenService.Generate(user.ID)
 	if err != nil {
 		return "", "", err
 	}
 
 	if err := us.userGateway.CreateUser(context.Background(), fmt.Sprintf("Bearer %s", accessToken), user.ID, model.RoleUser, user.Username, user.Email); err != nil {
+		return "", "", err
+	}
+
+	user.IsActivated = true
+	if err := us.storage.Save(user); err != nil {
 		return "", "", err
 	}
 
