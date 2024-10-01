@@ -25,13 +25,14 @@ func NewRegistry(addr string) (*Registry, error) {
 }
 
 // Register creates a service record in the registry
-func (r *Registry) Register(ctx context.Context, instanceID, serviceName string, port int, tags []string) error {
+func (r *Registry) Register(ctx context.Context, instanceID, serviceName, addr string, port int, tags []string) error {
 	return r.client.Agent().ServiceRegister(&consul.AgentServiceRegistration{
-		ID:    instanceID,
-		Name:  serviceName,
-		Port:  port,
-		Tags:  tags,
-		Check: &consul.AgentServiceCheck{CheckID: instanceID, TTL: "5s"},
+		ID:      instanceID,
+		Name:    serviceName,
+		Address: addr,
+		Port:    port,
+		Tags:    tags,
+		Check:   &consul.AgentServiceCheck{CheckID: instanceID, TTL: "5s"},
 	})
 }
 

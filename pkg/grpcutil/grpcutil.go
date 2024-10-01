@@ -2,26 +2,36 @@ package grpcutil
 
 import (
 	"context"
-	"github.com/lapkomo2018/goTwitterServices/pkg/discovery"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/metadata"
 	"math/rand"
 )
+
+type Registry interface {
+	// ServiceAddresses returns the addresses of instances that provide the service
+	ServiceAddresses(ctx context.Context, serviceName, tag string) ([]string, error)
+}
 
 const (
 	TagGRPC  = "grpc"
 	MetaAuth = "authorization"
 )
 
-// ServiceConnection returns a connection to a random service
+// ServiceConnectionWithRegistry returns a connection to a random service
 // instance from the provided service name.
-func ServiceConnection(ctx context.Context, serviceName string, registry discovery.Registry) (*grpc.ClientConn, error) {
+func ServiceConnectionWithRegistry(ctx context.Context, serviceName string, registry Registry) (*grpc.ClientConn, error) {
 	addrs, err := registry.ServiceAddresses(ctx, serviceName, TagGRPC)
 	if err != nil {
 		return nil, err
 	}
 
-	return grpc.NewClient(addrs[rand.Intn(len(addrs))])
+	return grpc.NewClient(addrs[rand.Intn(len(addrs))], grpc.WithTransportCredentials(insecure.NewCredentials()))
+}
+
+// ServiceConnection returns a connection to a random service instance from the provided service name.
+func ServiceConnection(addr string) (*grpc.ClientConn, error) {
+	return grpc.NewClient(addr, grpc.WithTransportCredentials(insecure.NewCredentials()))
 }
 
 // PutAuth Put auth into context
