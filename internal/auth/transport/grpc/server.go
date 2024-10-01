@@ -1,6 +1,7 @@
 package grpc
 
 import (
+	"context"
 	"fmt"
 	"github.com/lapkomo2018/goTwitterServices/internal/auth/transport/grpc/v1"
 	"github.com/lapkomo2018/goTwitterServices/pkg/gen"
@@ -8,6 +9,7 @@ import (
 	"google.golang.org/grpc/reflection"
 	"log"
 	"net"
+	"time"
 )
 
 type (
@@ -47,4 +49,25 @@ func (s *Server) Run() error {
 
 	log.Printf("Grpc server listening at %v", lis.Addr())
 	return s.grpcServer.Serve(lis)
+}
+
+// UnaryServerInterceptor for logging
+func UnaryServerInterceptor() grpc.UnaryServerInterceptor {
+	return func(
+		ctx context.Context,
+		req interface{},
+		info *grpc.UnaryServerInfo,
+		handler grpc.UnaryHandler,
+	) (interface{}, error) {
+		start := time.Now()
+		h, err := handler(ctx, req)
+		end := time.Now()
+
+		log.Printf("Request - Method:%s\tDuration:%s\tError:%v\n",
+			info.FullMethod,
+			end.Sub(start),
+			err)
+
+		return h, err
+	}
 }
