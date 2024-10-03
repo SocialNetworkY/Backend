@@ -3,12 +3,17 @@ package v1
 import (
 	"context"
 	"github.com/lapkomo2018/goTwitterServices/internal/auth/model"
+	"github.com/lapkomo2018/goTwitterServices/pkg/constant"
 	"github.com/lapkomo2018/goTwitterServices/pkg/gen"
 )
 
 type (
 	AuthenticationService interface {
 		Auth(auth string) (*model.User, error)
+	}
+
+	UserGateway interface {
+		GetUserRole(ctx context.Context, auth string, userID uint) (uint, error)
 	}
 
 	UserService interface {
@@ -20,19 +25,21 @@ type (
 	Handler struct {
 		gen.UnimplementedAuthServiceServer
 		as AuthenticationService
+		ug UserGateway
 		us UserService
 	}
 )
 
-func New(as AuthenticationService, us UserService) *Handler {
+func New(as AuthenticationService, us UserService, ug UserGateway) *Handler {
 	return &Handler{
 		as: as,
+		ug: ug,
 		us: us,
 	}
 }
 
 func (h *Handler) Authenticate(ctx context.Context, r *gen.AuthenticateRequest) (*gen.AuthenticateResponse, error) {
-	user, err := h.getUserFromMetadata(ctx)
+	user, _, err := h.getRequesterFromMetadata(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -40,41 +47,61 @@ func (h *Handler) Authenticate(ctx context.Context, r *gen.AuthenticateRequest) 
 	return &gen.AuthenticateResponse{UserId: uint64(user.ID)}, nil
 }
 
-// TODO: Fix this (Need update credentials for user from request id)
-/*func (h *Handler) UpdateUsernameEmail(ctx context.Context, r *gen.UpdateUsernameEmailRequest) (*gen.UpdateUsernameEmailResponse, error) {
-	user, err := h.getUserFromMetadata(ctx)
+func (h *Handler) UpdateUsernameEmail(ctx context.Context, r *gen.UpdateUsernameEmailRequest) (*gen.UpdateUsernameEmailResponse, error) {
+	requester, auth, err := h.getRequesterFromMetadata(ctx)
 	if err != nil {
 		return &gen.UpdateUsernameEmailResponse{Success: false}, err
 	}
 
+	requesterRole, err := h.ug.GetUserRole(ctx, auth, requester.ID)
+	if err != nil {
+		return &gen.UpdateUsernameEmailResponse{Success: false}, err
+	}
+
+	userID := uint(r.GetUserId())
+
+	if requester.ID != userID && requesterRole < constant.RoleAdminLvl1 {
+		return &gen.UpdateUsernameEmailResponse{Success: false}, nil
+	}
+
 	if r.Username != "" {
-		err = h.us.ChangeUsername(user.ID, r.Username)
+		err = h.us.ChangeUsername(userID, r.Username)
 		if err != nil {
 			return &gen.UpdateUsernameEmailResponse{Success: false}, err
 		}
 	}
 
 	if r.Email != "" {
-		err = h.us.ChangeEmail(user.ID, r.Email)
+		err = h.us.ChangeEmail(userID, r.Email)
 		if err != nil {
 			return &gen.UpdateUsernameEmailResponse{Success: false}, err
 		}
 	}
 
 	return &gen.UpdateUsernameEmailResponse{Success: true}, nil
-}*/
+}
 
-// TODO: Fix this (Need delete user from request id not from token)
-/*func (h *Handler) DeleteUser(ctx context.Context, r *gen.DeleteUserRequest) (*gen.DeleteUserResponse, error) {
-	user, err := h.getUserFromMetadata(ctx)
+func (h *Handler) DeleteUser(ctx context.Context, r *gen.DeleteUserRequest) (*gen.DeleteUserResponse, error) {
+	requester, auth, err := h.getRequesterFromMetadata(ctx)
 	if err != nil {
 		return &gen.DeleteUserResponse{Success: false}, err
 	}
 
-	err = h.us.Delete(user.ID)
+	requesterRole, err := h.ug.GetUserRole(ctx, auth, requester.ID)
+	if err != nil {
+		return &gen.DeleteUserResponse{Success: false}, err
+	}
+
+	userID := uint(r.GetUserId())
+
+	if requester.ID != userID && requesterRole < constant.RoleAdminLvl3 {
+		return &gen.DeleteUserResponse{Success: false}, nil
+	}
+
+	err = h.us.Delete(userID)
 	if err != nil {
 		return &gen.DeleteUserResponse{Success: false}, err
 	}
 
 	return &gen.DeleteUserResponse{Success: true}, nil
-}*/
+}
