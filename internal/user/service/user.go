@@ -172,12 +172,12 @@ func (us *UserService) Delete(id uint, auth string) error {
 		return err
 	}
 
-	if err := us.us.Delete(user); err != nil {
+	// Grpc call to delete user from other services
+	if err := us.ag.DeleteUser(context.Background(), auth, id); err != nil {
 		return err
 	}
 
-	// Grpc call to delete user from other services
-	if err := us.ag.DeleteUser(context.Background(), auth, id); err != nil {
+	if err := us.us.Delete(user); err != nil {
 		return err
 	}
 
