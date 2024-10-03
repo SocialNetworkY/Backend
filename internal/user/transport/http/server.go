@@ -1,4 +1,4 @@
-package rest
+package http
 
 import (
 	"fmt"
@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/lapkomo2018/goTwitterServices/internal/user/transport/rest/v1"
+	"github.com/lapkomo2018/goTwitterServices/internal/user/transport/http/v1"
 
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"

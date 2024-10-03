@@ -6,7 +6,7 @@ import (
 	"github.com/lapkomo2018/goTwitterServices/internal/user/gateway/auth"
 	"github.com/lapkomo2018/goTwitterServices/internal/user/repository/mysql"
 	"github.com/lapkomo2018/goTwitterServices/internal/user/service"
-	"github.com/lapkomo2018/goTwitterServices/internal/user/transport/rest"
+	"github.com/lapkomo2018/goTwitterServices/internal/user/transport/http"
 
 	"github.com/lapkomo2018/goTwitterServices/pkg/config"
 
@@ -14,7 +14,7 @@ import (
 )
 
 type Config struct {
-	HttpServer rest.Config
+	HttpServer http.Config
 }
 
 type Env struct {
@@ -50,7 +50,7 @@ func main() {
 	authGateway := auth.New(env.AuthServiceHttpAddr, env.AuthServiceGrpcAddr)
 	services := service.New(storages.User, authGateway)
 
-	if err := rest.New(cfg.HttpServer, env.Port).Init(services.User, authGateway).Run(); err != nil {
+	if err := http.New(cfg.HttpServer, env.Port).Init(services.User, authGateway).Run(); err != nil {
 		log.Fatalf("Http server err: %v", err)
 	}
 }
