@@ -6,7 +6,7 @@ import (
 	"github.com/lapkomo2018/goTwitterServices/internal/auth/gateway/user"
 	"github.com/lapkomo2018/goTwitterServices/internal/auth/repository/mysql"
 	"github.com/lapkomo2018/goTwitterServices/internal/auth/service"
-	"github.com/lapkomo2018/goTwitterServices/internal/auth/transport/rest"
+	"github.com/lapkomo2018/goTwitterServices/internal/auth/transport/http"
 
 	"github.com/lapkomo2018/goTwitterServices/pkg/config"
 	"github.com/lapkomo2018/goTwitterServices/pkg/hash"
@@ -17,7 +17,7 @@ import (
 )
 
 type Config struct {
-	HttpServer rest.Config
+	HttpServer http.Config
 	JWT        jwt.Config
 	Validator  validation.Config
 }
@@ -65,7 +65,7 @@ func main() {
 	userGateway := user.New(env.UserServiceHttpAddr, env.UserServiceGrpcAddr)
 	services := service.New(storages.User, storages.RefreshToken, storages.ActivationToken, tokenManager, hasher, userGateway)
 
-	if err := rest.New(cfg.HttpServer, env.Port).Init(services.User, services.Tokens, services.Authentication, validator, cfg.JWT.RefreshDuration).Run(); err != nil {
+	if err := http.New(cfg.HttpServer, env.Port).Init(services.User, services.Tokens, services.Authentication, validator, cfg.JWT.RefreshDuration).Run(); err != nil {
 		log.Fatalf("Rest server err: %v", err)
 	}
 }
