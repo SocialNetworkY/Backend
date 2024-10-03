@@ -1,6 +1,7 @@
 package model
 
 import (
+	"github.com/lapkomo2018/goTwitterServices/pkg/constant"
 	"gorm.io/gorm"
 	"time"
 )
@@ -20,13 +21,6 @@ type User struct {
 	DeletedAt gorm.DeletedAt `gorm:"index"`
 }
 
-const (
-	RoleUser      = 0
-	RoleAdminLvl1 = 1
-	RoleAdminLvl2 = 2
-	RoleAdminLvl3 = 3
-)
-
 func (u *User) CheckBans() {
 	u.Banned = false
 	for _, ban := range u.Bans {
@@ -41,6 +35,6 @@ func (u *User) BeforeLoad(tx *gorm.DB) (err error) {
 		return err
 	}
 	u.CheckBans()
-	u.Admin = u.Role > 0
+	u.Admin = u.Role > constant.RoleUser
 	return
 }

@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/lapkomo2018/goTwitterServices/internal/auth/model"
+	"github.com/lapkomo2018/goTwitterServices/pkg/constant"
 )
 
 type (
@@ -130,7 +131,7 @@ func (us *UserService) Activate(activationToken string) (accessToken, refreshTok
 		return "", "", err
 	}
 
-	if err := us.userGateway.CreateUser(context.Background(), fmt.Sprintf("Bearer %s", accessToken), user.ID, model.RoleUser, user.Username, user.Email); err != nil {
+	if err := us.userGateway.CreateUser(context.Background(), fmt.Sprintf("Bearer %s", accessToken), user.ID, constant.RoleUser, user.Username, user.Email); err != nil {
 		return "", "", err
 	}
 

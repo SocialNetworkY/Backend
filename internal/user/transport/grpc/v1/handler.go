@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"github.com/lapkomo2018/goTwitterServices/internal/user/model"
+	"github.com/lapkomo2018/goTwitterServices/pkg/constant"
 	"github.com/lapkomo2018/goTwitterServices/pkg/gen"
 )
 
@@ -37,7 +38,7 @@ func (h *Handler) GetUserRole(ctx context.Context, r *gen.GetUserRoleRequest) (*
 		return nil, err
 	}
 
-	if !(requester.Role >= model.RoleAdminLvl1 || requester.ID == uint(r.GetUserId())) {
+	if !(requester.Role >= constant.RoleAdminLvl1 || requester.ID == uint(r.GetUserId())) {
 		return nil, errors.New("you are not allowed to get user role")
 	}
 
@@ -54,7 +55,7 @@ func (h *Handler) GetUserRole(ctx context.Context, r *gen.GetUserRoleRequest) (*
 func (h *Handler) CreateUser(ctx context.Context, r *gen.CreateUserRequest) (*gen.CreateUserResponse, error) {
 	requesterID, err := h.getUserIDFromMetadata(ctx)
 
-	if !(requesterID == uint(r.GetUserId()) && r.GetRole() < model.RoleAdminLvl1) {
+	if !(requesterID == uint(r.GetUserId()) && r.GetRole() < constant.RoleAdminLvl1) {
 		return nil, errors.New("you are not allowed to create user")
 	}
 
