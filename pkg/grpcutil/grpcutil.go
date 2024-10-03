@@ -14,8 +14,7 @@ type Registry interface {
 }
 
 const (
-	TagGRPC  = "grpc"
-	MetaAuth = "authorization"
+	TagGRPC = "grpc"
 )
 
 // ServiceConnectionWithRegistry returns a connection to a random service
@@ -34,7 +33,7 @@ func ServiceConnection(addr string) (*grpc.ClientConn, error) {
 	return grpc.NewClient(addr, grpc.WithTransportCredentials(insecure.NewCredentials()))
 }
 
-// PutAuth Put auth into context
-func PutAuth(ctx context.Context, auth string) context.Context {
-	return metadata.NewOutgoingContext(ctx, metadata.Pairs(MetaAuth, auth))
+// PutMetadata returns a new context with the provided key-value pair.
+func PutMetadata(ctx context.Context, key, value string) context.Context {
+	return metadata.NewOutgoingContext(ctx, metadata.Pairs(key, value))
 }

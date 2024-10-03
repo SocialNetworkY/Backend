@@ -2,6 +2,7 @@ package grpc
 
 import (
 	"context"
+	"github.com/lapkomo2018/goTwitterServices/pkg/constant"
 	"github.com/lapkomo2018/goTwitterServices/pkg/gen"
 	"github.com/lapkomo2018/goTwitterServices/pkg/grpcutil"
 )
@@ -26,7 +27,7 @@ func (g *Gateway) Authenticate(ctx context.Context, auth string) (uint, error) {
 	defer conn.Close()
 	client := gen.NewAuthServiceClient(conn)
 
-	resp, err := client.Authenticate(grpcutil.PutAuth(ctx, auth), &gen.AuthenticateRequest{})
+	resp, err := client.Authenticate(grpcutil.PutMetadata(ctx, constant.GRPCAuthorizationMetadata, auth), &gen.AuthenticateRequest{})
 	if err != nil {
 		return 0, err
 	}
@@ -42,7 +43,7 @@ func (g *Gateway) UpdateUsernameEmail(ctx context.Context, auth string, id uint,
 	defer conn.Close()
 	client := gen.NewAuthServiceClient(conn)
 
-	_, err = client.UpdateUsernameEmail(grpcutil.PutAuth(ctx, auth), &gen.UpdateUsernameEmailRequest{
+	_, err = client.UpdateUsernameEmail(grpcutil.PutMetadata(ctx, constant.GRPCAuthorizationMetadata, auth), &gen.UpdateUsernameEmailRequest{
 		UserId:   uint64(id),
 		Username: username,
 		Email:    email,
@@ -62,7 +63,7 @@ func (g *Gateway) DeleteUser(ctx context.Context, auth string, id uint) error {
 	defer conn.Close()
 	client := gen.NewAuthServiceClient(conn)
 
-	_, err = client.DeleteUser(grpcutil.PutAuth(ctx, auth), &gen.DeleteUserRequest{UserId: uint64(id)})
+	_, err = client.DeleteUser(grpcutil.PutMetadata(ctx, constant.GRPCAuthorizationMetadata, auth), &gen.DeleteUserRequest{UserId: uint64(id)})
 	if err != nil {
 		return err
 	}

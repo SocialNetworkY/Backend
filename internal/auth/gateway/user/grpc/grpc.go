@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 
+	"github.com/lapkomo2018/goTwitterServices/pkg/constant"
 	"github.com/lapkomo2018/goTwitterServices/pkg/gen"
 	"github.com/lapkomo2018/goTwitterServices/pkg/grpcutil"
 )
@@ -28,7 +29,7 @@ func (g *Gateway) CreateUser(ctx context.Context, auth string, userID, role uint
 	defer conn.Close()
 	client := gen.NewUserServiceClient(conn)
 
-	resp, err := client.CreateUser(grpcutil.PutAuth(ctx, auth), &gen.CreateUserRequest{
+	resp, err := client.CreateUser(grpcutil.PutMetadata(ctx, constant.GRPCAuthorizationMetadata, auth), &gen.CreateUserRequest{
 		UserId:   uint64(userID),
 		Role:     uint64(role),
 		Username: username,
@@ -52,7 +53,7 @@ func (g *Gateway) GetUserRole(ctx context.Context, auth string, userID uint) (ui
 	defer conn.Close()
 	client := gen.NewUserServiceClient(conn)
 
-	resp, err := client.GetUserRole(grpcutil.PutAuth(ctx, auth), &gen.GetUserRoleRequest{
+	resp, err := client.GetUserRole(grpcutil.PutMetadata(ctx, constant.GRPCAuthorizationMetadata, auth), &gen.GetUserRoleRequest{
 		UserId: uint64(userID),
 	})
 	if err != nil {
