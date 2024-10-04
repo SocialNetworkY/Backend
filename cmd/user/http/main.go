@@ -48,7 +48,7 @@ func main() {
 	}
 
 	authGateway := auth.New(env.AuthServiceHttpAddr, env.AuthServiceGrpcAddr)
-	services := service.New(storages.User, authGateway)
+	services := service.New(storages.User, storages.Ban, authGateway)
 
 	if err := http.New(cfg.HttpServer, env.Port).Init(services.User, authGateway).Run(); err != nil {
 		log.Fatalf("Http server err: %v", err)
