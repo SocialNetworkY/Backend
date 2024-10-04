@@ -24,7 +24,7 @@ type User struct {
 func (u *User) CheckBans() {
 	u.Banned = false
 	for _, ban := range u.Bans {
-		if ban.ExpiredAt.After(time.Now()) {
+		if ban.Active {
 			u.Banned = true
 		}
 	}
