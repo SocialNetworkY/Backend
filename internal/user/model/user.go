@@ -15,6 +15,7 @@ type User struct {
 	Role      uint
 	Banned    bool  `gorm:"-"`
 	Admin     bool  `gorm:"-"`
+	ActiveBan *Ban  `gorm:"-"`
 	Bans      []Ban `gorm:"foreignKey:UserID"`
 	CreatedAt time.Time
 	UpdatedAt time.Time
@@ -26,6 +27,7 @@ func (u *User) CheckBans() {
 	for _, ban := range u.Bans {
 		if ban.Active {
 			u.Banned = true
+			u.ActiveBan = &ban
 		}
 	}
 }
