@@ -17,21 +17,21 @@ func NewBanStorage(db *gorm.DB) *BanStorage {
 
 func (us *BanStorage) Add(ban *model.Ban) error {
 	if err := us.db.Create(ban).Error; err != nil {
-		return ErrBanCreate
+		return err
 	}
 	return nil
 }
 
 func (us *BanStorage) Save(ban *model.Ban) error {
 	if err := us.db.Save(ban).Error; err != nil {
-		return ErrBanSave
+		return err
 	}
 	return nil
 }
 
 func (us *BanStorage) Delete(id uint) error {
 	if err := us.db.Delete(&model.Ban{}, id).Error; err != nil {
-		return ErrBanDelete
+		return err
 	}
 	return nil
 }
@@ -39,7 +39,7 @@ func (us *BanStorage) Delete(id uint) error {
 func (us *BanStorage) Find(id uint) (*model.Ban, error) {
 	ban := &model.Ban{}
 	if err := us.db.First(ban, id).Error; err != nil {
-		return nil, ErrBanFind
+		return nil, err
 	}
 	return ban, nil
 }
@@ -47,7 +47,7 @@ func (us *BanStorage) Find(id uint) (*model.Ban, error) {
 func (us *BanStorage) FindByUserID(userID uint) ([]*model.Ban, error) {
 	var bans []*model.Ban
 	if err := us.db.Where("user_id = ?", userID).Find(&bans).Error; err != nil {
-		return nil, ErrBanFind
+		return nil, err
 	}
 	return bans, nil
 }
@@ -55,7 +55,7 @@ func (us *BanStorage) FindByUserID(userID uint) ([]*model.Ban, error) {
 func (us *BanStorage) FindByAdminID(adminID uint) ([]*model.Ban, error) {
 	var bans []*model.Ban
 	if err := us.db.Where("admin_id = ?", adminID).Find(&bans).Error; err != nil {
-		return nil, ErrBanFind
+		return nil, err
 	}
 	return bans, nil
 }

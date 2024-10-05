@@ -33,6 +33,11 @@ type (
 )
 
 func NewUserService(us UserStorage, ag AuthGateway) *UserService {
+var (
+	ErrUserUsernameTaken = errors.New("username is already taken")
+	ErrUserEmailTaken    = errors.New("email is already taken")
+)
+
 	return &UserService{
 		us: us,
 		ag: ag,
