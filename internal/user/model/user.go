@@ -30,11 +30,13 @@ func (u *User) CheckBans() {
 	}
 }
 
-func (u *User) BeforeLoad(tx *gorm.DB) (err error) {
-	if err := tx.Preload("Bans").Find(u).Error; err != nil {
+// AfterFind is a gorm hook that is called after a find operation
+func (u *User) AfterFind(tx *gorm.DB) (err error) {
+	if err = tx.Model(u).Association("Bans").Find(&u.Bans); err != nil {
 		return err
 	}
+
 	u.CheckBans()
 	u.Admin = u.Role > constant.RoleUser
-	return
+	return nil
 }
