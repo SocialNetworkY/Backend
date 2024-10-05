@@ -2,16 +2,9 @@ syntax = "proto3";
 option go_package = "/gen";
 
 service UserService {
-  rpc GetUserRole(GetUserRoleRequest) returns (GetUserRoleResponse);
   rpc CreateUser(CreateUserRequest) returns (CreateUserResponse);
-}
-
-message GetUserRoleRequest {
-  uint64 user_id = 1;
-}
-
-message GetUserRoleResponse {
-  uint64 role = 1;
+  rpc GetUserRole(GetUserRoleRequest) returns (GetUserRoleResponse);
+  rpc IsUserBan(IsUserBanRequest) returns (IsUserBanResponse);
 }
 
 message CreateUserRequest {
@@ -23,4 +16,22 @@ message CreateUserRequest {
 
 message CreateUserResponse {
   uint64 user_id = 1;
+}
+
+message GetUserRoleRequest {
+  uint64 user_id = 1;
+}
+
+message GetUserRoleResponse {
+  uint64 role = 1;
+}
+
+message IsUserBanRequest {
+  uint64 user_id = 1;
+}
+
+message IsUserBanResponse {
+  bool banned = 1;
+  string reason = 2;
+  string expired_at = 3;
 }

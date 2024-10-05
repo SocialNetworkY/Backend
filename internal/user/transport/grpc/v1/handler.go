@@ -6,6 +6,7 @@ import (
 	"github.com/lapkomo2018/goTwitterServices/internal/user/model"
 	"github.com/lapkomo2018/goTwitterServices/pkg/constant"
 	"github.com/lapkomo2018/goTwitterServices/pkg/gen"
+	"time"
 )
 
 type (
@@ -33,7 +34,7 @@ func New(us UserService, ag AuthGateway) *Handler {
 }
 
 func (h *Handler) GetUserRole(ctx context.Context, r *gen.GetUserRoleRequest) (*gen.GetUserRoleResponse, error) {
-	requester, err := h.getUserFromMetadata(ctx)
+	requester, err := h.getRequesterFromMetadata(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -52,8 +53,36 @@ func (h *Handler) GetUserRole(ctx context.Context, r *gen.GetUserRoleRequest) (*
 	}, nil
 }
 
+func (h *Handler) IsUserBan(ctx context.Context, r *gen.IsUserBanRequest) (*gen.IsUserBanResponse, error) {
+	requester, err := h.getRequesterFromMetadata(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	if requester.ID != uint(r.GetUserId()) && !requester.Admin {
+		return nil, errors.New("you are not allowed to check user ban")
+	}
+
+	user, err := h.us.Find(uint(r.GetUserId()))
+	if err != nil {
+		return nil, err
+	}
+
+	if !user.Banned {
+		return &gen.IsUserBanResponse{
+			Banned: user.Banned,
+		}, nil
+	}
+
+	return &gen.IsUserBanResponse{
+		Banned:    user.Banned,
+		Reason:    user.ActiveBan.BanReason,
+		ExpiredAt: user.ActiveBan.ExpiredAt.Format(time.RFC3339),
+	}, nil
+}
+
 func (h *Handler) CreateUser(ctx context.Context, r *gen.CreateUserRequest) (*gen.CreateUserResponse, error) {
-	requesterID, err := h.getUserIDFromMetadata(ctx)
+	requesterID, err := h.getRequesterIDFromMetadata(ctx)
 
 	if !(requesterID == uint(r.GetUserId()) && r.GetRole() < constant.RoleAdminLvl1) {
 		return nil, errors.New("you are not allowed to create user")
