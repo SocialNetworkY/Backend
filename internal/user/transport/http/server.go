@@ -54,10 +54,16 @@ func New(cfg Config, port int) *Server {
 	}
 }
 
-func (s *Server) Init(us v1.UserService, ag v1.AuthGateway) *Server {
+// AddStaticFolder adds a static folder to the server
+func (s *Server) AddStaticFolder(path string, folder string) *Server {
+	s.echo.Static(path, folder)
+	return s
+}
+
+func (s *Server) Init(us v1.UserService, bs v1.BanService, ag v1.AuthGateway) *Server {
 	log.Println("Initializing server...")
 	log.Println("Initializing api...")
-	handlerV1 := v1.New(us, ag)
+	handlerV1 := v1.New(us, bs, ag)
 	api := s.echo.Group("/api")
 	{
 		handlerV1.Init(api)

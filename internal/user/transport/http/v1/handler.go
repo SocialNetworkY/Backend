@@ -4,7 +4,9 @@ import (
 	"context"
 	"github.com/labstack/echo/v4"
 	"github.com/lapkomo2018/goTwitterServices/internal/user/model"
+	"io"
 	"log"
+	"time"
 )
 
 type (
@@ -16,8 +18,15 @@ type (
 		ChangeEmail(id uint, auth, email string) error
 		ChangeUsername(id uint, auth, username string) error
 		ChangeNickname(id uint, nickname string) error
-		ChangeAvatar(id uint, avatar string) error
+		ChangeAvatar(id uint, file io.ReadSeeker) error
 		Delete(id uint, auth string) error
+	}
+
+	BanService interface {
+		BanUser(userID, adminID uint, reason string, duration time.Duration) error
+		UnbanByBanID(banID, adminID uint, reason string) error
+		FindBan(id uint) (*model.Ban, error)
+		FindBansByUserID(userID uint) ([]*model.Ban, error)
 	}
 
 	AuthGateway interface {
@@ -26,18 +35,16 @@ type (
 
 	Handler struct {
 		us UserService
+		bs BanService
 		ag AuthGateway
 	}
 )
 
-const (
-	userLocals = "user"
-)
-
-func New(us UserService, ag AuthGateway) *Handler {
+func New(us UserService, bs BanService, ag AuthGateway) *Handler {
 	return &Handler{
 		us: us,
 		ag: ag,
+		bs: bs,
 	}
 }
 
@@ -46,5 +53,6 @@ func (h *Handler) Init(api *echo.Group) {
 	v1 := api.Group("/v1")
 	{
 		h.initUserApi(v1)
+		h.initAdminApi(v1)
 	}
 }
