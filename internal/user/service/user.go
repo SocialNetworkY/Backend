@@ -3,7 +3,9 @@ package service
 import (
 	"context"
 	"errors"
+	"fmt"
 	"github.com/lapkomo2018/goTwitterServices/internal/user/model"
+	"io"
 )
 
 type (
@@ -26,21 +28,27 @@ type (
 		DeleteUser(ctx context.Context, auth string, id uint) error
 	}
 
+	ImageStorage interface {
+		UploadImage(file io.ReadSeeker, filename string) (string, error)
+	}
+
 	UserService struct {
 		us UserStorage
 		ag AuthGateway
+		is ImageStorage
 	}
 )
 
-func NewUserService(us UserStorage, ag AuthGateway) *UserService {
 var (
 	ErrUserUsernameTaken = errors.New("username is already taken")
 	ErrUserEmailTaken    = errors.New("email is already taken")
 )
 
+func NewUserService(us UserStorage, is ImageStorage, ag AuthGateway) *UserService {
 	return &UserService{
 		us: us,
 		ag: ag,
+		is: is,
 	}
 }
 
@@ -156,9 +164,19 @@ func (us *UserService) ChangeNickname(id uint, nickname string) error {
 	return us.us.Save(user)
 }
 
-// ChangeAvatar TODO: Implement avatar change
-func (us *UserService) ChangeAvatar(id uint, avatar string) error {
-	return errors.New("not implemented")
+func (us *UserService) ChangeAvatar(id uint, file io.ReadSeeker) error {
+	user, err := us.us.Find(id)
+	if err != nil {
+		return err
+	}
+
+	newAvatarURL, err := us.is.UploadImage(file, fmt.Sprintf("%d_avatar", user.ID))
+	if err != nil {
+		return err
+	}
+
+	user.Avatar = newAvatarURL
+	return us.us.Save(user)
 }
 
 func (us *UserService) ChangeRole(id, role uint) error {

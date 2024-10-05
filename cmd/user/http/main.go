@@ -1,6 +1,8 @@
 package main
 
 import (
+	"fmt"
+	"github.com/lapkomo2018/goTwitterServices/pkg/storage"
 	"log"
 
 	"github.com/lapkomo2018/goTwitterServices/internal/user/gateway/auth"
@@ -29,6 +31,10 @@ var (
 	env = &Env{}
 )
 
+const (
+	ImageFolder = "images"
+)
+
 func init() {
 	var err error
 	if err := envCarlos.Parse(env); err != nil {
@@ -47,10 +53,15 @@ func main() {
 		log.Fatal(err)
 	}
 
-	authGateway := auth.New(env.AuthServiceHttpAddr, env.AuthServiceGrpcAddr)
-	services := service.New(storages.User, storages.Ban, authGateway)
+	imageStorage, err := storage.NewLocalStorage(ImageFolder, fmt.Sprintf("http://localhost:%d/%s", env.Port, ImageFolder))
+	if err != nil {
+		log.Fatalf("Image storage err: %v", err)
+	}
 
-	if err := http.New(cfg.HttpServer, env.Port).Init(services.User, authGateway).Run(); err != nil {
+	authGateway := auth.New(env.AuthServiceHttpAddr, env.AuthServiceGrpcAddr)
+	services := service.New(storages.User, storages.Ban, imageStorage, authGateway)
+
+	if err := http.New(cfg.HttpServer, env.Port).Init(services.User, services.Ban, authGateway).AddStaticFolder(ImageFolder, ImageFolder).Run(); err != nil {
 		log.Fatalf("Http server err: %v", err)
 	}
 }
