@@ -9,15 +9,17 @@ import (
 )
 
 func (h *Handler) initAdminApi(group *echo.Group) {
+	initUserEndpoints := func(user *echo.Group) {
+		user.POST("/ban", h.banUser)
+		user.GET("/bans", h.getUserBans)
+	}
+
 	admin := group.Group("/admin", h.authenticationMiddleware, h.adminMiddleware)
 	{
 		users := admin.Group("/users")
 		{
-			userID := users.Group(fmt.Sprintf("/:%s", paramUserID), h.setUserByIDFromParam)
-			{
-				userID.POST("/ban", h.banUser)
-				userID.GET("/bans", h.getUserBans)
-			}
+			initUserEndpoints(users.Group(fmt.Sprintf("/:%s", paramUserID), h.setUserByIDFromParam))
+			initUserEndpoints(users.Group(fmt.Sprintf("/@:%s", paramUsername), h.setUserByUsernameFromParam))
 		}
 
 		admin.POST("/unban", h.unbanByBanID)

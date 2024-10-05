@@ -71,6 +71,20 @@ func (h *Handler) setUserByIDFromParam(next echo.HandlerFunc) echo.HandlerFunc {
 	}
 }
 
+func (h *Handler) setUserByUsernameFromParam(next echo.HandlerFunc) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		username := c.Param(paramUsername)
+		user, err := h.us.FindByUsername(username)
+		if err != nil {
+			return echo.NewHTTPError(http.StatusNotFound, "user not found")
+		}
+
+		c.Set(userLocals, user)
+
+		return next(c)
+	}
+}
+
 func getUintParam(c echo.Context, key string) (uint, error) {
 	param := c.Param(key)
 	if param == "" {

@@ -9,17 +9,18 @@ import (
 )
 
 func (h *Handler) initUserApi(group *echo.Group) {
+	initUserEndpoints := func(user *echo.Group) {
+		user.GET("", h.getUser)
+		user.GET("/full", h.getFullUser, h.authenticationMiddleware)
+		user.PATCH("", h.patchUser, h.authenticationMiddleware)
+		user.DELETE("", h.deleteUser, h.authenticationMiddleware)
+		user.POST("/avatar", h.postAvatar, h.authenticationMiddleware)
+	}
+
 	users := group.Group("/users")
 	{
-		users.GET(fmt.Sprintf("/@:%s", paramUsername), h.getUserByUsername)
-
-		userID := users.Group(fmt.Sprintf("/:%s", paramUserID), h.setUserByIDFromParam)
-		{
-			userID.GET("", h.getUser)
-			userID.PATCH("", h.patchUser, h.authenticationMiddleware)
-			userID.DELETE("", h.deleteUser, h.authenticationMiddleware)
-			userID.POST("/avatar", h.postAvatar, h.authenticationMiddleware)
-		}
+		initUserEndpoints(users.Group(fmt.Sprintf("/@:%s", paramUsername), h.setUserByUsernameFromParam))
+		initUserEndpoints(users.Group(fmt.Sprintf("/:%s", paramUserID), h.setUserByIDFromParam))
 	}
 }
 
@@ -29,40 +30,36 @@ func (h *Handler) getUser(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError, "internal error")
 	}
 
-	return c.JSON(http.StatusOK, &getUserResponse{
-		UserID:   user.ID,
-		Username: user.Username,
-		Nickname: user.Nickname,
-		Avatar:   user.Avatar,
-		Role:     user.Role,
-	})
-}
-
-func (h *Handler) getUserByUsername(c echo.Context) error {
-	username := c.Param(paramUsername)
-	user, err := h.us.FindByUsername(username)
-	if err != nil {
-		return err
-	}
-
-	return c.JSON(http.StatusOK, &getUserResponse{
-		UserID:   user.ID,
-		Username: user.Username,
-		Nickname: user.Nickname,
-		Avatar:   user.Avatar,
-		Role:     user.Role,
-	})
-}
-
-type (
-	getUserResponse struct {
+	return c.JSON(http.StatusOK, struct {
 		UserID   uint   `json:"user_id"`
 		Username string `json:"username"`
 		Nickname string `json:"nickname"`
 		Avatar   string `json:"avatar"`
-		Role     uint   `json:"role"`
+	}{
+		UserID:   user.ID,
+		Username: user.Username,
+		Nickname: user.Nickname,
+		Avatar:   user.Avatar,
+	})
+}
+
+func (h *Handler) getFullUser(c echo.Context) error {
+	requester, ok := c.Get(requesterLocals).(*model.User)
+	if !ok {
+		return echo.NewHTTPError(http.StatusUnauthorized, "user not found")
 	}
-)
+
+	user, ok := c.Get(userLocals).(*model.User)
+	if !ok {
+		return echo.NewHTTPError(http.StatusInternalServerError, "internal error")
+	}
+
+	if requester.ID != user.ID && !requester.Admin {
+		return echo.NewHTTPError(http.StatusForbidden, "you don't have permission to view this user")
+	}
+
+	return c.JSON(http.StatusOK, user)
+}
 
 func (h *Handler) patchUser(c echo.Context) error {
 	requester, ok := c.Get(requesterLocals).(*model.User)

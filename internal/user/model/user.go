@@ -7,19 +7,19 @@ import (
 )
 
 type User struct {
-	ID        uint   `gorm:"primaryKey"`
-	Email     string `gorm:"unique"`
-	Username  string `gorm:"unique"`
-	Nickname  string
-	Avatar    string
-	Role      uint
-	Banned    bool  `gorm:"-"`
-	Admin     bool  `gorm:"-"`
-	ActiveBan *Ban  `gorm:"-"`
-	Bans      []Ban `gorm:"foreignKey:UserID"`
-	CreatedAt time.Time
-	UpdatedAt time.Time
-	DeletedAt gorm.DeletedAt `gorm:"index"`
+	ID        uint           `json:"id" gorm:"primaryKey"`
+	Email     string         `json:"email" gorm:"unique"`
+	Username  string         `json:"username" gorm:"unique"`
+	Nickname  string         `json:"nickname"`
+	Avatar    string         `json:"avatar"`
+	Role      uint           `json:"role"`
+	Banned    bool           `json:"banned" gorm:"-"`
+	Admin     bool           `json:"admin" gorm:"-"`
+	ActiveBan *Ban           `json:"activeBan" gorm:"-"`
+	Bans      []Ban          `json:"-" gorm:"foreignKey:UserID"`
+	CreatedAt time.Time      `json:"-"`
+	UpdatedAt time.Time      `json:"-"`
+	DeletedAt gorm.DeletedAt `json:"-" gorm:"index"`
 }
 
 func (u *User) CheckBans() {
