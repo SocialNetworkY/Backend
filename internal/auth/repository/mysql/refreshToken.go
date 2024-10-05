@@ -22,7 +22,7 @@ func (us *RefreshTokenStorage) Set(userID uint, refreshToken string) error {
 	var existingToken model.RefreshToken
 	err := us.db.Where("user_id = ?", userID).First(&existingToken).Error
 	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
-		return ErrRefreshTokenSet
+		return err
 	}
 
 	if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -32,14 +32,14 @@ func (us *RefreshTokenStorage) Set(userID uint, refreshToken string) error {
 		}
 
 		if err := us.db.Create(&newToken).Error; err != nil {
-			return ErrRefreshTokenCreate
+			return err
 		}
 		return nil
 	}
 
 	existingToken.Token = refreshToken
 	if err := us.db.Save(&existingToken).Error; err != nil {
-		return ErrRefreshTokenSave
+		return err
 	}
 	return nil
 }
@@ -48,7 +48,7 @@ func (us *RefreshTokenStorage) Get(userID uint) (string, error) {
 	existingToken := &model.RefreshToken{}
 	err := us.db.Where("user_id = ?", userID).First(existingToken).Error
 	if err != nil {
-		return "", ErrRefreshTokenNotFound
+		return "", err
 	}
 	return existingToken.Token, nil
 }

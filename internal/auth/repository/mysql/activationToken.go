@@ -20,7 +20,7 @@ func (ats *ActivationTokenStorage) Set(userID uint, activationToken string) erro
 	var existingToken model.ActivationToken
 	err := ats.db.Where("user_id = ?", userID).First(&existingToken).Error
 	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
-		return ErrActivationTokenSet
+		return err
 	}
 
 	if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -30,14 +30,14 @@ func (ats *ActivationTokenStorage) Set(userID uint, activationToken string) erro
 		}
 
 		if err := ats.db.Create(&newToken).Error; err != nil {
-			return ErrActivationTokenCreate
+			return err
 		}
 		return nil
 	}
 
 	existingToken.Token = activationToken
 	if err := ats.db.Save(&existingToken).Error; err != nil {
-		return ErrActivationTokenSave
+		return err
 	}
 	return nil
 }
@@ -55,7 +55,7 @@ func (ats *ActivationTokenStorage) GetByToken(activationToken string) (*model.Ac
 	existingToken := &model.ActivationToken{}
 	err := ats.db.Where("token = ?", activationToken).First(existingToken).Error
 	if err != nil {
-		return nil, ErrActivationTokenNotFound
+		return nil, err
 	}
 	return existingToken, nil
 }
@@ -63,7 +63,7 @@ func (ats *ActivationTokenStorage) GetByToken(activationToken string) (*model.Ac
 func (ats *ActivationTokenStorage) Delete(userID uint) error {
 	err := ats.db.Where("user_id = ?", userID).Delete(&model.ActivationToken{}).Error
 	if err != nil {
-		return ErrActivationTokenNotFound
+		return err
 	}
 	return nil
 }

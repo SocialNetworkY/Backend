@@ -1,6 +1,7 @@
 package service
 
 import (
+	"errors"
 	"github.com/lapkomo2018/goTwitterServices/internal/auth/model"
 	"strings"
 )
@@ -22,6 +23,10 @@ type (
 	}
 )
 
+var (
+	ErrInvalidAuthHeader = errors.New("invalid auth header")
+)
+
 func NewAuthenticationService(us AuthenticationUserService, ts AuthenticationTokenService) *AuthenticationService {
 	authService := &AuthenticationService{
 		userService:  us,
@@ -38,7 +43,7 @@ func NewAuthenticationService(us AuthenticationUserService, ts AuthenticationTok
 func (as *AuthenticationService) Auth(auth string) (*model.User, error) {
 	authHeaderParts := strings.Split(auth, " ")
 	if len(authHeaderParts) != 2 {
-		return nil, ErrAuthenticationInvalidAuthString
+		return nil, ErrInvalidAuthHeader
 	}
 
 	scheme := strings.ToLower(authHeaderParts[0])

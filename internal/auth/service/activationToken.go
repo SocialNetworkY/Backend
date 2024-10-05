@@ -29,7 +29,7 @@ func (ts *ActivationTokenService) Generate(userID uint) (string, error) {
 	// generate activation token
 	tokenBytes := make([]byte, 32)
 	if _, err := rand.Read(tokenBytes); err != nil {
-		return "", ErrActivationTokenGeneration
+		return "", err
 	}
 	activationToken := hex.EncodeToString(tokenBytes)
 

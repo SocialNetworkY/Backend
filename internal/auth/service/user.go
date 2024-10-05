@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"github.com/lapkomo2018/goTwitterServices/internal/auth/model"
 	"github.com/lapkomo2018/goTwitterServices/pkg/constant"
@@ -51,6 +52,13 @@ type (
 	}
 )
 
+var (
+	ErrUsernameTaken    = errors.New("username is taken")
+	ErrEmailTaken       = errors.New("email is taken")
+	ErrInvalidPassword  = errors.New("invalid password")
+	ErrUserNotActivated = errors.New("user is not activated")
+)
+
 func NewUserService(userStorage UserStorage, tokenService UserTokenService, activationTokenService UserActivationTokenService, hasher Hasher, ug UserGateway) *UserService {
 	return &UserService{
 		storage:                userStorage,
@@ -67,7 +75,7 @@ func (us *UserService) Register(username, email, password string) (activationTok
 	case err != nil:
 		return "", err
 	case exists:
-		return "", ErrUserUsernameTaken
+		return "", ErrUsernameTaken
 	}
 
 	exists, err = us.storage.ExistsByEmail(email)
@@ -75,7 +83,7 @@ func (us *UserService) Register(username, email, password string) (activationTok
 	case err != nil:
 		return "", err
 	case exists:
-		return "", ErrUserEmailTaken
+		return "", ErrEmailTaken
 	}
 
 	hashedPassword := us.hasher.Hash(password)
@@ -105,7 +113,7 @@ func (us *UserService) Login(login, password string) (string, string, error) {
 	}
 
 	if !us.hasher.Verify(user.Password, password) {
-		return "", "", ErrUserInvalidPassword
+		return "", "", ErrInvalidPassword
 	}
 
 	if !user.IsActivated {
@@ -162,7 +170,7 @@ func (us *UserService) ChangeEmail(id uint, email string) error {
 	case err != nil:
 		return err
 	case exists:
-		return ErrUserEmailTaken
+		return ErrEmailTaken
 	}
 
 	user.Email = email
@@ -180,7 +188,7 @@ func (us *UserService) ChangeUsername(id uint, username string) error {
 	case err != nil:
 		return err
 	case exists:
-		return ErrUserUsernameTaken
+		return ErrUsernameTaken
 	}
 
 	user.Username = username

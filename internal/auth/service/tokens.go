@@ -1,5 +1,7 @@
 package service
 
+import "errors"
+
 type (
 	TokensRefreshTokenStorage interface {
 		Set(userID uint, refreshToken string) error
@@ -11,6 +13,10 @@ type (
 		Verify(accessToken string) (userID uint, err error)
 		VerifyRefreshToken(refreshToken string) (userID uint, err error)
 	}
+)
+
+var (
+	ErrRefreshTokenInvalid = errors.New("refresh token is invalid")
 )
 
 type TokensService struct {
@@ -53,7 +59,7 @@ func (ts *TokensService) VerifyRefreshToken(refreshToken string) (userID uint, e
 	}
 
 	if existingToken != refreshToken {
-		return 0, ErrInvalidRefreshToken
+		return 0, ErrRefreshTokenInvalid
 	}
 
 	return userID, nil
