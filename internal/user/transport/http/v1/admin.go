@@ -123,7 +123,7 @@ func (h *Handler) getUserBans(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, struct {
-		Bans []model.Ban `json:"bans"`
+		Bans []*model.Ban `json:"bans"`
 	}{
 		Bans: user.Bans,
 	})

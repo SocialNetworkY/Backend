@@ -16,7 +16,7 @@ type User struct {
 	Banned    bool           `json:"banned" gorm:"-"`
 	Admin     bool           `json:"admin" gorm:"-"`
 	ActiveBan *Ban           `json:"activeBan" gorm:"-"`
-	Bans      []Ban          `json:"-" gorm:"foreignKey:UserID"`
+	Bans      []*Ban         `json:"-" gorm:"foreignKey:UserID"`
 	CreatedAt time.Time      `json:"-"`
 	UpdatedAt time.Time      `json:"-"`
 	DeletedAt gorm.DeletedAt `json:"-" gorm:"index"`
@@ -27,7 +27,7 @@ func (u *User) CheckBans() {
 	for _, ban := range u.Bans {
 		if ban.Active {
 			u.Banned = true
-			u.ActiveBan = &ban
+			u.ActiveBan = ban
 		}
 	}
 }
