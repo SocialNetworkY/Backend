@@ -1,9 +1,7 @@
 package service
 
 import (
-	"errors"
 	"github.com/lapkomo2018/goTwitterServices/internal/post/model"
-	"gorm.io/gorm"
 )
 
 type (
@@ -33,13 +31,7 @@ func NewTagService(s TagStorage) *TagService {
 }
 
 // Add adds a new tag
-func (ts *TagService) Add(name string) error {
-	// Check if tag exists
-	tag, err := ts.s.FindByName(name)
-	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
-		return err
-	}
-
+func (ts *TagService) Add(tag *model.Tag) error {
 	return ts.s.Add(tag)
 }
 
@@ -56,4 +48,42 @@ func (ts *TagService) DeleteByName(name string) error {
 	}
 
 	return ts.s.Delete(tag.ID)
+}
+
+// Find finds a tag by id
+func (ts *TagService) Find(id uint) (*model.Tag, error) {
+	return ts.s.Find(id)
+}
+
+// FindByName finds a tag by name
+func (ts *TagService) FindByName(name string) (*model.Tag, error) {
+	return ts.s.FindByName(name)
+}
+
+// Exists checks if a tag exists
+func (ts *TagService) Exists(id uint) (bool, error) {
+	_, err := ts.s.Find(id)
+	return err == nil, err
+}
+
+// ExistsByName checks if a tag exists
+func (ts *TagService) ExistsByName(name string) bool {
+	_, err := ts.s.FindByName(name)
+	return err == nil
+}
+
+// FindOrCreate finds a tag by name or creates a new one
+func (ts *TagService) FindOrCreate(name string) (*model.Tag, error) {
+	tag, err := ts.s.FindByName(name)
+	if err != nil {
+		tag = &model.Tag{
+			Name: name,
+		}
+
+		if err := ts.s.Add(tag); err != nil {
+			return nil, err
+		}
+	}
+
+	return tag, nil
 }

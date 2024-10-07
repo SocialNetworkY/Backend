@@ -10,6 +10,8 @@ type Post struct {
 	UserID         uint       `json:"user_id"`
 	Title          string     `json:"title"`
 	Content        string     `json:"content"`
+	ImageURLs      []string   `json:"image_urls"`
+	VideoURLs      []string   `json:"video_urls"`
 	Tags           []*Tag     `json:"tags" gorm:"many2many:post_tags;"`
 	TagsAmount     uint       `json:"tags_amount" gorm:"-"`
 	Comments       []*Comment `json:"comments"`
@@ -17,12 +19,11 @@ type Post struct {
 	Likes          []*Like    `json:"likes"`
 	LikesAmount    uint       `json:"likes_amount" gorm:"-"`
 	PostedAt       time.Time  `json:"posted_at"`
-	Changed        bool       `json:"changed" gorm:"-"`
-	ChangedAt      time.Time  `json:"changed_at" gorm:"default:null"`
-	ChangedBy      uint       `json:"changed_by"`
+	Updated        bool       `json:"updated" gorm:"-"`
+	UpdatedBy      uint       `json:"updated_by"`
 
 	CreatedAt time.Time      `json:"-"`
-	UpdatedAt time.Time      `json:"-"`
+	UpdatedAt time.Time      `json:"updated_at"`
 	DeletedAt gorm.DeletedAt `json:"-" gorm:"index"`
 }
 
@@ -43,7 +44,7 @@ func (p *Post) AfterFind(tx *gorm.DB) (err error) {
 	}
 	p.LikesAmount = uint(len(p.Likes))
 
-	p.Changed = !p.ChangedAt.IsZero()
+	p.Updated = p.UpdatedAt.After(p.PostedAt)
 
 	return nil
 }
