@@ -2,11 +2,9 @@ package http
 
 import (
 	"fmt"
+	"github.com/lapkomo2018/goTwitterServices/internal/user/transport/http/v1"
 	"log"
 	"net/http"
-	"strconv"
-
-	"github.com/lapkomo2018/goTwitterServices/internal/user/transport/http/v1"
 
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
@@ -14,7 +12,7 @@ import (
 
 type (
 	Config struct {
-		BodyLimit      int
+		BodyLimit      string
 		AllowedOrigins []string
 	}
 
@@ -29,7 +27,7 @@ func New(cfg Config, port int) *Server {
 
 	e := echo.New()
 
-	e.Use(middleware.BodyLimit(strconv.Itoa(cfg.BodyLimit)))
+	e.Use(middleware.BodyLimit(cfg.BodyLimit))
 	e.Use(middleware.LoggerWithConfig(middleware.LoggerConfig{
 		Format:           "${time_custom} | ${status} | ${latency_human} | ${remote_ip} | ${method} | ${uri} | ${error}\n",
 		CustomTimeFormat: "2006-01-02 15:04:05",
