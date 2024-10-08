@@ -1,5 +1,5 @@
 httpServer:
-  bodyLimit: 25165824
+  bodyLimit: 20MB
   allowedOrigins:
     - "*"
 
