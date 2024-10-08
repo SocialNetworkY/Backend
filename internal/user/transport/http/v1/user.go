@@ -5,6 +5,7 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/lapkomo2018/goTwitterServices/internal/user/model"
 	"github.com/lapkomo2018/goTwitterServices/pkg/constant"
+	"mime/multipart"
 	"net/http"
 )
 
@@ -14,7 +15,6 @@ func (h *Handler) initUserApi(group *echo.Group) {
 		user.GET("/full", h.getFullUser, h.authenticationMiddleware)
 		user.PATCH("", h.patchUser, h.authenticationMiddleware)
 		user.DELETE("", h.deleteUser, h.authenticationMiddleware)
-		user.POST("/avatar", h.postAvatar, h.authenticationMiddleware)
 	}
 
 	users := group.Group("/users")
@@ -67,7 +67,7 @@ func (h *Handler) patchUser(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusUnauthorized, "user not found")
 	}
 
-	authHeader := c.Request().Header.Get(authorizationHeader)
+	authHeader := c.Request().Header.Get(constant.HTTPAuthorizationHeader)
 	if authHeader == "" {
 		return echo.NewHTTPError(http.StatusUnauthorized, "missing Authorization header")
 	}
@@ -77,10 +77,15 @@ func (h *Handler) patchUser(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError, "internal error")
 	}
 
+	if err := c.Request().ParseMultipartForm(10 << 20); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, "invalid request body")
+	}
+
 	var requestBody struct {
-		Nickname string `json:"nickname"`
-		Username string `json:"username"`
-		Email    string `json:"email"`
+		Nickname string                `form:"nickname"`
+		Username string                `form:"username"`
+		Email    string                `form:"email"`
+		Avatar   *multipart.FileHeader `form:"avatar"`
 	}
 	if err := c.Bind(&requestBody); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "invalid request body")
@@ -106,6 +111,18 @@ func (h *Handler) patchUser(c echo.Context) error {
 		}
 	}
 
+	if requestBody.Avatar != nil {
+		src, err := requestBody.Avatar.Open()
+		if err != nil {
+			return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+		}
+		defer src.Close()
+
+		if err := h.us.ChangeAvatar(user.ID, src); err != nil {
+			return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+		}
+	}
+
 	return c.NoContent(http.StatusOK)
 }
 
@@ -115,7 +132,7 @@ func (h *Handler) deleteUser(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusUnauthorized, "user not found")
 	}
 
-	authHeader := c.Request().Header.Get(authorizationHeader)
+	authHeader := c.Request().Header.Get(constant.HTTPAuthorizationHeader)
 	if authHeader == "" {
 		return echo.NewHTTPError(http.StatusUnauthorized, "missing Authorization header")
 	}
@@ -131,39 +148,6 @@ func (h *Handler) deleteUser(c echo.Context) error {
 
 	if err := h.us.Delete(user.ID, authHeader); err != nil {
 		return err
-	}
-
-	return c.NoContent(http.StatusOK)
-}
-
-func (h *Handler) postAvatar(c echo.Context) error {
-	requester, ok := c.Get(requesterLocals).(*model.User)
-	if !ok {
-		return echo.NewHTTPError(http.StatusUnauthorized, "user not found")
-	}
-
-	user, ok := c.Get(userLocals).(*model.User)
-	if !ok {
-		return echo.NewHTTPError(http.StatusInternalServerError, "internal error")
-	}
-
-	if requester.ID != user.ID && requester.Role <= user.Role {
-		return echo.NewHTTPError(http.StatusForbidden, "you don't have permission to update this user")
-	}
-
-	file, err := c.FormFile("avatar")
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, "missing avatar file")
-	}
-
-	src, err := file.Open()
-	if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
-	}
-	defer src.Close()
-
-	if err := h.us.ChangeAvatar(user.ID, src); err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 
 	return c.NoContent(http.StatusOK)
