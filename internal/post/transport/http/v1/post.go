@@ -23,7 +23,7 @@ func (h *Handler) initPostApi(api *echo.Group) {
 		postID := posts.Group(fmt.Sprintf("/:%s", postIDParam), h.setPostByIDMiddleware)
 		{
 			postID.GET("", h.getPost)
-			postID.PUT("", h.updatePost, h.authenticationMiddleware, h.banMiddleware)
+			postID.PATCH("", h.updatePost, h.authenticationMiddleware, h.banMiddleware)
 			postID.DELETE("", h.deletePost, h.authenticationMiddleware, h.banMiddleware)
 		}
 	}
