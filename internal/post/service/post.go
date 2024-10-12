@@ -5,32 +5,26 @@ import (
 )
 
 type (
-	PostStorage interface {
+	PostRepo interface {
 		Add(post *model.Post) error
 		Save(post *model.Post) error
 		Delete(id uint) error
 		Find(id uint) (*model.Post, error)
-		FindAll() ([]*model.Post, error)
-		FindFrom(from uint) ([]*model.Post, error)
-		FindFromTo(from, to uint) ([]*model.Post, error)
-		FindByUser(userID uint) ([]*model.Post, error)
-		FindByUserFrom(userID, from uint) ([]*model.Post, error)
-		FindByUserFromTo(userID, from, to uint) ([]*model.Post, error)
-		FindByTag(tagID uint) ([]*model.Post, error)
-		FindByTagFrom(tagID, from uint) ([]*model.Post, error)
-		FindByTagFromTo(tagID, from, to uint) ([]*model.Post, error)
+		FindSome(skip, limit int) ([]*model.Post, error)
+		FindByUser(userID uint, skip, limit int) ([]*model.Post, error)
+		FindByTag(tagID uint, skip, limit int) ([]*model.Post, error)
 	}
 
 	PostService struct {
-		s  PostStorage
-		ts *TagService
+		repo PostRepo
+		ts   *TagService
 	}
 )
 
-func NewPostService(s PostStorage, ts *TagService) *PostService {
+func NewPostService(r PostRepo, ts *TagService) *PostService {
 	return &PostService{
-		s:  s,
-		ts: ts,
+		repo: r,
+		ts:   ts,
 	}
 }
 
@@ -40,7 +34,7 @@ func (ps *PostService) Create(post *model.Post) error {
 		return err
 	}
 
-	return ps.s.Add(post)
+	return ps.repo.Add(post)
 }
 
 // Update updates a post
@@ -49,22 +43,22 @@ func (ps *PostService) Update(post *model.Post) error {
 		return err
 	}
 
-	return ps.s.Save(post)
+	return ps.repo.Save(post)
 }
 
 // Find returns a post by its ID
 func (ps *PostService) Find(id uint) (*model.Post, error) {
-	return ps.s.Find(id)
+	return ps.repo.Find(id)
 }
 
 // Delete deletes a post by its ID
 func (ps *PostService) Delete(id uint) error {
-	return ps.s.Delete(id)
+	return ps.repo.Delete(id)
 }
 
 // AddTag adds a tag to a post
 func (ps *PostService) AddTag(postID uint, tagName string) error {
-	post, err := ps.s.Find(postID)
+	post, err := ps.repo.Find(postID)
 	if err != nil {
 		return err
 	}
@@ -76,14 +70,24 @@ func (ps *PostService) AddTag(postID uint, tagName string) error {
 
 	post.Tags = append(post.Tags, tag)
 
-	return ps.s.Save(post)
+	return ps.repo.Save(post)
+}
+
+// FindSome returns some posts with pagination parameters
+func (ps *PostService) FindSome(skip, limit int) ([]*model.Post, error) {
+	return ps.repo.FindSome(skip, limit)
+}
+
+// FindByUser returns some posts by user ID with pagination parameters
+func (ps *PostService) FindByUser(userID uint, skip, limit int) ([]*model.Post, error) {
+	return ps.repo.FindByUser(userID, skip, limit)
 }
 
 // processTags processes tags of a post
 func (ps *PostService) processTags(post *model.Post) error {
-	for _, tag := range post.Tags {
+	for i, tag := range post.Tags {
 		var err error
-		if tag, err = ps.ts.FindOrCreate(tag.Name); err != nil {
+		if post.Tags[i], err = ps.ts.FindOrCreate(tag.Name); err != nil {
 			return err
 		}
 	}

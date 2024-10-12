@@ -2,41 +2,37 @@ package http
 
 import (
 	"fmt"
+	"github.com/lapkomo2018/goTwitterServices/internal/post/transport/http/v1"
+	"github.com/lapkomo2018/goTwitterServices/pkg/binder"
+	"github.com/lapkomo2018/goTwitterServices/pkg/validator"
 	"log"
 	"net/http"
-	"strconv"
-
-	"github.com/lapkomo2018/goTwitterServices/internal/user/transport/http/v1"
 
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 )
 
-type (
-	Config struct {
-		BodyLimit      int
-		AllowedOrigins []string
-	}
+type Server struct {
+	echo *echo.Echo
+	addr string
+}
 
-	Server struct {
-		echo *echo.Echo
-		addr string
-	}
-)
-
-func New(cfg Config, port int) *Server {
+func New(bodyLimit string, allowedOrigins []string, port int) *Server {
 	log.Printf("Creating rest server with port: %d", port)
 
 	e := echo.New()
+	e.Binder = binder.NewEchoCustomBinder()
+	e.Validator = validator.NewEchoCustomValidator()
+	e.Use(middleware.Recover())
 
-	e.Use(middleware.BodyLimit(strconv.Itoa(cfg.BodyLimit)))
+	e.Use(middleware.BodyLimit(bodyLimit))
 	e.Use(middleware.LoggerWithConfig(middleware.LoggerConfig{
 		Format:           "${time_custom} | ${status} | ${latency_human} | ${remote_ip} | ${method} | ${uri} | ${error}\n",
 		CustomTimeFormat: "2006-01-02 15:04:05",
 	}))
 
 	corsConfig := middleware.CORSConfig{
-		AllowOrigins: cfg.AllowedOrigins,
+		AllowOrigins: allowedOrigins,
 	}
 	e.Use(middleware.CORSWithConfig(corsConfig))
 
@@ -60,10 +56,10 @@ func (s *Server) AddStaticFolder(path string, folder string) *Server {
 	return s
 }
 
-func (s *Server) Init(us v1.UserService, bs v1.BanService, ag v1.AuthGateway) *Server {
+func (s *Server) Init(ps v1.PostService, ls v1.LikeService, cs v1.CommentService, ag v1.AuthGateway, us v1.UserGateway, fs v1.FileStorage) *Server {
 	log.Println("Initializing server...")
 	log.Println("Initializing api...")
-	handlerV1 := v1.New(us, bs, ag)
+	handlerV1 := v1.New(ps, ls, cs, ag, us, fs)
 	api := s.echo.Group("/api")
 	{
 		handlerV1.Init(api)

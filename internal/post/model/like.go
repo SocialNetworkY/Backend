@@ -11,6 +11,5 @@ type Like struct {
 	PostID uint `json:"post_id"`
 
 	CreatedAt time.Time      `json:"-"`
-	UpdatedAt time.Time      `json:"-"`
 	DeletedAt gorm.DeletedAt `json:"-" gorm:"index"`
 }

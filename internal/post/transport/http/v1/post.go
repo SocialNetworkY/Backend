@@ -7,6 +7,7 @@ import (
 	"github.com/lapkomo2018/goTwitterServices/pkg/constant"
 	"mime/multipart"
 	"net/http"
+	"strings"
 	"time"
 )
 
@@ -18,32 +19,38 @@ const (
 func (h *Handler) initPostApi(api *echo.Group) {
 	posts := api.Group("/posts")
 	{
+		posts.GET("", h.getPosts)
 		posts.POST("", h.createPost, h.authenticationMiddleware, h.banMiddleware)
+		posts.GET(fmt.Sprintf("/users/:%s", userIDParam), h.getPostsByUserID, h.setUserByIDMiddleware)
 
 		postID := posts.Group(fmt.Sprintf("/:%s", postIDParam), h.setPostByIDMiddleware)
 		{
 			postID.GET("", h.getPost)
 			postID.PATCH("", h.updatePost, h.authenticationMiddleware, h.banMiddleware)
 			postID.DELETE("", h.deletePost, h.authenticationMiddleware, h.banMiddleware)
+			postID.GET("/like", h.likePost, h.authenticationMiddleware, h.banMiddleware)
+			postID.GET("/unlike", h.unlikePost, h.authenticationMiddleware, h.banMiddleware)
+
+			// Comments
+			comments := postID.Group("/comments")
+			{
+				comments.GET("", h.getPostComments)
+				comments.POST("", h.commentPost, h.authenticationMiddleware, h.banMiddleware)
+			}
 		}
 	}
 }
 
 func (h *Handler) createPost(c echo.Context) error {
-	requester, ok := c.Get(requesterLocals).(*user)
+	requester, ok := c.Get(requesterLocals).(*model.User)
 	if !ok {
-		return echo.ErrUnauthorized
-	}
-
-	// Parse the form data
-	if err := c.Request().ParseMultipartForm(32 << 20); err != nil {
-		return nil
+		return echo.NewHTTPError(http.StatusInternalServerError, "failed to get requester")
 	}
 
 	req := &struct {
-		Title   string                  `json:"title" form:"title" validate:"required,min=1,max=255"`
-		Content string                  `json:"content" form:"content" validate:"required,min=1,max=65535"`
-		Tags    []string                `json:"tags" form:"tags" validate:"omitempty,dive,min=1"`
+		Title   string                  `form:"title" validate:"required,min=1,max=255"`
+		Content string                  `form:"content" validate:"required,min=1,max=65535"`
+		Tags    []string                `form:"tags" validate:"omitempty,dive,min=1"`
 		Images  []*multipart.FileHeader `form:"images"`
 		Videos  []*multipart.FileHeader `form:"videos"`
 	}{}
@@ -58,6 +65,10 @@ func (h *Handler) createPost(c echo.Context) error {
 	// Process images
 	var imageUrls []string
 	for _, imageHeader := range req.Images {
+		if !strings.HasPrefix(imageHeader.Header.Get("Content-Type"), "image/") {
+			return echo.NewHTTPError(http.StatusBadRequest, "file is not an image")
+		}
+
 		if imageHeader.Size > imageMaxSize {
 			return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("image file size is too large, max size is %d", imageMaxSize))
 		}
@@ -77,6 +88,10 @@ func (h *Handler) createPost(c echo.Context) error {
 	// Process videos
 	var videoUrls []string
 	for _, videoHeader := range req.Videos {
+		if !strings.HasPrefix(videoHeader.Header.Get("Content-Type"), "video/") {
+			return echo.NewHTTPError(http.StatusBadRequest, "file is not a video")
+		}
+
 		if videoHeader.Size > videoMaxSize {
 			return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("video file size is too large, max size is %d", videoMaxSize))
 		}
@@ -127,9 +142,9 @@ func (h *Handler) getPost(c echo.Context) error {
 }
 
 func (h *Handler) updatePost(c echo.Context) error {
-	requester, ok := c.Get(requesterLocals).(*user)
+	requester, ok := c.Get(requesterLocals).(*model.User)
 	if !ok {
-		return echo.ErrUnauthorized
+		return echo.NewHTTPError(http.StatusInternalServerError, "failed to get requester")
 	}
 
 	post, ok := c.Get(postLocals).(*model.Post)
@@ -161,6 +176,7 @@ func (h *Handler) updatePost(c echo.Context) error {
 	if req.Title != "" {
 		post.Title = req.Title
 	}
+
 	if req.Content != "" {
 		post.Content = req.Content
 	}
@@ -175,7 +191,10 @@ func (h *Handler) updatePost(c echo.Context) error {
 		post.Tags = tags
 	}
 
-	// Process images
+	if len(req.ImageUrls) > 0 {
+		post.ImageURLs = req.ImageUrls
+	}
+
 	for _, imageHeader := range req.Images {
 		if imageHeader.Size > imageMaxSize {
 			return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("image file size is too large, max size is %d", imageMaxSize))
@@ -193,7 +212,10 @@ func (h *Handler) updatePost(c echo.Context) error {
 		post.ImageURLs = append(post.ImageURLs, imageUrl)
 	}
 
-	// Process videos
+	if len(req.VideoUrls) > 0 {
+		post.VideoURLs = req.VideoUrls
+	}
+
 	for _, videoHeader := range req.Videos {
 		if videoHeader.Size > videoMaxSize {
 			return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("video file size is too large, max size is %d", videoMaxSize))
@@ -211,7 +233,7 @@ func (h *Handler) updatePost(c echo.Context) error {
 		post.VideoURLs = append(post.VideoURLs, videoUrl)
 	}
 
-	post.UpdatedBy = requester.ID
+	post.EditedBy = requester.ID
 
 	if err := h.ps.Update(post); err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
@@ -221,9 +243,9 @@ func (h *Handler) updatePost(c echo.Context) error {
 }
 
 func (h *Handler) deletePost(c echo.Context) error {
-	requester, ok := c.Get(requesterLocals).(*user)
+	requester, ok := c.Get(requesterLocals).(*model.User)
 	if !ok {
-		return echo.ErrUnauthorized
+		return echo.NewHTTPError(http.StatusInternalServerError, "failed to get requester")
 	}
 
 	post, ok := c.Get(postLocals).(*model.Post)
@@ -236,6 +258,118 @@ func (h *Handler) deletePost(c echo.Context) error {
 	}
 
 	if err := h.ps.Delete(post.ID); err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+
+	return c.NoContent(http.StatusNoContent)
+}
+
+func (h *Handler) getPosts(c echo.Context) error {
+	skip, limit := skipLimitQuery(c)
+
+	posts, err := h.ps.FindSome(skip, limit)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+
+	return c.JSON(http.StatusOK, posts)
+}
+
+func (h *Handler) getPostsByUserID(c echo.Context) error {
+	user, ok := c.Get(userLocals).(*model.User)
+	if !ok {
+		return echo.NewHTTPError(http.StatusInternalServerError, "failed to get user")
+	}
+
+	skip, limit := skipLimitQuery(c)
+
+	posts, err := h.ps.FindByUser(user.ID, skip, limit)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+
+	return c.JSON(http.StatusOK, posts)
+}
+
+func (h *Handler) likePost(c echo.Context) error {
+	requester, ok := c.Get(requesterLocals).(*model.User)
+	if !ok {
+		return echo.NewHTTPError(http.StatusInternalServerError, "failed to get requester")
+	}
+
+	post, ok := c.Get(postLocals).(*model.Post)
+	if !ok {
+		return echo.NewHTTPError(http.StatusInternalServerError, "failed to get post")
+	}
+
+	if err := h.ls.LikePost(post.ID, requester.ID); err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+
+	return c.NoContent(http.StatusNoContent)
+}
+
+func (h *Handler) unlikePost(c echo.Context) error {
+	requester, ok := c.Get(requesterLocals).(*model.User)
+	if !ok {
+		return echo.NewHTTPError(http.StatusInternalServerError, "failed to get requester")
+	}
+
+	post, ok := c.Get(postLocals).(*model.Post)
+	if !ok {
+		return echo.NewHTTPError(http.StatusInternalServerError, "failed to get post")
+	}
+
+	if err := h.ls.UnlikePost(post.ID, requester.ID); err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+
+	return c.NoContent(http.StatusNoContent)
+}
+
+func (h *Handler) getPostComments(c echo.Context) error {
+	post, ok := c.Get(postLocals).(*model.Post)
+	if !ok {
+		return echo.NewHTTPError(http.StatusInternalServerError, "failed to get post")
+	}
+
+	skip, limit := skipLimitQuery(c)
+
+	comments, err := h.cs.FindByPost(post.ID, skip, limit)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+
+	return c.JSON(http.StatusOK, comments)
+}
+
+func (h *Handler) commentPost(c echo.Context) error {
+	requester, ok := c.Get(requesterLocals).(*model.User)
+	if !ok {
+		return echo.NewHTTPError(http.StatusInternalServerError, "failed to get requester")
+	}
+
+	if requester.Banned {
+		return echo.NewHTTPError(http.StatusForbidden, "you are banned")
+	}
+
+	post, ok := c.Get(postLocals).(*model.Post)
+	if !ok {
+		return echo.NewHTTPError(http.StatusInternalServerError, "failed to get post")
+	}
+
+	req := &struct {
+		Content string `json:"content" validate:"required,min=1,max=255"`
+	}{}
+	if err := c.Bind(req); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+
+	if err := c.Validate(req); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+
+	if err := h.cs.CommentPost(post.ID, requester.ID, req.Content); err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 

@@ -6,15 +6,29 @@ import (
 	"github.com/lapkomo2018/goTwitterServices/internal/post/model"
 	"io"
 	"log"
-	"time"
 )
 
 type (
 	PostService interface {
 		Create(post *model.Post) error
-		Find(id uint) (*model.Post, error)
 		Update(post *model.Post) error
 		Delete(id uint) error
+		Find(id uint) (*model.Post, error)
+		FindSome(skip, limit int) ([]*model.Post, error)
+		FindByUser(userID uint, skip, limit int) ([]*model.Post, error)
+	}
+
+	LikeService interface {
+		LikePost(postID, userID uint) error
+		UnlikePost(postID, userID uint) error
+	}
+
+	CommentService interface {
+		Find(id uint) (*model.Comment, error)
+		FindByPost(postID uint, skip, limit int) ([]*model.Comment, error)
+		CommentPost(postID, userID uint, content string) error
+		EditComment(id, userID uint, content string) error
+		DeleteComment(id uint) error
 	}
 
 	AuthGateway interface {
@@ -22,8 +36,7 @@ type (
 	}
 
 	UserGateway interface {
-		GetUserRole(ctx context.Context, auth string, userID uint) (uint, error)
-		IsUserBan(ctx context.Context, auth string, userID uint) (banned bool, reason string, expiredAt time.Time, err error)
+		UserInfo(ctx context.Context, userID uint) (*model.User, error)
 	}
 
 	FileStorage interface {
@@ -32,15 +45,19 @@ type (
 
 	Handler struct {
 		ps PostService
+		ls LikeService
+		cs CommentService
 		ag AuthGateway
 		ug UserGateway
 		fs FileStorage
 	}
 )
 
-func New(ps PostService, ag AuthGateway, ug UserGateway, fs FileStorage) *Handler {
+func New(ps PostService, ls LikeService, cs CommentService, ag AuthGateway, ug UserGateway, fs FileStorage) *Handler {
 	return &Handler{
 		ps: ps,
+		ls: ls,
+		cs: cs,
 		ag: ag,
 		ug: ug,
 		fs: fs,
@@ -52,5 +69,6 @@ func (h *Handler) Init(api *echo.Group) {
 	v1 := api.Group("/v1")
 	{
 		h.initPostApi(v1)
+		h.initCommentsApi(v1)
 	}
 }

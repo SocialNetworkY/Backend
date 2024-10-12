@@ -1,11 +1,22 @@
 package service
 
 type Service struct {
-	Tag *TagService
+	Post    *PostService
+	Tag     *TagService
+	Like    *LikeService
+	Comment *CommentService
 }
 
-func New(tagStorage TagStorage) *Service {
+func New(postRepo PostRepo, tagRepo TagRepo, likeRepo LikeRepo, commentRepo CommentRepo) *Service {
+	ts := NewTagService(tagRepo)
+	ps := NewPostService(postRepo, ts)
+	ls := NewLikeService(likeRepo)
+	cs := NewCommentService(commentRepo)
+
 	return &Service{
-		Tag: NewTagService(tagStorage),
+		Post:    ps,
+		Tag:     ts,
+		Like:    ls,
+		Comment: cs,
 	}
 }

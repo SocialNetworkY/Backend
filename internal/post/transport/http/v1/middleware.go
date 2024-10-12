@@ -3,24 +3,27 @@ package v1
 import (
 	"fmt"
 	"github.com/labstack/echo/v4"
+	"github.com/lapkomo2018/goTwitterServices/internal/post/model"
 	"github.com/lapkomo2018/goTwitterServices/pkg/constant"
 	"net/http"
 	"strconv"
-	"time"
 )
 
-type user struct {
-	ID        uint
-	Role      uint
-	Banned    bool
-	Reason    string
-	ExpiredAt time.Time
-}
-
 const (
-	requesterLocals = "requester"
-	postIDParam     = "post_id"
+	postIDParam    = "post_id"
+	userIDParam    = "user_id"
+	commentIDParam = "comment_id"
+
 	postLocals      = "post"
+	userLocals      = "user"
+	requesterLocals = "requester"
+	commentLocals   = "comment"
+
+	skipQuery  = "skip"
+	limitQuery = "limit"
+
+	defaultSkip  = 0
+	defaultLimit = 10
 )
 
 func (h *Handler) authenticationMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
@@ -30,20 +33,12 @@ func (h *Handler) authenticationMiddleware(next echo.HandlerFunc) echo.HandlerFu
 			return echo.NewHTTPError(http.StatusUnauthorized, "Missing Authorization header")
 		}
 
-		var err error
-		requester := &user{}
-
-		requester.ID, err = h.ag.Authenticate(c.Request().Context(), authHeader)
+		requesterID, err := h.ag.Authenticate(c.Request().Context(), authHeader)
 		if err != nil {
 			return echo.NewHTTPError(http.StatusUnauthorized, err.Error())
 		}
 
-		requester.Role, err = h.ug.GetUserRole(c.Request().Context(), authHeader, requester.ID)
-		if err != nil {
-			return echo.NewHTTPError(http.StatusUnauthorized, err.Error())
-		}
-
-		requester.Banned, requester.Reason, requester.ExpiredAt, err = h.ug.IsUserBan(c.Request().Context(), authHeader, requester.ID)
+		requester, err := h.ug.UserInfo(c.Request().Context(), requesterID)
 		if err != nil {
 			return echo.NewHTTPError(http.StatusUnauthorized, err.Error())
 		}
@@ -54,15 +49,33 @@ func (h *Handler) authenticationMiddleware(next echo.HandlerFunc) echo.HandlerFu
 	}
 }
 
+func (h *Handler) setUserByIDMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		userID, err := getUintParam(c, userIDParam)
+		if err != nil {
+			return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+		}
+
+		user, err := h.ug.UserInfo(c.Request().Context(), userID)
+		if err != nil {
+			return echo.NewHTTPError(http.StatusUnauthorized, err.Error())
+		}
+
+		c.Set(userLocals, user)
+
+		return next(c)
+	}
+}
+
 func (h *Handler) banMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		requester, ok := c.Get(requesterLocals).(*user)
+		requester, ok := c.Get(requesterLocals).(*model.User)
 		if !ok {
-			return echo.ErrUnauthorized
+			return echo.NewHTTPError(http.StatusUnauthorized, "failed to get requester")
 		}
 
 		if requester.Banned {
-			return echo.NewHTTPError(http.StatusForbidden, fmt.Sprintf("You are banned: %s.\nUntil: %s", requester.Reason, requester.ExpiredAt))
+			return echo.NewHTTPError(http.StatusForbidden, fmt.Sprintf("You are banned: %s.\nUntil: %s", requester.BanReason, requester.BanExpiredAt))
 		}
 
 		return next(c)
@@ -87,6 +100,24 @@ func (h *Handler) setPostByIDMiddleware(next echo.HandlerFunc) echo.HandlerFunc 
 	}
 }
 
+func (h *Handler) setCommentByIDMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		commentID, err := getUintParam(c, commentIDParam)
+		if err != nil {
+			return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+		}
+
+		comment, err := h.cs.Find(commentID)
+		if err != nil {
+			return echo.NewHTTPError(http.StatusNotFound, err.Error())
+		}
+
+		c.Set(commentLocals, comment)
+
+		return next(c)
+	}
+}
+
 func getUintParam(c echo.Context, key string) (uint, error) {
 	param := c.Param(key)
 	if param == "" {
@@ -99,4 +130,17 @@ func getUintParam(c echo.Context, key string) (uint, error) {
 	}
 
 	return uint(id), nil
+}
+
+func skipLimitQuery(c echo.Context) (int, int) {
+	skip := defaultSkip
+	if s, err := strconv.Atoi(c.QueryParam(skipQuery)); err == nil {
+		skip = s
+	}
+	limit := defaultLimit
+	if l, err := strconv.Atoi(c.QueryParam(limitQuery)); err == nil {
+		limit = l
+	}
+
+	return skip, limit
 }
