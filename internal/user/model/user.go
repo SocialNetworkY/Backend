@@ -22,23 +22,15 @@ type User struct {
 	DeletedAt gorm.DeletedAt `json:"-" gorm:"index"`
 }
 
-func (u *User) CheckBans() {
-	u.Banned = false
+// AfterFind is a gorm hook that is called after a find operation
+func (u *User) AfterFind(tx *gorm.DB) (err error) {
 	for _, ban := range u.Bans {
 		if ban.Active {
 			u.Banned = true
 			u.ActiveBan = ban
 		}
 	}
-}
 
-// AfterFind is a gorm hook that is called after a find operation
-func (u *User) AfterFind(tx *gorm.DB) (err error) {
-	if err = tx.Model(u).Association("Bans").Find(&u.Bans); err != nil {
-		return err
-	}
-
-	u.CheckBans()
 	u.Admin = u.Role > constant.RoleUser
 	return nil
 }

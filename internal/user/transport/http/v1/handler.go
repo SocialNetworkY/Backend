@@ -14,7 +14,7 @@ type (
 		Find(id uint) (*model.User, error)
 		FindByUsername(username string) (*model.User, error)
 		FindByEmail(email string) (*model.User, error)
-		FindByNickname(nickname string) ([]*model.User, error)
+		FindByNickname(nickname string, skip, limit int) ([]*model.User, error)
 		ChangeEmail(id uint, auth, email string) error
 		ChangeUsername(id uint, auth, username string) error
 		ChangeNickname(id uint, nickname string) error
@@ -23,10 +23,10 @@ type (
 	}
 
 	BanService interface {
-		BanUser(userID, adminID uint, reason string, duration time.Duration) error
-		UnbanByBanID(banID, adminID uint, reason string) error
-		FindBan(id uint) (*model.Ban, error)
-		FindBansByUserID(userID uint) ([]*model.Ban, error)
+		Ban(userID, adminID uint, reason string, duration time.Duration) error
+		Unban(banID, adminID uint, reason string) error
+		Find(id uint) (*model.Ban, error)
+		FindByUser(userID uint, skip, limit int) ([]*model.Ban, error)
 	}
 
 	AuthGateway interface {

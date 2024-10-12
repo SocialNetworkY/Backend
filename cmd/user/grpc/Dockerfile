@@ -13,5 +13,4 @@ RUN CGO_ENABLED=0 go build -o /server cmd/user/grpc/main.go
 
 FROM alpine:latest
 COPY --from=builder server .
-COPY --from=builder /app/configs/user.yaml /config.yaml
 CMD ["/server"]

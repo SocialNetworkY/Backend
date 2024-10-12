@@ -77,10 +77,6 @@ func (h *Handler) patchUser(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError, "internal error")
 	}
 
-	if err := c.Request().ParseMultipartForm(10 << 20); err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, "invalid request body")
-	}
-
 	var requestBody struct {
 		Nickname string                `form:"nickname"`
 		Username string                `form:"username"`

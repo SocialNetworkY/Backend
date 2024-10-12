@@ -9,18 +9,19 @@ import (
 )
 
 type (
-	UserStorage interface {
+	UserRepo interface {
+		Add(user *model.User) error
+		Save(user *model.User) error
+		Delete(user *model.User) error
 		ExistsByLogin(login string) (bool, error)
 		ExistsByEmail(email string) (bool, error)
 		ExistsByUsername(username string) (bool, error)
 		FindByLogin(login string) (*model.User, error)
 		Find(id uint) (*model.User, error)
+		FindSome(skip, limit int) ([]*model.User, error)
 		FindByUsername(username string) (*model.User, error)
 		FindByEmail(email string) (*model.User, error)
-		FindByNickname(nickname string) ([]*model.User, error)
-		Add(user *model.User) error
-		Save(user *model.User) error
-		Delete(user *model.User) error
+		FindByNickname(nickname string, skip, limit int) ([]*model.User, error)
 	}
 
 	AuthGateway interface {
@@ -33,9 +34,9 @@ type (
 	}
 
 	UserService struct {
-		us UserStorage
-		ag AuthGateway
-		is ImageStorage
+		repo UserRepo
+		ag   AuthGateway
+		is   ImageStorage
 	}
 )
 
@@ -44,16 +45,16 @@ var (
 	ErrUserEmailTaken    = errors.New("email is already taken")
 )
 
-func NewUserService(us UserStorage, is ImageStorage, ag AuthGateway) *UserService {
+func NewUserService(repo UserRepo, is ImageStorage, ag AuthGateway) *UserService {
 	return &UserService{
-		us: us,
-		ag: ag,
-		is: is,
+		repo: repo,
+		ag:   ag,
+		is:   is,
 	}
 }
 
 func (us *UserService) Create(id, role uint, username, email string) (*model.User, error) {
-	exists, err := us.us.ExistsByUsername(username)
+	exists, err := us.repo.ExistsByUsername(username)
 	switch {
 	case err != nil:
 		return nil, err
@@ -61,7 +62,7 @@ func (us *UserService) Create(id, role uint, username, email string) (*model.Use
 		return nil, ErrUserUsernameTaken
 	}
 
-	exists, err = us.us.ExistsByEmail(email)
+	exists, err = us.repo.ExistsByEmail(email)
 	switch {
 	case err != nil:
 		return nil, err
@@ -77,7 +78,7 @@ func (us *UserService) Create(id, role uint, username, email string) (*model.Use
 		Role:     role,
 	}
 
-	if err := us.us.Add(user); err != nil {
+	if err := us.repo.Add(user); err != nil {
 		return nil, err
 	}
 
@@ -85,28 +86,28 @@ func (us *UserService) Create(id, role uint, username, email string) (*model.Use
 }
 
 func (us *UserService) Find(id uint) (*model.User, error) {
-	return us.us.Find(id)
+	return us.repo.Find(id)
 }
 
 func (us *UserService) FindByUsername(username string) (*model.User, error) {
-	return us.us.FindByUsername(username)
+	return us.repo.FindByUsername(username)
 }
 
 func (us *UserService) FindByEmail(email string) (*model.User, error) {
-	return us.us.FindByEmail(email)
+	return us.repo.FindByEmail(email)
 }
 
-func (us *UserService) FindByNickname(nickname string) ([]*model.User, error) {
-	return us.us.FindByNickname(nickname)
+func (us *UserService) FindByNickname(nickname string, skip, limit int) ([]*model.User, error) {
+	return us.repo.FindByNickname(nickname, skip, limit)
 }
 
 func (us *UserService) ChangeEmail(id uint, auth, email string) error {
-	user, err := us.us.Find(id)
+	user, err := us.repo.Find(id)
 	if err != nil {
 		return err
 	}
 
-	exists, err := us.us.ExistsByEmail(email)
+	exists, err := us.repo.ExistsByEmail(email)
 	switch {
 	case err != nil:
 		return err
@@ -115,7 +116,7 @@ func (us *UserService) ChangeEmail(id uint, auth, email string) error {
 	}
 
 	user.Email = email
-	if err := us.us.Save(user); err != nil {
+	if err := us.repo.Save(user); err != nil {
 		return err
 	}
 
@@ -128,12 +129,12 @@ func (us *UserService) ChangeEmail(id uint, auth, email string) error {
 }
 
 func (us *UserService) ChangeUsername(id uint, auth, username string) error {
-	user, err := us.us.Find(id)
+	user, err := us.repo.Find(id)
 	if err != nil {
 		return err
 	}
 
-	exists, err := us.us.ExistsByUsername(username)
+	exists, err := us.repo.ExistsByUsername(username)
 	switch {
 	case err != nil:
 		return err
@@ -142,7 +143,7 @@ func (us *UserService) ChangeUsername(id uint, auth, username string) error {
 	}
 
 	user.Username = username
-	if err := us.us.Save(user); err != nil {
+	if err := us.repo.Save(user); err != nil {
 		return err
 	}
 
@@ -155,17 +156,17 @@ func (us *UserService) ChangeUsername(id uint, auth, username string) error {
 }
 
 func (us *UserService) ChangeNickname(id uint, nickname string) error {
-	user, err := us.us.Find(id)
+	user, err := us.repo.Find(id)
 	if err != nil {
 		return err
 	}
 
 	user.Nickname = nickname
-	return us.us.Save(user)
+	return us.repo.Save(user)
 }
 
 func (us *UserService) ChangeAvatar(id uint, file io.ReadSeeker) error {
-	user, err := us.us.Find(id)
+	user, err := us.repo.Find(id)
 	if err != nil {
 		return err
 	}
@@ -176,21 +177,21 @@ func (us *UserService) ChangeAvatar(id uint, file io.ReadSeeker) error {
 	}
 
 	user.Avatar = newAvatarURL
-	return us.us.Save(user)
+	return us.repo.Save(user)
 }
 
 func (us *UserService) ChangeRole(id, role uint) error {
-	user, err := us.us.Find(id)
+	user, err := us.repo.Find(id)
 	if err != nil {
 		return err
 	}
 
 	user.Role = role
-	return us.us.Save(user)
+	return us.repo.Save(user)
 }
 
 func (us *UserService) Delete(id uint, auth string) error {
-	user, err := us.us.Find(id)
+	user, err := us.repo.Find(id)
 	if err != nil {
 		return err
 	}
@@ -200,7 +201,7 @@ func (us *UserService) Delete(id uint, auth string) error {
 		return err
 	}
 
-	if err := us.us.Delete(user); err != nil {
+	if err := us.repo.Delete(user); err != nil {
 		return err
 	}
 

@@ -66,7 +66,7 @@ func (h *Handler) banUser(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, "user already banned")
 	}
 
-	if err := h.bs.BanUser(user.ID, requester.ID, req.Reason, duration); err != nil {
+	if err := h.bs.Ban(user.ID, requester.ID, req.Reason, duration); err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 
@@ -87,7 +87,7 @@ func (h *Handler) unbanByBanID(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError, "internal error")
 	}
 
-	ban, err := h.bs.FindBan(req.BanID)
+	ban, err := h.bs.Find(req.BanID)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusNotFound, "ban not found")
 	}
@@ -109,7 +109,7 @@ func (h *Handler) unbanByBanID(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusForbidden, "forbidden")
 	}
 
-	if err := h.bs.UnbanByBanID(ban.ID, requester.ID, req.Reason); err != nil {
+	if err := h.bs.Unban(ban.ID, requester.ID, req.Reason); err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 

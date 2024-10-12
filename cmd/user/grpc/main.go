@@ -2,66 +2,51 @@ package main
 
 import (
 	"fmt"
+	"github.com/lapkomo2018/goTwitterServices/internal/user/repository"
 	"github.com/lapkomo2018/goTwitterServices/pkg/storage"
+	"gorm.io/driver/mysql"
 	"log"
 
 	"github.com/lapkomo2018/goTwitterServices/internal/user/gateway/auth"
-	"github.com/lapkomo2018/goTwitterServices/internal/user/repository/mysql"
 	"github.com/lapkomo2018/goTwitterServices/internal/user/service"
 	"github.com/lapkomo2018/goTwitterServices/internal/user/transport/grpc"
 
-	"github.com/lapkomo2018/goTwitterServices/pkg/config"
-
-	envCarlos "github.com/caarlos0/env/v6"
+	"github.com/caarlos0/env/v6"
 )
 
 type Config struct {
-	GrpcServer grpc.Config
-}
-
-type Env struct {
 	DB                  string `env:"DB"`
 	Port                int    `env:"PORT"`
 	AuthServiceHttpAddr string `env:"AUTH_SERVICE_HTTP_ADDR"`
 	AuthServiceGrpcAddr string `env:"AUTH_SERVICE_GRPC_ADDR"`
+	StorageFolder       string `env:"STORAGE_FOLDER" envDefault:"storage"`
 }
 
 var (
-	cfg *Config
-	env = &Env{}
-)
-
-const (
-	ImageFolder = "images"
+	cfg = &Config{}
 )
 
 func init() {
-	var err error
-	if err := envCarlos.Parse(env); err != nil {
-		log.Fatal(err)
-	}
-
-	cfg, err = config.LoadConfig[Config]("./config.yaml")
-	if err != nil {
+	if err := env.Parse(cfg); err != nil {
 		log.Fatal(err)
 	}
 }
 
 func main() {
-	storages, err := mysql.New(env.DB)
+	repos, err := repository.New(mysql.Open(cfg.DB))
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	imageStorage, err := storage.NewLocalStorage(ImageFolder, fmt.Sprintf("http://localhost:%d/%s", env.Port, ImageFolder))
+	imageStorage, err := storage.NewLocalStorage(cfg.StorageFolder, fmt.Sprintf("http://localhost:%d/%s", cfg.Port, "storage"))
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	authGateway := auth.New(env.AuthServiceHttpAddr, env.AuthServiceGrpcAddr)
-	services := service.New(storages.User, storages.Ban, imageStorage, authGateway)
+	authGateway := auth.New(cfg.AuthServiceHttpAddr, cfg.AuthServiceGrpcAddr)
+	services := service.New(repos.User, repos.Ban, imageStorage, authGateway)
 
-	if err := grpc.New(cfg.GrpcServer, env.Port).Init(services.User, authGateway).Run(); err != nil {
+	if err := grpc.New(cfg.Port).Init(services.User, authGateway).Run(); err != nil {
 		log.Fatalf("Grpc server err: %v", err)
 	}
 }

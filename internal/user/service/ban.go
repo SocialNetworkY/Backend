@@ -6,28 +6,28 @@ import (
 )
 
 type (
-	BanStorage interface {
+	BanRepo interface {
 		Add(ban *model.Ban) error
 		Save(ban *model.Ban) error
 		Delete(id uint) error
 		Find(id uint) (*model.Ban, error)
-		FindByUserID(userID uint) ([]*model.Ban, error)
-		FindByAdminID(adminID uint) ([]*model.Ban, error)
+		FindByUser(userID uint, skip, limit int) ([]*model.Ban, error)
+		FindByAdmin(adminID uint, skip, limit int) ([]*model.Ban, error)
 	}
 
 	BanService struct {
-		s BanStorage
+		repo BanRepo
 	}
 )
 
-func NewBanService(s BanStorage) *BanService {
+func NewBanService(r BanRepo) *BanService {
 	return &BanService{
-		s: s,
+		repo: r,
 	}
 }
 
-// BanUser bans a user with time and reason
-func (bs *BanService) BanUser(userID, adminID uint, reason string, duration time.Duration) error {
+// Ban bans a user with time and reason
+func (bs *BanService) Ban(userID, adminID uint, reason string, duration time.Duration) error {
 	ban := &model.Ban{
 		UserID:    userID,
 		BannedBy:  adminID,
@@ -36,12 +36,12 @@ func (bs *BanService) BanUser(userID, adminID uint, reason string, duration time
 		Duration:  duration,
 		ExpiredAt: time.Now().Add(duration),
 	}
-	return bs.s.Add(ban)
+	return bs.repo.Add(ban)
 }
 
-// UnbanByBanID unbans a user with reason
-func (bs *BanService) UnbanByBanID(banID, adminID uint, reason string) error {
-	ban, err := bs.s.Find(banID)
+// Unban unbans a user with reason
+func (bs *BanService) Unban(banID, adminID uint, reason string) error {
+	ban, err := bs.repo.Find(banID)
 	if err != nil {
 		return err
 	}
@@ -49,15 +49,15 @@ func (bs *BanService) UnbanByBanID(banID, adminID uint, reason string) error {
 	ban.UnbanReason = reason
 	ban.UnbannedBy = adminID
 	ban.UnbannedAt = time.Now()
-	return bs.s.Save(ban)
+	return bs.repo.Save(ban)
 }
 
-// FindBan returns a ban by id
-func (bs *BanService) FindBan(id uint) (*model.Ban, error) {
-	return bs.s.Find(id)
+// Find returns a ban by id
+func (bs *BanService) Find(id uint) (*model.Ban, error) {
+	return bs.repo.Find(id)
 }
 
-// FindBansByUserID returns all bans for a user
-func (bs *BanService) FindBansByUserID(userID uint) ([]*model.Ban, error) {
-	return bs.s.FindByUserID(userID)
+// FindByUser returns all bans for a user
+func (bs *BanService) FindByUser(userID uint, skip, limit int) ([]*model.Ban, error) {
+	return bs.repo.FindByUser(userID, skip, limit)
 }

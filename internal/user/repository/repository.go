@@ -1,29 +1,28 @@
-package mysql
+package repository
 
 import (
 	"log"
 
-	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 
 	"github.com/lapkomo2018/goTwitterServices/internal/user/model"
 )
 
-type Storage struct {
-	User *UserStorage
-	Ban  *BanStorage
+type Repository struct {
+	User *UserRepository
+	Ban  *BanRepository
 }
 
-func New(dsn string) (*Storage, error) {
-	log.Println("Connecting mysql...")
-	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{
+func New(dialector gorm.Dialector) (*Repository, error) {
+	log.Printf("Connecting %s...\n", dialector.Name())
+	db, err := gorm.Open(dialector, &gorm.Config{
 		Logger: logger.Default.LogMode(logger.Silent),
 	})
 	if err != nil {
 		return nil, err
 	}
-	log.Println("Connected mysql")
+	log.Printf("Connected %s\n", dialector.Name())
 
 	log.Println("Starting AutoMigrating...")
 	if err := db.AutoMigrate(&model.User{}, &model.Ban{}); err != nil {
@@ -31,8 +30,8 @@ func New(dsn string) (*Storage, error) {
 	}
 	log.Println("AutoMigrating completed")
 
-	return &Storage{
-		User: NewUserStorage(db),
-		Ban:  NewBanStorage(db),
+	return &Repository{
+		User: NewUserRepository(db),
+		Ban:  NewBanRepository(db),
 	}, nil
 }

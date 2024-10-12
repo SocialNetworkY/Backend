@@ -5,9 +5,9 @@ type Service struct {
 	Ban  *BanService
 }
 
-func New(userStorage UserStorage, banStorage BanStorage, is ImageStorage, ag AuthGateway) *Service {
-	userService := NewUserService(userStorage, is, ag)
-	banService := NewBanService(banStorage)
+func New(userRepo UserRepo, banRepo BanRepo, is ImageStorage, ag AuthGateway) *Service {
+	userService := NewUserService(userRepo, is, ag)
+	banService := NewBanService(banRepo)
 
 	return &Service{
 		User: userService,

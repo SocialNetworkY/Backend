@@ -68,82 +68,91 @@ services:
             timeout: 20s
             retries: 10
 
-  user-http-service:
-    build:
-      context: .
-      dockerfile: cmd/user/http/Dockerfile
-    container_name: user-http-service
-    environment:
-      DB: myuser:strongpass@tcp(user-db:3306)/mydb?parseTime=true
-      PORT: 8082
-      AUTH_SERVICE_HTTP_ADDR: auth-http-service:8080
-      AUTH_SERVICE_GRPC_ADDR: auth-grpc-service:8081
-    ports:
-      - "8082:8082"
-    networks:
-      - services
-      - user
-    depends_on:
-      user-db:
-        condition: service_healthy
+    user-http-service:
+        build:
+            context: .
+            dockerfile: cmd/user/http/Dockerfile
+        container_name: user-http-service
+        environment:
+            DB: myuser:strongpass@tcp(user-db:3306)/mydb?parseTime=true
+            PORT: 8082
+            BODY_LIMIT: 50MB
+            ALLOWED_ORIGINS: "*"
+            STORAGE_FOLDER: ./storage
+            AUTH_SERVICE_HTTP_ADDR: auth-http-service:8080
+            AUTH_SERVICE_GRPC_ADDR: auth-grpc-service:8081
+        ports:
+            - "8082:8082"
+        volumes:
+            - user_storage:/storage
+        networks:
+            - services
+            - user
+        depends_on:
+            user-db:
+               condition: service_healthy
 
-  user-grpc-service:
-    build:
-      context: .
-      dockerfile: cmd/user/grpc/Dockerfile
-    container_name: user-grpc-service
-    environment:
-      DB: myuser:strongpass@tcp(user-db:3306)/mydb?parseTime=true
-      PORT: 8083
-      AUTH_SERVICE_HTTP_ADDR: auth-http-service:8080
-      AUTH_SERVICE_GRPC_ADDR: auth-grpc-service:8081
-    ports:
-      - "8083:8083"
-    networks:
-      - services
-      - user
-    depends_on:
-      user-db:
-        condition: service_healthy
+    user-grpc-service:
+        build:
+            context: .
+            dockerfile: cmd/user/grpc/Dockerfile
+        container_name: user-grpc-service
+        environment:
+            DB: myuser:strongpass@tcp(user-db:3306)/mydb?parseTime=true
+            PORT: 8083
+            STORAGE_FOLDER: ./storage
+            AUTH_SERVICE_HTTP_ADDR: auth-http-service:8080
+            AUTH_SERVICE_GRPC_ADDR: auth-grpc-service:8081
+        ports:
+            - "8083:8083"
+        volumes:
+            - user_storage:/storage
+        networks:
+            - services
+            - user
+        depends_on:
+            user-db:
+                condition: service_healthy
 
-  user-db:
-    image: mysql:latest
-    container_name: user-db
-    environment:
-      MYSQL_DATABASE: mydb
-      MYSQL_USER: myuser
-      MYSQL_PASSWORD: strongpass
-      MYSQL_ROOT_PASSWORD: verystrongpass
-    ports:
-      - "5678:3306"
-    volumes:
-      - user_db_data:/var/lib/mysql
-    networks:
-        - user
-    healthcheck:
-      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost" ]
-      timeout: 20s
-      retries: 10
+    user-db:
+        image: mysql:latest
+        container_name: user-db
+        environment:
+            MYSQL_DATABASE: mydb
+            MYSQL_USER: myuser
+            MYSQL_PASSWORD: strongpass
+            MYSQL_ROOT_PASSWORD: verystrongpass
+        ports:
+            - "5678:3306"
+        volumes:
+            - user_db_data:/var/lib/mysql
+        networks:
+            - user
+        healthcheck:
+            test: [ "CMD", "mysqladmin", "ping", "-h", "localhost" ]
+            timeout: 20s
+            retries: 10
 
 volumes:
-  auth_db_data:
-    driver: local
-    driver_opts:
-      type: none
-      o: bind
-      device: ./db/auth
-  user_db_data:
-    driver: local
-    driver_opts:
-      type: none
-      o: bind
-      device: ./db/user
     auth_db_data:
         driver: local
         driver_opts:
             type: none
             o: bind
             device: ./db/auth
+    user_db_data:
+        driver: local
+        driver_opts:
+            type: none
+            o: bind
+            device: ./db/user
+    user_storage:
+        driver: local
+        driver_opts:
+            type: none
+            o: bind
+            device: ./db/auth
+            device: ./storage/user
 
 networks:
   services:

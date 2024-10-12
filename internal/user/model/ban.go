@@ -26,5 +26,5 @@ type Ban struct {
 
 func (b *Ban) AfterFind(tx *gorm.DB) (err error) {
 	b.Active = b.ExpiredAt.After(time.Now()) && b.UnbanReason == ""
-	return
+	return nil
 }

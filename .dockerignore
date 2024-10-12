@@ -2,3 +2,4 @@ Makefile
 .env
 .gitignore
 /db
+/storage
