@@ -1,4 +1,4 @@
-package mysql
+package repository
 
 import (
 	"errors"
@@ -7,20 +7,20 @@ import (
 )
 
 type (
-	RefreshTokenStorage struct {
+	RefreshTokenRepository struct {
 		db *gorm.DB
 	}
 )
 
-func NewRefreshTokenStorage(db *gorm.DB) *RefreshTokenStorage {
-	return &RefreshTokenStorage{
+func NewRefreshTokenRepository(db *gorm.DB) *RefreshTokenRepository {
+	return &RefreshTokenRepository{
 		db: db,
 	}
 }
 
-func (us *RefreshTokenStorage) Set(userID uint, refreshToken string) error {
+func (rtr *RefreshTokenRepository) Set(userID uint, refreshToken string) error {
 	var existingToken model.RefreshToken
-	err := us.db.Where("user_id = ?", userID).First(&existingToken).Error
+	err := rtr.db.Where("user_id = ?", userID).First(&existingToken).Error
 	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		return err
 	}
@@ -31,22 +31,22 @@ func (us *RefreshTokenStorage) Set(userID uint, refreshToken string) error {
 			Token:  refreshToken,
 		}
 
-		if err := us.db.Create(&newToken).Error; err != nil {
+		if err := rtr.db.Create(&newToken).Error; err != nil {
 			return err
 		}
 		return nil
 	}
 
 	existingToken.Token = refreshToken
-	if err := us.db.Save(&existingToken).Error; err != nil {
+	if err := rtr.db.Save(&existingToken).Error; err != nil {
 		return err
 	}
 	return nil
 }
 
-func (us *RefreshTokenStorage) Get(userID uint) (string, error) {
+func (rtr *RefreshTokenRepository) Get(userID uint) (string, error) {
 	existingToken := &model.RefreshToken{}
-	err := us.db.Where("user_id = ?", userID).First(existingToken).Error
+	err := rtr.db.Where("user_id = ?", userID).First(existingToken).Error
 	if err != nil {
 		return "", err
 	}

@@ -17,15 +17,15 @@ func (h *Handler) initUserApi(api *echo.Group) {
 }
 
 func (h *Handler) userLogin(c echo.Context) error {
-	var body userLoginReq
+	var body struct {
+		Login    string `json:"login" validate:"required"`
+		Password string `json:"password" validate:"required,password"`
+	}
 	if err := c.Bind(&body); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
-	if err := h.validator.Login(body.Login); err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
-	}
-	if err := h.validator.Password(body.Password); err != nil {
+	if err := c.Validate(&body); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
@@ -40,26 +40,17 @@ func (h *Handler) userLogin(c echo.Context) error {
 	return h.setAndReturnTokens(c, accessToken, refreshToken)
 }
 
-type (
-	userLoginReq struct {
-		Login    string `json:"login" binding:"required"`
-		Password string `json:"password" binding:"required"`
-	}
-)
-
 func (h *Handler) userRegister(c echo.Context) error {
-	var body userRegisterReq
+	var body struct {
+		Email    string `json:"email" validate:"required,email"`
+		Username string `json:"username" validate:"required,username"`
+		Password string `json:"password" validate:"required,password"`
+	}
 	if err := c.Bind(&body); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
-	if err := h.validator.Email(body.Email); err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
-	}
-	if err := h.validator.Username(body.Username); err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
-	}
-	if err := h.validator.Password(body.Password); err != nil {
+	if err := c.Validate(&body); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
@@ -68,21 +59,12 @@ func (h *Handler) userRegister(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 
-	return c.JSON(http.StatusOK, userRegisterResp{
+	return c.JSON(http.StatusOK, struct {
+		ActivationToken string `json:"activation_token"`
+	}{
 		ActivationToken: activationToken,
 	})
 }
-
-type (
-	userRegisterReq struct {
-		Email    string `json:"email" binding:"required"`
-		Username string `json:"username" binding:"required"`
-		Password string `json:"password" binding:"required"`
-	}
-	userRegisterResp struct {
-		ActivationToken string `json:"activation_token"`
-	}
-)
 
 func (h *Handler) userActivate(c echo.Context) error {
 	activationToken := c.Param("token")
@@ -101,16 +83,12 @@ func (h *Handler) userAuthenticate(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError, "invalid user")
 	}
 
-	return c.JSON(http.StatusOK, userAuthenticateResp{
+	return c.JSON(http.StatusOK, struct {
+		UserID uint `json:"user_id"`
+	}{
 		UserID: user.ID,
 	})
 }
-
-type (
-	userAuthenticateResp struct {
-		UserID uint `json:"user_id"`
-	}
-)
 
 func (h *Handler) userInfo(c echo.Context) error {
 	user, ok := c.Get(userLocals).(*model.User)
@@ -118,7 +96,13 @@ func (h *Handler) userInfo(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError, "invalid user")
 	}
 
-	return c.JSON(http.StatusOK, userInfoResp{
+	return c.JSON(http.StatusOK, struct {
+		ID        uint      `json:"id"`
+		Email     string    `json:"email"`
+		Username  string    `json:"username"`
+		CreatedAt time.Time `json:"created_at"`
+		UpdatedAt time.Time `json:"updated_at"`
+	}{
 		ID:        user.ID,
 		Email:     user.Email,
 		Username:  user.Username,
@@ -127,28 +111,20 @@ func (h *Handler) userInfo(c echo.Context) error {
 	})
 }
 
-type (
-	userInfoResp struct {
-		ID        uint      `json:"id"`
-		Email     string    `json:"email"`
-		Username  string    `json:"username"`
-		CreatedAt time.Time `json:"created_at"`
-		UpdatedAt time.Time `json:"updated_at"`
-	}
-)
-
 func (h *Handler) userChangePassword(c echo.Context) error {
 	user, ok := c.Get(userLocals).(*model.User)
 	if !ok {
 		return echo.NewHTTPError(http.StatusInternalServerError, "invalid user")
 	}
 
-	var body userChangePasswordReq
+	var body struct {
+		Password string `json:"password" validate:"required,password"`
+	}
 	if err := c.Bind(&body); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
-	if err := h.validator.Password(body.Password); err != nil {
+	if err := c.Validate(&body); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
@@ -158,9 +134,3 @@ func (h *Handler) userChangePassword(c echo.Context) error {
 
 	return c.NoContent(http.StatusNoContent)
 }
-
-type (
-	userChangePasswordReq struct {
-		Password string `json:"password" binding:"required"`
-	}
-)

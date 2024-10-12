@@ -7,10 +7,10 @@ type Service struct {
 	ActivationToken *ActivationTokenService
 }
 
-func New(userStorage UserStorage, refreshTokenStorage TokensRefreshTokenStorage, activationTokenStorage ActivationTokenStorage, tokenManager TokensManager, hasher Hasher, ug UserGateway) *Service {
-	activationTokenService := NewActivationTokenService(activationTokenStorage)
-	tokensService := NewTokensService(refreshTokenStorage, tokenManager)
-	userService := NewUserService(userStorage, tokensService, activationTokenService, hasher, ug)
+func New(userRepo UserRepo, refreshTokenRepo TokensRefreshTokenRepo, activationTokenRepo ActivationTokenRepo, tokenManager TokensManager, hasher Hasher, ug UserGateway) *Service {
+	activationTokenService := NewActivationTokenService(activationTokenRepo)
+	tokensService := NewTokensService(refreshTokenRepo, tokenManager)
+	userService := NewUserService(userRepo, tokensService, activationTokenService, hasher, ug)
 	authenticationService := NewAuthenticationService(userService, tokensService)
 
 	return &Service{

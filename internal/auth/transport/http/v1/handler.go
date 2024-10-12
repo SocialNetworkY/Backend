@@ -26,18 +26,10 @@ type (
 		Auth(auth string) (*model.User, error)
 	}
 
-	Validator interface {
-		Login(login string) error
-		Email(email string) error
-		Username(username string) error
-		Password(password string) error
-	}
-
 	Handler struct {
 		userService           UserService
 		tokenService          TokenService
 		authenticationService AuthenticationService
-		validator             Validator
 		RefreshTokenDuration  time.Duration
 	}
 )
@@ -47,12 +39,11 @@ const (
 	refreshTokenCookieName = "refresh_token"
 )
 
-func New(userService UserService, tokenService TokenService, authenticationService AuthenticationService, validator Validator, refreshTokenDuration time.Duration) *Handler {
+func New(userService UserService, tokenService TokenService, authenticationService AuthenticationService, refreshTokenDuration time.Duration) *Handler {
 	return &Handler{
 		userService:           userService,
 		tokenService:          tokenService,
 		authenticationService: authenticationService,
-		validator:             validator,
 		RefreshTokenDuration:  refreshTokenDuration,
 	}
 }

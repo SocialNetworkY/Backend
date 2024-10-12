@@ -7,7 +7,7 @@ import (
 )
 
 type (
-	ActivationTokenStorage interface {
+	ActivationTokenRepo interface {
 		Set(userID uint, activationToken string) error
 		Get(userID uint) (*model.ActivationToken, error)
 		GetByToken(activationToken string) (*model.ActivationToken, error)
@@ -16,12 +16,12 @@ type (
 )
 
 type ActivationTokenService struct {
-	storage ActivationTokenStorage
+	repo ActivationTokenRepo
 }
 
-func NewActivationTokenService(storage ActivationTokenStorage) *ActivationTokenService {
+func NewActivationTokenService(repo ActivationTokenRepo) *ActivationTokenService {
 	return &ActivationTokenService{
-		storage: storage,
+		repo: repo,
 	}
 }
 
@@ -33,7 +33,7 @@ func (ts *ActivationTokenService) Generate(userID uint) (string, error) {
 	}
 	activationToken := hex.EncodeToString(tokenBytes)
 
-	if err := ts.storage.Set(userID, activationToken); err != nil {
+	if err := ts.repo.Set(userID, activationToken); err != nil {
 		return "", err
 	}
 
@@ -41,13 +41,13 @@ func (ts *ActivationTokenService) Generate(userID uint) (string, error) {
 }
 
 func (ts *ActivationTokenService) Get(userID uint) (*model.ActivationToken, error) {
-	return ts.storage.Get(userID)
+	return ts.repo.Get(userID)
 }
 
 func (ts *ActivationTokenService) GetByToken(activationToken string) (*model.ActivationToken, error) {
-	return ts.storage.GetByToken(activationToken)
+	return ts.repo.GetByToken(activationToken)
 }
 
 func (ts *ActivationTokenService) Delete(userID uint) error {
-	return ts.storage.Delete(userID)
+	return ts.repo.Delete(userID)
 }

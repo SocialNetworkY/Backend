@@ -14,7 +14,7 @@ type (
 		Verify(hash string, password string) bool
 	}
 
-	UserStorage interface {
+	UserRepo interface {
 		ExistsByLogin(login string) (bool, error)
 		ExistsByEmail(email string) (bool, error)
 		ExistsByUsername(username string) (bool, error)
@@ -44,7 +44,7 @@ type (
 	}
 
 	UserService struct {
-		storage                UserStorage
+		repo                   UserRepo
 		tokenService           UserTokenService
 		activationTokenService UserActivationTokenService
 		hasher                 Hasher
@@ -59,9 +59,9 @@ var (
 	ErrUserNotActivated = errors.New("user is not activated")
 )
 
-func NewUserService(userStorage UserStorage, tokenService UserTokenService, activationTokenService UserActivationTokenService, hasher Hasher, ug UserGateway) *UserService {
+func NewUserService(repo UserRepo, tokenService UserTokenService, activationTokenService UserActivationTokenService, hasher Hasher, ug UserGateway) *UserService {
 	return &UserService{
-		storage:                userStorage,
+		repo:                   repo,
 		tokenService:           tokenService,
 		activationTokenService: activationTokenService,
 		hasher:                 hasher,
@@ -70,7 +70,7 @@ func NewUserService(userStorage UserStorage, tokenService UserTokenService, acti
 }
 
 func (us *UserService) Register(username, email, password string) (activationToken string, err error) {
-	exists, err := us.storage.ExistsByUsername(username)
+	exists, err := us.repo.ExistsByUsername(username)
 	switch {
 	case err != nil:
 		return "", err
@@ -78,7 +78,7 @@ func (us *UserService) Register(username, email, password string) (activationTok
 		return "", ErrUsernameTaken
 	}
 
-	exists, err = us.storage.ExistsByEmail(email)
+	exists, err = us.repo.ExistsByEmail(email)
 	switch {
 	case err != nil:
 		return "", err
@@ -94,7 +94,7 @@ func (us *UserService) Register(username, email, password string) (activationTok
 		Password: hashedPassword,
 	}
 
-	if err := us.storage.Add(user); err != nil {
+	if err := us.repo.Add(user); err != nil {
 		return "", err
 	}
 
@@ -107,7 +107,7 @@ func (us *UserService) Register(username, email, password string) (activationTok
 }
 
 func (us *UserService) Login(login, password string) (string, string, error) {
-	user, err := us.storage.FindByLogin(login)
+	user, err := us.repo.FindByLogin(login)
 	if err != nil {
 		return "", "", err
 	}
@@ -129,7 +129,7 @@ func (us *UserService) Activate(activationToken string) (accessToken, refreshTok
 		return "", "", err
 	}
 
-	user, err := us.storage.Find(token.UserID)
+	user, err := us.repo.Find(token.UserID)
 	if err != nil {
 		return "", "", err
 	}
@@ -144,7 +144,7 @@ func (us *UserService) Activate(activationToken string) (accessToken, refreshTok
 	}
 
 	user.IsActivated = true
-	if err := us.storage.Save(user); err != nil {
+	if err := us.repo.Save(user); err != nil {
 		return "", "", err
 	}
 
@@ -156,16 +156,16 @@ func (us *UserService) Activate(activationToken string) (accessToken, refreshTok
 }
 
 func (us *UserService) Find(id uint) (*model.User, error) {
-	return us.storage.Find(id)
+	return us.repo.Find(id)
 }
 
 func (us *UserService) ChangeEmail(id uint, email string) error {
-	user, err := us.storage.Find(id)
+	user, err := us.repo.Find(id)
 	if err != nil {
 		return err
 	}
 
-	exists, err := us.storage.ExistsByEmail(email)
+	exists, err := us.repo.ExistsByEmail(email)
 	switch {
 	case err != nil:
 		return err
@@ -174,16 +174,16 @@ func (us *UserService) ChangeEmail(id uint, email string) error {
 	}
 
 	user.Email = email
-	return us.storage.Save(user)
+	return us.repo.Save(user)
 }
 
 func (us *UserService) ChangeUsername(id uint, username string) error {
-	user, err := us.storage.Find(id)
+	user, err := us.repo.Find(id)
 	if err != nil {
 		return err
 	}
 
-	exists, err := us.storage.ExistsByUsername(username)
+	exists, err := us.repo.ExistsByUsername(username)
 	switch {
 	case err != nil:
 		return err
@@ -192,25 +192,25 @@ func (us *UserService) ChangeUsername(id uint, username string) error {
 	}
 
 	user.Username = username
-	return us.storage.Save(user)
+	return us.repo.Save(user)
 }
 
 func (us *UserService) ChangePassword(id uint, password string) error {
-	user, err := us.storage.Find(id)
+	user, err := us.repo.Find(id)
 	if err != nil {
 		return err
 	}
 
 	hashedPassword := us.hasher.Hash(password)
 	user.Password = hashedPassword
-	return us.storage.Save(user)
+	return us.repo.Save(user)
 }
 
 func (us *UserService) Delete(id uint) error {
-	user, err := us.storage.Find(id)
+	user, err := us.repo.Find(id)
 	if err != nil {
 		return err
 	}
 
-	return us.storage.Delete(user)
+	return us.repo.Delete(user)
 }

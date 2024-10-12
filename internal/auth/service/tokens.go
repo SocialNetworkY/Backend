@@ -3,7 +3,7 @@ package service
 import "errors"
 
 type (
-	TokensRefreshTokenStorage interface {
+	TokensRefreshTokenRepo interface {
 		Set(userID uint, refreshToken string) error
 		Get(userID uint) (string, error)
 	}
@@ -20,13 +20,13 @@ var (
 )
 
 type TokensService struct {
-	storage      TokensRefreshTokenStorage
+	repo         TokensRefreshTokenRepo
 	tokenManager TokensManager
 }
 
-func NewTokensService(refreshTokenStorage TokensRefreshTokenStorage, tokenManager TokensManager) *TokensService {
+func NewTokensService(repo TokensRefreshTokenRepo, tokenManager TokensManager) *TokensService {
 	return &TokensService{
-		storage:      refreshTokenStorage,
+		repo:         repo,
 		tokenManager: tokenManager,
 	}
 }
@@ -37,7 +37,7 @@ func (ts *TokensService) Generate(userID uint) (string, string, error) {
 		return "", "", err
 	}
 
-	if err := ts.storage.Set(userID, refreshToken); err != nil {
+	if err := ts.repo.Set(userID, refreshToken); err != nil {
 		return "", "", err
 	}
 
@@ -53,7 +53,7 @@ func (ts *TokensService) VerifyRefreshToken(refreshToken string) (userID uint, e
 	if err != nil {
 		return 0, err
 	}
-	existingToken, err := ts.storage.Get(userID)
+	existingToken, err := ts.repo.Get(userID)
 	if err != nil {
 		return 0, err
 	}

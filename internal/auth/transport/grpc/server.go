@@ -12,17 +12,12 @@ import (
 	"time"
 )
 
-type (
-	Config struct {
-	}
+type Server struct {
+	addr       string
+	grpcServer *grpc.Server
+}
 
-	Server struct {
-		addr       string
-		grpcServer *grpc.Server
-	}
-)
-
-func New(cfg Config, port int) *Server {
+func New(port int) *Server {
 	log.Printf("Creating grpc server with port: %d", port)
 	grpcServ := grpc.NewServer(
 		grpc.UnaryInterceptor(UnaryServerInterceptor()),

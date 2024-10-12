@@ -1,67 +1,72 @@
 services:
-  # Auth service
-  auth-http-service:
-    build:
-      context: .
-      dockerfile: cmd/auth/http/Dockerfile
-    container_name: auth-http-service
-    environment:
-      DB: myuser:strongpass@tcp(auth-db:3306)/mydb?parseTime=true
-      PORT: 8080
-      HASH_SALT: "hashSalt"
-      JWT_SECRET: "accessPass"
-      JWT_REFRESH: "refreshPass"
-      USER_SERVICE_HTTP_ADDR: user-http-service:8082
-      USER_SERVICE_GRPC_ADDR: user-grpc-service:8083
-    ports:
-      - "8080:8080"
-    networks:
-      - services
-      - auth
-    depends_on:
-      auth-db:
-        condition: service_healthy
+    auth-http-service:
+        build:
+            context: .
+            dockerfile: cmd/auth/http/Dockerfile
+        container_name: auth-http-service
+        environment:
+            DB: myuser:strongpass@tcp(auth-db:3306)/mydb?parseTime=true
+            PORT: 8080
+            BODY_LIMIT: 20MB
+            ALLOWED_ORIGINS: "*"
+            HASH_SALT: "hashSalt"
+            JWT_SECRET: "accessPass"
+            JWT_DURATION: "1h"
+            JWT_REFRESH_SECRET: "refreshPass"
+            JWT_REFRESH_DURATION: "168h"
+            USER_SERVICE_HTTP_ADDR: user-http-service:8082
+            USER_SERVICE_GRPC_ADDR: user-grpc-service:8083
+        ports:
+            - "8080:8080"
+        networks:
+            - services
+            - auth
+        depends_on:
+            auth-db:
+                condition: service_healthy
 
-  auth-grpc-service:
-    build:
-      context: .
-      dockerfile: cmd/auth/grpc/Dockerfile
-    container_name: auth-grpc-service
-    environment:
-      DB: myuser:strongpass@tcp(auth-db:3306)/mydb?parseTime=true
-      PORT: 8081
-      HASH_SALT: "hashSalt"
-      JWT_SECRET: "accessPass"
-      JWT_REFRESH: "refreshPass"
-      USER_SERVICE_HTTP_ADDR: user-http-service:8082
-      USER_SERVICE_GRPC_ADDR: user-grpc-service:8083
-    ports:
-      - "8081:8081"
-    networks:
-      - services
-      - auth
-    depends_on:
-      auth-db:
-        condition: service_healthy
+    auth-grpc-service:
+        build:
+            context: .
+            dockerfile: cmd/auth/grpc/Dockerfile
+        container_name: auth-grpc-service
+        environment:
+            DB: myuser:strongpass@tcp(auth-db:3306)/mydb?parseTime=true
+            PORT: 8081
+            HASH_SALT: "hashSalt"
+            JWT_SECRET: "accessPass"
+            JWT_DURATION: "1h"
+            JWT_REFRESH_SECRET: "refreshPass"
+            JWT_REFRESH_DURATION: "168h"
+            USER_SERVICE_HTTP_ADDR: user-http-service:8082
+            USER_SERVICE_GRPC_ADDR: user-grpc-service:8083
+        ports:
+            - "8081:8081"
+        networks:
+            - services
+            - auth
+        depends_on:
+            auth-db:
+              condition: service_healthy
 
-  auth-db:
-    image: mysql:latest
-    container_name: auth-db
-    environment:
-      MYSQL_DATABASE: mydb
-      MYSQL_USER: myuser
-      MYSQL_PASSWORD: strongpass
-      MYSQL_ROOT_PASSWORD: verystrongpass
-    ports:
-      - "5677:3306"
-    volumes:
-      - auth_db_data:/var/lib/mysql
-    networks:
-        - auth
-    healthcheck:
-      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost" ]
-      timeout: 20s
-      retries: 10
+    auth-db:
+        image: mysql:latest
+        container_name: auth-db
+        environment:
+            MYSQL_DATABASE: mydb
+            MYSQL_USER: myuser
+            MYSQL_PASSWORD: strongpass
+            MYSQL_ROOT_PASSWORD: verystrongpass
+        ports:
+            - "5677:3306"
+        volumes:
+            - auth_db_data:/var/lib/mysql
+        networks:
+            - auth
+        healthcheck:
+            test: [ "CMD", "mysqladmin", "ping", "-h", "localhost" ]
+            timeout: 20s
+            retries: 10
 
   user-http-service:
     build:
@@ -133,6 +138,12 @@ volumes:
       type: none
       o: bind
       device: ./db/user
+    auth_db_data:
+        driver: local
+        driver_opts:
+            type: none
+            o: bind
+            device: ./db/auth
 
 networks:
   services:

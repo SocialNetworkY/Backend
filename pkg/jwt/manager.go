@@ -5,26 +5,19 @@ import (
 	"time"
 )
 
-type (
-	Config struct {
-		TokenDuration   time.Duration
-		RefreshDuration time.Duration
-	}
+type Manager struct {
+	secretKey        string
+	tokenDuration    time.Duration
+	refreshSecretKey string
+	refreshDuration  time.Duration
+}
 
-	Manager struct {
-		secretKey        string
-		tokenDuration    time.Duration
-		refreshSecretKey string
-		refreshDuration  time.Duration
-	}
-)
-
-func NewManager(cfg Config, secret, refreshSecret string) *Manager {
+func NewManager(tokenDuration, refreshDuration time.Duration, secret, refreshSecret string) *Manager {
 	return &Manager{
 		secretKey:        secret,
-		tokenDuration:    cfg.TokenDuration,
+		tokenDuration:    tokenDuration,
 		refreshSecretKey: refreshSecret,
-		refreshDuration:  cfg.RefreshDuration,
+		refreshDuration:  refreshDuration,
 	}
 }
 
