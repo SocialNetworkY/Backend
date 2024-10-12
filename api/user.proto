@@ -3,8 +3,7 @@ option go_package = "/gen";
 
 service UserService {
   rpc CreateUser(CreateUserRequest) returns (CreateUserResponse);
-  rpc GetUserRole(GetUserRoleRequest) returns (GetUserRoleResponse);
-  rpc IsUserBan(IsUserBanRequest) returns (IsUserBanResponse);
+  rpc UserInfo(UserInfoRequest) returns (UserInfoResponse);
 }
 
 message CreateUserRequest {
@@ -18,20 +17,14 @@ message CreateUserResponse {
   uint64 user_id = 1;
 }
 
-message GetUserRoleRequest {
+message UserInfoRequest {
   uint64 user_id = 1;
 }
 
-message GetUserRoleResponse {
-  uint64 role = 1;
-}
-
-message IsUserBanRequest {
+message UserInfoResponse {
   uint64 user_id = 1;
-}
-
-message IsUserBanResponse {
-  bool banned = 1;
-  string reason = 2;
-  string expired_at = 3;
+  uint64 role = 4;
+  bool banned = 5;
+  string banReason = 6;
+  string banExpiredAt = 7;
 }

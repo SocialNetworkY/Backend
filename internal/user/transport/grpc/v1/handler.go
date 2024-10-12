@@ -33,54 +33,6 @@ func New(us UserService, ag AuthGateway) *Handler {
 	}
 }
 
-func (h *Handler) GetUserRole(ctx context.Context, r *gen.GetUserRoleRequest) (*gen.GetUserRoleResponse, error) {
-	requester, err := h.getRequesterFromMetadata(ctx)
-	if err != nil {
-		return nil, err
-	}
-
-	if !(requester.Role >= constant.RoleAdminLvl1 || requester.ID == uint(r.GetUserId())) {
-		return nil, errors.New("you are not allowed to get user role")
-	}
-
-	user, err := h.us.Find(uint(r.GetUserId()))
-	if err != nil {
-		return nil, err
-	}
-
-	return &gen.GetUserRoleResponse{
-		Role: uint64(user.Role),
-	}, nil
-}
-
-func (h *Handler) IsUserBan(ctx context.Context, r *gen.IsUserBanRequest) (*gen.IsUserBanResponse, error) {
-	requester, err := h.getRequesterFromMetadata(ctx)
-	if err != nil {
-		return nil, err
-	}
-
-	if requester.ID != uint(r.GetUserId()) && !requester.Admin {
-		return nil, errors.New("you are not allowed to check user ban")
-	}
-
-	user, err := h.us.Find(uint(r.GetUserId()))
-	if err != nil {
-		return nil, err
-	}
-
-	if !user.Banned {
-		return &gen.IsUserBanResponse{
-			Banned: user.Banned,
-		}, nil
-	}
-
-	return &gen.IsUserBanResponse{
-		Banned:    user.Banned,
-		Reason:    user.ActiveBan.BanReason,
-		ExpiredAt: user.ActiveBan.ExpiredAt.Format(time.RFC3339),
-	}, nil
-}
-
 func (h *Handler) CreateUser(ctx context.Context, r *gen.CreateUserRequest) (*gen.CreateUserResponse, error) {
 	requesterID, err := h.getRequesterIDFromMetadata(ctx)
 
@@ -95,5 +47,32 @@ func (h *Handler) CreateUser(ctx context.Context, r *gen.CreateUserRequest) (*ge
 
 	return &gen.CreateUserResponse{
 		UserId: uint64(user.ID),
+	}, nil
+}
+
+func (h *Handler) UserInfo(ctx context.Context, r *gen.UserInfoRequest) (*gen.UserInfoResponse, error) {
+	userID := uint(r.GetUserId())
+	if userID == 0 {
+		return nil, errors.New("invalid user id")
+	}
+
+	user, err := h.us.Find(userID)
+	if err != nil {
+		return nil, err
+	}
+
+	banReason := ""
+	banExpiredAt := ""
+	if user.Banned {
+		banReason = user.ActiveBan.BanReason
+		banExpiredAt = user.ActiveBan.ExpiredAt.Format(time.RFC3339)
+	}
+
+	return &gen.UserInfoResponse{
+		UserId:       uint64(user.ID),
+		Role:         uint64(user.Role),
+		Banned:       user.Banned,
+		BanReason:    banReason,
+		BanExpiredAt: banExpiredAt,
 	}, nil
 }

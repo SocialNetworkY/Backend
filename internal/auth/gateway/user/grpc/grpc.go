@@ -3,6 +3,7 @@ package grpc
 import (
 	"context"
 	"errors"
+	"time"
 
 	"github.com/lapkomo2018/goTwitterServices/pkg/constant"
 	"github.com/lapkomo2018/goTwitterServices/pkg/gen"
@@ -45,20 +46,22 @@ func (g *Gateway) CreateUser(ctx context.Context, auth string, userID, role uint
 	return nil
 }
 
-func (g *Gateway) GetUserRole(ctx context.Context, auth string, userID uint) (uint, error) {
+func (g *Gateway) UserInfo(ctx context.Context, userID uint) (uint, uint, bool, string, time.Time, error) {
 	conn, err := grpcutil.ServiceConnection(g.addr)
 	if err != nil {
-		return 0, err
+		return 0, 0, false, "", time.Time{}, err
 	}
 	defer conn.Close()
 	client := gen.NewUserServiceClient(conn)
 
-	resp, err := client.GetUserRole(grpcutil.PutMetadata(ctx, constant.GRPCAuthorizationMetadata, auth), &gen.GetUserRoleRequest{
+	resp, err := client.UserInfo(ctx, &gen.UserInfoRequest{
 		UserId: uint64(userID),
 	})
 	if err != nil {
-		return 0, err
+		return 0, 0, false, "", time.Time{}, err
 	}
 
-	return uint(resp.GetRole()), nil
+	banExpiredAt, _ := time.Parse(time.RFC3339, resp.GetBanExpiredAt())
+
+	return uint(resp.GetRole()), uint(resp.GetRole()), resp.GetBanned(), resp.GetBanReason(), banExpiredAt, nil
 }

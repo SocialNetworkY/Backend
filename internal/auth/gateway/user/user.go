@@ -3,6 +3,7 @@ package user
 import (
 	"context"
 	"github.com/lapkomo2018/goTwitterServices/internal/auth/gateway/user/grpc"
+	"time"
 )
 
 type Gateway struct {
@@ -20,5 +21,10 @@ func (g *Gateway) CreateUser(ctx context.Context, auth string, userID, role uint
 }
 
 func (g *Gateway) GetUserRole(ctx context.Context, auth string, userID uint) (uint, error) {
-	return g.grpc.GetUserRole(ctx, auth, userID)
+	_, userRole, _, _, _, err := g.UserInfo(ctx, userID)
+	return userRole, err
+}
+
+func (g *Gateway) UserInfo(ctx context.Context, userID uint) (uint, uint, bool, string, time.Time, error) {
+	return g.grpc.UserInfo(ctx, userID)
 }

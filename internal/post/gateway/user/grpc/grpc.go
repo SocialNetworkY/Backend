@@ -2,9 +2,9 @@ package grpc
 
 import (
 	"context"
+	"github.com/lapkomo2018/goTwitterServices/internal/post/model"
 	"time"
 
-	"github.com/lapkomo2018/goTwitterServices/pkg/constant"
 	"github.com/lapkomo2018/goTwitterServices/pkg/gen"
 	"github.com/lapkomo2018/goTwitterServices/pkg/grpcutil"
 )
@@ -21,43 +21,28 @@ func New(addr string) *Gateway {
 	}
 }
 
-func (g *Gateway) GetUserRole(ctx context.Context, auth string, userID uint) (uint, error) {
+func (g *Gateway) UserInfo(ctx context.Context, userID uint) (*model.User, error) {
 	conn, err := grpcutil.ServiceConnection(g.addr)
 	if err != nil {
-		return 0, err
+		return nil, err
 	}
 	defer conn.Close()
 	client := gen.NewUserServiceClient(conn)
 
-	resp, err := client.GetUserRole(grpcutil.PutMetadata(ctx, constant.GRPCAuthorizationMetadata, auth), &gen.GetUserRoleRequest{
+	resp, err := client.UserInfo(ctx, &gen.UserInfoRequest{
 		UserId: uint64(userID),
 	})
 	if err != nil {
-		return 0, err
+		return nil, err
 	}
 
-	return uint(resp.GetRole()), nil
-}
+	banExpiredAt, _ := time.Parse(time.RFC3339, resp.GetBanExpiredAt())
 
-func (g *Gateway) IsUserBan(ctx context.Context, auth string, userID uint) (bool, string, time.Time, error) {
-	conn, err := grpcutil.ServiceConnection(g.addr)
-	if err != nil {
-		return false, "", time.Time{}, err
-	}
-	defer conn.Close()
-	client := gen.NewUserServiceClient(conn)
-
-	resp, err := client.IsUserBan(grpcutil.PutMetadata(ctx, constant.GRPCAuthorizationMetadata, auth), &gen.IsUserBanRequest{
-		UserId: uint64(userID),
-	})
-	if err != nil {
-		return false, "", time.Time{}, err
-	}
-
-	expiredAt, err := time.Parse(time.RFC3339, resp.GetExpiredAt())
-	if err != nil {
-		return false, "", time.Time{}, err
-	}
-
-	return resp.GetBanned(), resp.Reason, expiredAt, nil
+	return &model.User{
+		ID:           uint(resp.GetUserId()),
+		Role:         uint(resp.GetRole()),
+		Banned:       resp.GetBanned(),
+		BanReason:    resp.GetBanReason(),
+		BanExpiredAt: banExpiredAt,
+	}, nil
 }

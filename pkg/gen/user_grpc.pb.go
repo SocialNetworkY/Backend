@@ -23,8 +23,7 @@ const _ = grpc.SupportPackageIsVersion7
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type UserServiceClient interface {
 	CreateUser(ctx context.Context, in *CreateUserRequest, opts ...grpc.CallOption) (*CreateUserResponse, error)
-	GetUserRole(ctx context.Context, in *GetUserRoleRequest, opts ...grpc.CallOption) (*GetUserRoleResponse, error)
-	IsUserBan(ctx context.Context, in *IsUserBanRequest, opts ...grpc.CallOption) (*IsUserBanResponse, error)
+	UserInfo(ctx context.Context, in *UserInfoRequest, opts ...grpc.CallOption) (*UserInfoResponse, error)
 }
 
 type userServiceClient struct {
@@ -44,18 +43,9 @@ func (c *userServiceClient) CreateUser(ctx context.Context, in *CreateUserReques
 	return out, nil
 }
 
-func (c *userServiceClient) GetUserRole(ctx context.Context, in *GetUserRoleRequest, opts ...grpc.CallOption) (*GetUserRoleResponse, error) {
-	out := new(GetUserRoleResponse)
-	err := c.cc.Invoke(ctx, "/UserService/GetUserRole", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *userServiceClient) IsUserBan(ctx context.Context, in *IsUserBanRequest, opts ...grpc.CallOption) (*IsUserBanResponse, error) {
-	out := new(IsUserBanResponse)
-	err := c.cc.Invoke(ctx, "/UserService/IsUserBan", in, out, opts...)
+func (c *userServiceClient) UserInfo(ctx context.Context, in *UserInfoRequest, opts ...grpc.CallOption) (*UserInfoResponse, error) {
+	out := new(UserInfoResponse)
+	err := c.cc.Invoke(ctx, "/UserService/UserInfo", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -67,8 +57,7 @@ func (c *userServiceClient) IsUserBan(ctx context.Context, in *IsUserBanRequest,
 // for forward compatibility
 type UserServiceServer interface {
 	CreateUser(context.Context, *CreateUserRequest) (*CreateUserResponse, error)
-	GetUserRole(context.Context, *GetUserRoleRequest) (*GetUserRoleResponse, error)
-	IsUserBan(context.Context, *IsUserBanRequest) (*IsUserBanResponse, error)
+	UserInfo(context.Context, *UserInfoRequest) (*UserInfoResponse, error)
 	mustEmbedUnimplementedUserServiceServer()
 }
 
@@ -79,11 +68,8 @@ type UnimplementedUserServiceServer struct {
 func (UnimplementedUserServiceServer) CreateUser(context.Context, *CreateUserRequest) (*CreateUserResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateUser not implemented")
 }
-func (UnimplementedUserServiceServer) GetUserRole(context.Context, *GetUserRoleRequest) (*GetUserRoleResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetUserRole not implemented")
-}
-func (UnimplementedUserServiceServer) IsUserBan(context.Context, *IsUserBanRequest) (*IsUserBanResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method IsUserBan not implemented")
+func (UnimplementedUserServiceServer) UserInfo(context.Context, *UserInfoRequest) (*UserInfoResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UserInfo not implemented")
 }
 func (UnimplementedUserServiceServer) mustEmbedUnimplementedUserServiceServer() {}
 
@@ -116,38 +102,20 @@ func _UserService_CreateUser_Handler(srv interface{}, ctx context.Context, dec f
 	return interceptor(ctx, in, info, handler)
 }
 
-func _UserService_GetUserRole_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetUserRoleRequest)
+func _UserService_UserInfo_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UserInfoRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(UserServiceServer).GetUserRole(ctx, in)
+		return srv.(UserServiceServer).UserInfo(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/UserService/GetUserRole",
+		FullMethod: "/UserService/UserInfo",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(UserServiceServer).GetUserRole(ctx, req.(*GetUserRoleRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _UserService_IsUserBan_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(IsUserBanRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(UserServiceServer).IsUserBan(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/UserService/IsUserBan",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(UserServiceServer).IsUserBan(ctx, req.(*IsUserBanRequest))
+		return srv.(UserServiceServer).UserInfo(ctx, req.(*UserInfoRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -164,12 +132,8 @@ var UserService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _UserService_CreateUser_Handler,
 		},
 		{
-			MethodName: "GetUserRole",
-			Handler:    _UserService_GetUserRole_Handler,
-		},
-		{
-			MethodName: "IsUserBan",
-			Handler:    _UserService_IsUserBan_Handler,
+			MethodName: "UserInfo",
+			Handler:    _UserService_UserInfo_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

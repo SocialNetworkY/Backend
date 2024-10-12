@@ -3,7 +3,7 @@ package user
 import (
 	"context"
 	"github.com/lapkomo2018/goTwitterServices/internal/post/gateway/user/grpc"
-	"time"
+	"github.com/lapkomo2018/goTwitterServices/internal/post/model"
 )
 
 type Gateway struct {
@@ -16,10 +16,6 @@ func New(httpAddr, grpcAddr string) *Gateway {
 	}
 }
 
-func (g *Gateway) GetUserRole(ctx context.Context, auth string, userID uint) (uint, error) {
-	return g.grpc.GetUserRole(ctx, auth, userID)
-}
-
-func (g *Gateway) IsUserBan(ctx context.Context, auth string, userID uint) (banned bool, reason string, expiredAt time.Time, err error) {
-	return g.grpc.IsUserBan(ctx, auth, userID)
+func (g *Gateway) UserInfo(ctx context.Context, userID uint) (*model.User, error) {
+	return g.grpc.UserInfo(ctx, userID)
 }
