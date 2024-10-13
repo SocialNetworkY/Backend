@@ -1,4 +1,18 @@
 services:
+    nginx:
+        image: nginx:latest
+        container_name: nginx
+        ports:
+            - "80:80"
+        volumes:
+            - ./nginx.conf:/etc/nginx/nginx.conf
+        networks:
+            - services
+        depends_on:
+            - auth-http-service
+            - user-http-service
+            - post-http-service
+
     auth-http-service:
         build:
             context: .
@@ -16,8 +30,6 @@ services:
             JWT_REFRESH_DURATION: "168h"
             USER_SERVICE_HTTP_ADDR: user-http-service:8082
             USER_SERVICE_GRPC_ADDR: user-grpc-service:8083
-        ports:
-            - "8080:8080"
         networks:
             - services
             - auth
@@ -40,8 +52,6 @@ services:
             JWT_REFRESH_DURATION: "168h"
             USER_SERVICE_HTTP_ADDR: user-http-service:8082
             USER_SERVICE_GRPC_ADDR: user-grpc-service:8083
-        ports:
-            - "8081:8081"
         networks:
             - services
             - auth
@@ -81,8 +91,6 @@ services:
             STORAGE_FOLDER: ./storage
             AUTH_SERVICE_HTTP_ADDR: auth-http-service:8080
             AUTH_SERVICE_GRPC_ADDR: auth-grpc-service:8081
-        ports:
-            - "8082:8082"
         volumes:
             - user_storage:/storage
         networks:
@@ -103,8 +111,6 @@ services:
             STORAGE_FOLDER: ./storage
             AUTH_SERVICE_HTTP_ADDR: auth-http-service:8080
             AUTH_SERVICE_GRPC_ADDR: auth-grpc-service:8081
-        ports:
-            - "8083:8083"
         volumes:
             - user_storage:/storage
         networks:
@@ -148,8 +154,6 @@ services:
             AUTH_SERVICE_GRPC_ADDR: auth-grpc-service:8081
             USER_SERVICE_HTTP_ADDR: user-http-service:8082
             USER_SERVICE_GRPC_ADDR: user-grpc-service:8083
-        ports:
-            - "8084:8084"
         volumes:
           - post_storage:/storage
         networks:
@@ -171,8 +175,6 @@ services:
             AUTH_SERVICE_GRPC_ADDR: auth-grpc-service:8081
             USER_SERVICE_HTTP_ADDR: user-http-service:8082
             USER_SERVICE_GRPC_ADDR: user-grpc-service:8083
-        ports:
-            - "8085:8085"
         networks:
             - services
             - post
