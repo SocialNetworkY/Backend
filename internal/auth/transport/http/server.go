@@ -2,11 +2,11 @@ package http
 
 import (
 	"fmt"
+	"github.com/SocialNetworkY/Backend/internal/auth/transport/http/v1"
+	"github.com/SocialNetworkY/Backend/pkg/binder"
+	"github.com/SocialNetworkY/Backend/pkg/validator"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
-	"github.com/lapkomo2018/goTwitterServices/internal/auth/transport/http/v1"
-	"github.com/lapkomo2018/goTwitterServices/pkg/binder"
-	"github.com/lapkomo2018/goTwitterServices/pkg/validator"
 	"log"
 	"net/http"
 	"time"

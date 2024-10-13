@@ -1,7 +1,7 @@
 package repository
 
 import (
-	"github.com/lapkomo2018/goTwitterServices/internal/user/model"
+	"github.com/SocialNetworkY/Backend/internal/user/model"
 	"gorm.io/gorm"
 )
 

@@ -2,7 +2,7 @@ package v1
 
 import (
 	"context"
-	"github.com/lapkomo2018/goTwitterServices/internal/user/model"
+	"github.com/SocialNetworkY/Backend/internal/user/model"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
 	"net/http"

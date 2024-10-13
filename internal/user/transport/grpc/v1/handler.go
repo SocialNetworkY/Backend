@@ -3,9 +3,9 @@ package v1
 import (
 	"context"
 	"errors"
-	"github.com/lapkomo2018/goTwitterServices/internal/user/model"
-	"github.com/lapkomo2018/goTwitterServices/pkg/constant"
-	"github.com/lapkomo2018/goTwitterServices/pkg/gen"
+	"github.com/SocialNetworkY/Backend/internal/user/model"
+	"github.com/SocialNetworkY/Backend/pkg/constant"
+	"github.com/SocialNetworkY/Backend/pkg/gen"
 	"time"
 )
 

@@ -2,7 +2,7 @@ package repository
 
 import (
 	"errors"
-	"github.com/lapkomo2018/goTwitterServices/internal/auth/model"
+	"github.com/SocialNetworkY/Backend/internal/auth/model"
 	"gorm.io/gorm"
 )
 

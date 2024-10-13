@@ -1,8 +1,8 @@
 package v1
 
 import (
+	"github.com/SocialNetworkY/Backend/internal/auth/model"
 	"github.com/labstack/echo/v4"
-	"github.com/lapkomo2018/goTwitterServices/internal/auth/model"
 	"log"
 	"time"
 )

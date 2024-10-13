@@ -4,8 +4,8 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/lapkomo2018/goTwitterServices/internal/auth/model"
-	"github.com/lapkomo2018/goTwitterServices/pkg/constant"
+	"github.com/SocialNetworkY/Backend/internal/auth/model"
+	"github.com/SocialNetworkY/Backend/pkg/constant"
 )
 
 type (

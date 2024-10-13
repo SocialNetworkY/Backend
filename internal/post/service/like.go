@@ -2,7 +2,7 @@ package service
 
 import (
 	"errors"
-	"github.com/lapkomo2018/goTwitterServices/internal/post/model"
+	"github.com/SocialNetworkY/Backend/internal/post/model"
 )
 
 type (

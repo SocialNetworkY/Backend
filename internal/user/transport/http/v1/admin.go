@@ -2,8 +2,8 @@ package v1
 
 import (
 	"fmt"
+	"github.com/SocialNetworkY/Backend/internal/user/model"
 	"github.com/labstack/echo/v4"
-	"github.com/lapkomo2018/goTwitterServices/internal/user/model"
 	"net/http"
 	"time"
 )

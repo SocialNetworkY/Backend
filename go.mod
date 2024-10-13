@@ -1,4 +1,4 @@
-module github.com/lapkomo2018/goTwitterServices
+module github.com/SocialNetworkY/Backend
 
 go 1.22
 

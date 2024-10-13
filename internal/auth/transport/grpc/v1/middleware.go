@@ -2,8 +2,8 @@ package v1
 
 import (
 	"context"
-	"github.com/lapkomo2018/goTwitterServices/internal/auth/model"
-	"github.com/lapkomo2018/goTwitterServices/pkg/constant"
+	"github.com/SocialNetworkY/Backend/internal/auth/model"
+	"github.com/SocialNetworkY/Backend/pkg/constant"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
 	"net/http"

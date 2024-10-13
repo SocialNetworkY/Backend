@@ -3,8 +3,8 @@ package grpc
 import (
 	"context"
 	"fmt"
-	"github.com/lapkomo2018/goTwitterServices/internal/auth/transport/grpc/v1"
-	"github.com/lapkomo2018/goTwitterServices/pkg/gen"
+	"github.com/SocialNetworkY/Backend/internal/auth/transport/grpc/v1"
+	"github.com/SocialNetworkY/Backend/pkg/gen"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 	"log"

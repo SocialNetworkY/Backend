@@ -1,14 +1,14 @@
 package main
 
 import (
-	"github.com/lapkomo2018/goTwitterServices/internal/post/gateway/user"
-	"github.com/lapkomo2018/goTwitterServices/internal/post/repository"
+	"github.com/SocialNetworkY/Backend/internal/post/gateway/user"
+	"github.com/SocialNetworkY/Backend/internal/post/repository"
 	"gorm.io/driver/mysql"
 	"log"
 
-	"github.com/lapkomo2018/goTwitterServices/internal/post/gateway/auth"
-	"github.com/lapkomo2018/goTwitterServices/internal/post/service"
-	"github.com/lapkomo2018/goTwitterServices/internal/post/transport/grpc"
+	"github.com/SocialNetworkY/Backend/internal/post/gateway/auth"
+	"github.com/SocialNetworkY/Backend/internal/post/service"
+	"github.com/SocialNetworkY/Backend/internal/post/transport/grpc"
 
 	"github.com/caarlos0/env/v6"
 )

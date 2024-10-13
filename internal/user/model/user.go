@@ -1,7 +1,7 @@
 package model
 
 import (
-	"github.com/lapkomo2018/goTwitterServices/pkg/constant"
+	"github.com/SocialNetworkY/Backend/pkg/constant"
 	"gorm.io/gorm"
 	"time"
 )

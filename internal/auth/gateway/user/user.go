@@ -2,7 +2,7 @@ package user
 
 import (
 	"context"
-	"github.com/lapkomo2018/goTwitterServices/internal/auth/gateway/user/grpc"
+	"github.com/SocialNetworkY/Backend/internal/auth/gateway/user/grpc"
 	"time"
 )
 

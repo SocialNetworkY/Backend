@@ -2,7 +2,7 @@ package auth
 
 import (
 	"context"
-	"github.com/lapkomo2018/goTwitterServices/internal/post/gateway/auth/grpc"
+	"github.com/SocialNetworkY/Backend/internal/post/gateway/auth/grpc"
 )
 
 type Gateway struct {

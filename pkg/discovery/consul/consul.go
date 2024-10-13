@@ -3,8 +3,8 @@ package consul
 import (
 	"context"
 	"fmt"
+	"github.com/SocialNetworkY/Backend/pkg/discovery"
 	consul "github.com/hashicorp/consul/api"
-	"github.com/lapkomo2018/goTwitterServices/pkg/discovery"
 )
 
 // Registry defines a Consul-based service discovery registry

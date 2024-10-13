@@ -6,7 +6,7 @@ import (
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 
-	"github.com/lapkomo2018/goTwitterServices/internal/post/model"
+	"github.com/SocialNetworkY/Backend/internal/post/model"
 )
 
 type Repository struct {

@@ -2,8 +2,8 @@ package v1
 
 import (
 	"context"
+	"github.com/SocialNetworkY/Backend/internal/post/model"
 	"github.com/labstack/echo/v4"
-	"github.com/lapkomo2018/goTwitterServices/internal/post/model"
 	"io"
 	"log"
 )

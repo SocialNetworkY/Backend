@@ -2,11 +2,11 @@ package grpc
 
 import (
 	"context"
-	"github.com/lapkomo2018/goTwitterServices/internal/post/model"
+	"github.com/SocialNetworkY/Backend/internal/post/model"
 	"time"
 
-	"github.com/lapkomo2018/goTwitterServices/pkg/gen"
-	"github.com/lapkomo2018/goTwitterServices/pkg/grpcutil"
+	"github.com/SocialNetworkY/Backend/pkg/gen"
+	"github.com/SocialNetworkY/Backend/pkg/grpcutil"
 )
 
 // Gateway represents the gRPC gateway for the user service.

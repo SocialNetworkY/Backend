@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/lapkomo2018/goTwitterServices/internal/user/model"
+	"github.com/SocialNetworkY/Backend/internal/user/model"
 	"io"
 )
 
