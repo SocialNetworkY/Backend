@@ -27,6 +27,9 @@ type (
 	AuthGateway interface {
 		UpdateUsernameEmail(ctx context.Context, auth string, id uint, username, email string) error
 		DeleteUser(ctx context.Context, auth string, id uint) error
+		UpdateUsernameEmail(ctx context.Context, id uint, username, email string) error
+		DeleteUser(ctx context.Context, id uint) error
+	}
 	}
 
 	ImageStorage interface {
@@ -101,7 +104,7 @@ func (us *UserService) FindByNickname(nickname string, skip, limit int) ([]*mode
 	return us.repo.FindByNickname(nickname, skip, limit)
 }
 
-func (us *UserService) ChangeEmail(id uint, auth, email string) error {
+func (us *UserService) ChangeEmail(id uint, email string) error {
 	user, err := us.repo.Find(id)
 	if err != nil {
 		return err
@@ -121,14 +124,14 @@ func (us *UserService) ChangeEmail(id uint, auth, email string) error {
 	}
 
 	// Grpc call to update email in auth service
-	if err := us.ag.UpdateUsernameEmail(context.Background(), auth, id, "", email); err != nil {
+	if err := us.ag.UpdateUsernameEmail(context.Background(), id, "", email); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func (us *UserService) ChangeUsername(id uint, auth, username string) error {
+func (us *UserService) ChangeUsername(id uint, username string) error {
 	user, err := us.repo.Find(id)
 	if err != nil {
 		return err
@@ -148,7 +151,7 @@ func (us *UserService) ChangeUsername(id uint, auth, username string) error {
 	}
 
 	// Grpc call to update username in auth service
-	if err := us.ag.UpdateUsernameEmail(context.Background(), auth, id, username, ""); err != nil {
+	if err := us.ag.UpdateUsernameEmail(context.Background(), id, username, ""); err != nil {
 		return err
 	}
 
@@ -190,7 +193,7 @@ func (us *UserService) ChangeRole(id, role uint) error {
 	return us.repo.Save(user)
 }
 
-func (us *UserService) Delete(id uint, auth string) error {
+func (us *UserService) Delete(id uint) error {
 	user, err := us.repo.Find(id)
 	if err != nil {
 		return err
@@ -198,6 +201,7 @@ func (us *UserService) Delete(id uint, auth string) error {
 
 	// Grpc call to delete user from other services
 	if err := us.ag.DeleteUser(context.Background(), auth, id); err != nil {
+	if err := us.ag.DeleteUser(context.Background(), id); err != nil {
 		return err
 	}
 

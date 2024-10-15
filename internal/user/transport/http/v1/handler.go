@@ -15,11 +15,11 @@ type (
 		FindByUsername(username string) (*model.User, error)
 		FindByEmail(email string) (*model.User, error)
 		FindByNickname(nickname string, skip, limit int) ([]*model.User, error)
-		ChangeEmail(id uint, auth, email string) error
-		ChangeUsername(id uint, auth, username string) error
+		ChangeEmail(id uint, email string) error
+		ChangeUsername(id uint, username string) error
 		ChangeNickname(id uint, nickname string) error
 		ChangeAvatar(id uint, file io.ReadSeeker) error
-		Delete(id uint, auth string) error
+		Delete(id uint) error
 	}
 
 	BanService interface {

@@ -30,8 +30,8 @@ func New(port int) *Server {
 	}
 }
 
-func (s *Server) Init(as v1.AuthenticationService, us v1.UserService, ug v1.UserGateway) *Server {
-	handler := v1.New(as, us, ug)
+func (s *Server) Init(as v1.AuthenticationService, us v1.UserService) *Server {
+	handler := v1.New(as, us)
 	gen.RegisterAuthServiceServer(s.grpcServer, handler)
 	return s
 }

@@ -97,12 +97,12 @@ func (h *Handler) patchUser(c echo.Context) error {
 		}
 	}
 	if requestBody.Username != "" {
-		if err := h.us.ChangeUsername(user.ID, authHeader, requestBody.Username); err != nil {
+		if err := h.us.ChangeUsername(user.ID, requestBody.Username); err != nil {
 			return err
 		}
 	}
 	if requestBody.Email != "" {
-		if err := h.us.ChangeEmail(user.ID, authHeader, requestBody.Email); err != nil {
+		if err := h.us.ChangeEmail(user.ID, requestBody.Email); err != nil {
 			return err
 		}
 	}
@@ -142,7 +142,7 @@ func (h *Handler) deleteUser(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusForbidden, "you don't have permission to delete this user")
 	}
 
-	if err := h.us.Delete(user.ID, authHeader); err != nil {
+	if err := h.us.Delete(user.ID); err != nil {
 		return err
 	}
 

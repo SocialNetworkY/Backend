@@ -18,11 +18,3 @@ func New(httpAddr, grpcAddr string) *Gateway {
 func (g *Gateway) Authenticate(ctx context.Context, auth string) (uint, error) {
 	return g.grpc.Authenticate(ctx, auth)
 }
-
-func (g *Gateway) UpdateUsernameEmail(ctx context.Context, auth string, id uint, username, email string) error {
-	return g.grpc.UpdateUsernameEmail(ctx, auth, id, username, email)
-}
-
-func (g *Gateway) DeleteUser(ctx context.Context, auth string, id uint) error {
-	return g.grpc.DeleteUser(ctx, auth, id)
-}

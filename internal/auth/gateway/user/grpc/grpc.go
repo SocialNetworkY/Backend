@@ -3,9 +3,6 @@ package grpc
 import (
 	"context"
 	"errors"
-	"time"
-
-	"github.com/SocialNetworkY/Backend/pkg/constant"
 	"github.com/SocialNetworkY/Backend/pkg/gen"
 	"github.com/SocialNetworkY/Backend/pkg/grpcutil"
 )
@@ -22,7 +19,7 @@ func New(addr string) *Gateway {
 	}
 }
 
-func (g *Gateway) CreateUser(ctx context.Context, auth string, userID, role uint, username, email string) error {
+func (g *Gateway) CreateUser(ctx context.Context, userID, role uint, username, email string) error {
 	conn, err := grpcutil.ServiceConnection(g.addr)
 	if err != nil {
 		return err
@@ -30,7 +27,7 @@ func (g *Gateway) CreateUser(ctx context.Context, auth string, userID, role uint
 	defer conn.Close()
 	client := gen.NewUserServiceClient(conn)
 
-	resp, err := client.CreateUser(grpcutil.PutMetadata(ctx, constant.GRPCAuthorizationMetadata, auth), &gen.CreateUserRequest{
+	resp, err := client.CreateUser(ctx, &gen.CreateUserRequest{
 		UserId:   uint64(userID),
 		Role:     uint64(role),
 		Username: username,
@@ -44,24 +41,4 @@ func (g *Gateway) CreateUser(ctx context.Context, auth string, userID, role uint
 	}
 
 	return nil
-}
-
-func (g *Gateway) UserInfo(ctx context.Context, userID uint) (uint, uint, bool, string, time.Time, error) {
-	conn, err := grpcutil.ServiceConnection(g.addr)
-	if err != nil {
-		return 0, 0, false, "", time.Time{}, err
-	}
-	defer conn.Close()
-	client := gen.NewUserServiceClient(conn)
-
-	resp, err := client.UserInfo(ctx, &gen.UserInfoRequest{
-		UserId: uint64(userID),
-	})
-	if err != nil {
-		return 0, 0, false, "", time.Time{}, err
-	}
-
-	banExpiredAt, _ := time.Parse(time.RFC3339, resp.GetBanExpiredAt())
-
-	return uint(resp.GetRole()), uint(resp.GetRole()), resp.GetBanned(), resp.GetBanReason(), banExpiredAt, nil
 }

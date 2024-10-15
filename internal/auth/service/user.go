@@ -3,7 +3,6 @@ package service
 import (
 	"context"
 	"errors"
-	"fmt"
 	"github.com/SocialNetworkY/Backend/internal/auth/model"
 	"github.com/SocialNetworkY/Backend/pkg/constant"
 )
@@ -39,8 +38,7 @@ type (
 	}
 
 	UserGateway interface {
-		CreateUser(ctx context.Context, auth string, userID, role uint, username, email string) error
-		GetUserRole(ctx context.Context, auth string, userID uint) (uint, error)
+		CreateUser(ctx context.Context, userID, role uint, username, email string) error
 	}
 
 	UserService struct {
@@ -139,7 +137,7 @@ func (us *UserService) Activate(activationToken string) (accessToken, refreshTok
 		return "", "", err
 	}
 
-	if err := us.userGateway.CreateUser(context.Background(), fmt.Sprintf("Bearer %s", accessToken), user.ID, constant.RoleUser, user.Username, user.Email); err != nil {
+	if err := us.userGateway.CreateUser(context.Background(), user.ID, constant.RoleUser, user.Username, user.Email); err != nil {
 		return "", "", err
 	}
 

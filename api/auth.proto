@@ -8,6 +8,7 @@ service AuthService {
 }
 
 message AuthenticateRequest {
+  string auth_token = 1;
 }
 
 message AuthenticateResponse {

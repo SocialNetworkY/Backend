@@ -3,7 +3,6 @@ package user
 import (
 	"context"
 	"github.com/SocialNetworkY/Backend/internal/auth/gateway/user/grpc"
-	"time"
 )
 
 type Gateway struct {
@@ -16,15 +15,6 @@ func New(httpAddr, grpcAddr string) *Gateway {
 	}
 }
 
-func (g *Gateway) CreateUser(ctx context.Context, auth string, userID, role uint, username, email string) error {
-	return g.grpc.CreateUser(ctx, auth, userID, role, username, email)
-}
-
-func (g *Gateway) GetUserRole(ctx context.Context, auth string, userID uint) (uint, error) {
-	_, userRole, _, _, _, err := g.UserInfo(ctx, userID)
-	return userRole, err
-}
-
-func (g *Gateway) UserInfo(ctx context.Context, userID uint) (uint, uint, bool, string, time.Time, error) {
-	return g.grpc.UserInfo(ctx, userID)
+func (g *Gateway) CreateUser(ctx context.Context, userID, role uint, username, email string) error {
+	return g.grpc.CreateUser(ctx, userID, role, username, email)
 }

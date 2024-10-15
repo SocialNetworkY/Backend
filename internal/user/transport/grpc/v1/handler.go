@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"github.com/SocialNetworkY/Backend/internal/user/model"
-	"github.com/SocialNetworkY/Backend/pkg/constant"
 	"github.com/SocialNetworkY/Backend/pkg/gen"
 	"time"
 )
@@ -34,12 +33,6 @@ func New(us UserService, ag AuthGateway) *Handler {
 }
 
 func (h *Handler) CreateUser(ctx context.Context, r *gen.CreateUserRequest) (*gen.CreateUserResponse, error) {
-	requesterID, err := h.getRequesterIDFromMetadata(ctx)
-
-	if !(requesterID == uint(r.GetUserId()) && r.GetRole() < constant.RoleAdminLvl1) {
-		return nil, errors.New("you are not allowed to create user")
-	}
-
 	user, err := h.us.Create(uint(r.GetUserId()), uint(r.GetRole()), r.GetUsername(), r.GetEmail())
 	if err != nil {
 		return nil, err

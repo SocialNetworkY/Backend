@@ -48,7 +48,7 @@ func main() {
 	userGateway := user.New(cfg.UserServiceHttpAddr, cfg.UserServiceGrpcAddr)
 	services := service.New(repos.User, repos.RefreshToken, repos.ActivationToken, tokenManager, hasher, userGateway)
 
-	if err := grpc.New(cfg.Port).Init(services.Authentication, services.User, userGateway).Run(); err != nil {
+	if err := grpc.New(cfg.Port).Init(services.Authentication, services.User).Run(); err != nil {
 		log.Fatalf("Grpc server err: %v", err)
 	}
 }
