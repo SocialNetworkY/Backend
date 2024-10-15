@@ -91,6 +91,8 @@ services:
             STORAGE_FOLDER: ./storage
             AUTH_SERVICE_HTTP_ADDR: auth-http-service:8080
             AUTH_SERVICE_GRPC_ADDR: auth-grpc-service:8081
+            POST_SERVICE_HTTP_ADDR: post-http-service:8084
+            POST_SERVICE_GRPC_ADDR: post-grpc-service:8085
         volumes:
             - user_storage:/storage
         networks:
@@ -111,6 +113,8 @@ services:
             STORAGE_FOLDER: ./storage
             AUTH_SERVICE_HTTP_ADDR: auth-http-service:8080
             AUTH_SERVICE_GRPC_ADDR: auth-grpc-service:8081
+            POST_SERVICE_HTTP_ADDR: post-http-service:8084
+            POST_SERVICE_GRPC_ADDR: post-grpc-service:8085
         volumes:
             - user_storage:/storage
         networks:

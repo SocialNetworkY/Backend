@@ -1,6 +1,7 @@
 package service
 
 import (
+	"context"
 	"github.com/SocialNetworkY/Backend/internal/user/model"
 	"time"
 )
@@ -17,12 +18,14 @@ type (
 
 	BanService struct {
 		repo BanRepo
+		pg   PostGateway
 	}
 )
 
-func NewBanService(r BanRepo) *BanService {
+func NewBanService(r BanRepo, pg PostGateway) *BanService {
 	return &BanService{
 		repo: r,
+		pg:   pg,
 	}
 }
 
@@ -36,6 +39,11 @@ func (bs *BanService) Ban(userID, adminID uint, reason string, duration time.Dur
 		Duration:  duration,
 		ExpiredAt: time.Now().Add(duration),
 	}
+
+	if err := bs.pg.DeleteUserPosts(context.Background(), userID); err != nil {
+		return err
+	}
+
 	return bs.repo.Add(ban)
 }
 

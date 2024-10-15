@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/SocialNetworkY/Backend/internal/user/gateway/post"
 	"github.com/SocialNetworkY/Backend/internal/user/repository"
 	"github.com/SocialNetworkY/Backend/pkg/storage"
 	"gorm.io/driver/mysql"
@@ -21,6 +22,8 @@ type Config struct {
 	AllowedOrigins      []string `env:"ALlOWED_ORIGINS" envSeparator:","`
 	AuthServiceHttpAddr string   `env:"AUTH_SERVICE_HTTP_ADDR"`
 	AuthServiceGrpcAddr string   `env:"AUTH_SERVICE_GRPC_ADDR"`
+	PostServiceHttpAddr string   `env:"POST_SERVICE_HTTP_ADDR"`
+	PostServiceGrpcAddr string   `env:"POST_SERVICE_GRPC_ADDR"`
 	StorageFolder       string   `env:"STORAGE_FOLDER" envDefault:"storage"`
 }
 
@@ -46,7 +49,8 @@ func main() {
 	}
 
 	authGateway := auth.New(cfg.AuthServiceHttpAddr, cfg.AuthServiceGrpcAddr)
-	services := service.New(repos.User, repos.Ban, imageStorage, authGateway)
+	postGateway := post.New(cfg.PostServiceHttpAddr, cfg.PostServiceGrpcAddr)
+	services := service.New(repos.User, repos.Ban, imageStorage, authGateway, postGateway)
 
 	if err := http.New(cfg.BodyLimit, cfg.AllowedOrigins, cfg.Port).Init(services.User, services.Ban, authGateway).AddStaticFolder("storage", cfg.StorageFolder).Run(); err != nil {
 		log.Fatalf("Http server err: %v", err)

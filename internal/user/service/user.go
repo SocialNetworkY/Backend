@@ -25,11 +25,12 @@ type (
 	}
 
 	AuthGateway interface {
-		UpdateUsernameEmail(ctx context.Context, auth string, id uint, username, email string) error
-		DeleteUser(ctx context.Context, auth string, id uint) error
 		UpdateUsernameEmail(ctx context.Context, id uint, username, email string) error
 		DeleteUser(ctx context.Context, id uint) error
 	}
+
+	PostGateway interface {
+		DeleteUserPosts(ctx context.Context, id uint) error
 	}
 
 	ImageStorage interface {
@@ -39,6 +40,7 @@ type (
 	UserService struct {
 		repo UserRepo
 		ag   AuthGateway
+		pg   PostGateway
 		is   ImageStorage
 	}
 )
@@ -48,10 +50,11 @@ var (
 	ErrUserEmailTaken    = errors.New("email is already taken")
 )
 
-func NewUserService(repo UserRepo, is ImageStorage, ag AuthGateway) *UserService {
+func NewUserService(repo UserRepo, is ImageStorage, ag AuthGateway, pg PostGateway) *UserService {
 	return &UserService{
 		repo: repo,
 		ag:   ag,
+		pg:   pg,
 		is:   is,
 	}
 }
@@ -199,8 +202,10 @@ func (us *UserService) Delete(id uint) error {
 		return err
 	}
 
-	// Grpc call to delete user from other services
-	if err := us.ag.DeleteUser(context.Background(), auth, id); err != nil {
+	if err := us.pg.DeleteUserPosts(context.Background(), id); err != nil {
+		return err
+	}
+
 	if err := us.ag.DeleteUser(context.Background(), id); err != nil {
 		return err
 	}
