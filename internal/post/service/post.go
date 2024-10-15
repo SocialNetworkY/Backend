@@ -9,6 +9,7 @@ type (
 		Add(post *model.Post) error
 		Save(post *model.Post) error
 		Delete(id uint) error
+		DeleteByUser(userID uint) error
 		Find(id uint) (*model.Post, error)
 		FindSome(skip, limit int) ([]*model.Post, error)
 		FindByUser(userID uint, skip, limit int) ([]*model.Post, error)
@@ -54,6 +55,11 @@ func (ps *PostService) Find(id uint) (*model.Post, error) {
 // Delete deletes a post by its ID
 func (ps *PostService) Delete(id uint) error {
 	return ps.repo.Delete(id)
+}
+
+// DeleteByUser deletes all posts by a user
+func (ps *PostService) DeleteByUser(userID uint) error {
+	return ps.repo.DeleteByUser(userID)
 }
 
 // AddTag adds a tag to a post

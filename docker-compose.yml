@@ -171,10 +171,6 @@ services:
         environment:
             DB: myuser:strongpass@tcp(post-db:3306)/mydb?parseTime=true
             PORT: 8085
-            AUTH_SERVICE_HTTP_ADDR: auth-http-service:8080
-            AUTH_SERVICE_GRPC_ADDR: auth-grpc-service:8081
-            USER_SERVICE_HTTP_ADDR: user-http-service:8082
-            USER_SERVICE_GRPC_ADDR: user-grpc-service:8083
         networks:
             - services
             - post

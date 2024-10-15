@@ -36,6 +36,13 @@ func (pr *PostRepository) Delete(id uint) error {
 	return nil
 }
 
+func (pr *PostRepository) DeleteByUser(userID uint) error {
+	if err := pr.db.Where("user_id = ?", userID).Delete(&model.Post{}).Error; err != nil {
+		return err
+	}
+	return nil
+}
+
 // Find finds a post by id
 func (pr *PostRepository) Find(id uint) (*model.Post, error) {
 	post := &model.Post{}
