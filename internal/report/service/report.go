@@ -1,0 +1,113 @@
+package service
+
+import "github.com/SocialNetworkY/Backend/internal/report/model"
+
+type (
+	ReportRepo interface {
+		Add(report *model.Report) error
+		Save(report *model.Report) error
+		Delete(id uint) error
+		DeleteByUser(userID uint) error
+		DeleteByPost(postID uint) error
+		Get(id uint) (*model.Report, error)
+		GetByPostUser(postID, userID uint) (*model.Report, error)
+		GetSome(skip, limit int, status string) ([]*model.Report, error)
+		GetByPost(postID uint, skip, limit int, status string) ([]*model.Report, error)
+		GetByUser(userID uint, skip, limit int, status string) ([]*model.Report, error)
+		GetByAdmin(adminID uint, skip, limit int, status string) ([]*model.Report, error)
+	}
+
+	Report struct {
+		repo ReportRepo
+	}
+)
+
+func NewReport(repo ReportRepo) *Report {
+	return &Report{
+		repo: repo,
+	}
+}
+
+func (r *Report) Create(userID, postID uint, reason string) (*model.Report, error) {
+
+	report := &model.Report{
+		UserID: userID,
+		PostID: postID,
+		Reason: reason,
+		Status: model.ReportStatusPending,
+	}
+
+	if err := r.repo.Add(report); err != nil {
+		return nil, err
+	}
+
+	return report, nil
+}
+
+func (r *Report) Answer(reportID, adminID uint, answer string) (*model.Report, error) {
+	report, err := r.repo.Get(reportID)
+	if err != nil {
+		return nil, err
+	}
+
+	report.AdminID = adminID
+	report.Answer = answer
+	report.Status = model.ReportStatusAnswered
+	report.Closed = true
+
+	if err := r.repo.Save(report); err != nil {
+		return nil, err
+	}
+
+	return report, nil
+}
+
+func (r *Report) Reject(reportID, adminID uint, answer string) (*model.Report, error) {
+	report, err := r.repo.Get(reportID)
+	if err != nil {
+		return nil, err
+	}
+
+	report.AdminID = adminID
+	report.Answer = answer
+	report.Status = model.ReportStatusRejected
+	report.Closed = true
+
+	if err := r.repo.Save(report); err != nil {
+		return nil, err
+	}
+
+	return report, nil
+}
+
+func (r *Report) Delete(reportID uint) error {
+	return r.repo.Delete(reportID)
+}
+
+func (r *Report) DeleteByUser(userID uint) error {
+	return r.repo.DeleteByUser(userID)
+}
+
+func (r *Report) DeleteByPost(postID uint) error {
+	return r.repo.DeleteByPost(postID)
+}
+
+func (r *Report) Get(reportID uint) (*model.Report, error) {
+	return r.repo.Get(reportID)
+}
+
+func (r *Report) GetSome(skip, limit int, status string) ([]*model.Report, error) {
+	return r.repo.GetSome(skip, limit, status)
+}
+
+func (r *Report) GetByPost(postID uint, skip, limit int, status string) ([]*model.Report, error) {
+	return r.repo.GetByPost(postID, skip, limit, status)
+}
+
+func (r *Report) GetByUser(userID uint, skip, limit int, status string) ([]*model.Report, error) {
+	return r.repo.GetByUser(userID, skip, limit, status)
+}
+
+func (r *Report) GetByAdmin(adminID uint, skip, limit int, status string) ([]*model.Report, error) {
+	return r.repo.GetByAdmin(adminID, skip, limit, status)
+}
