@@ -7,11 +7,11 @@ type Service struct {
 	Comment *CommentService
 }
 
-func New(postRepo PostRepo, tagRepo TagRepo, likeRepo LikeRepo, commentRepo CommentRepo) *Service {
+func New(postRepo PostRepo, tagRepo TagRepo, likeRepo LikeRepo, commentRepo CommentRepo, rg ReportGateway) *Service {
 	ts := NewTagService(tagRepo)
-	ps := NewPostService(postRepo, ts)
 	ls := NewLikeService(likeRepo)
 	cs := NewCommentService(commentRepo)
+	ps := NewPostService(postRepo, rg, ts, cs, ls)
 
 	return &Service{
 		Post:    ps,

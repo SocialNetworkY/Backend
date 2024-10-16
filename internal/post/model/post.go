@@ -56,20 +56,3 @@ func (p *Post) AfterFind(tx *gorm.DB) (err error) {
 	p.Edited = p.EditedBy != 0
 	return nil
 }
-
-// AfterDelete removes all references to the post from tags, deletes posts comments and likes
-func (p *Post) AfterDelete(tx *gorm.DB) (err error) {
-	if err = tx.Association("Tags").Clear(); err != nil {
-		return err
-	}
-
-	if err = tx.Where("post_id = ?", p.ID).Delete(&Comment{}).Error; err != nil {
-		return err
-	}
-
-	if err = tx.Where("post_id = ?", p.ID).Delete(&Like{}).Error; err != nil {
-		return err
-	}
-
-	return nil
-}

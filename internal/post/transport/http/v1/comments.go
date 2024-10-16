@@ -47,7 +47,7 @@ func (h *Handler) changeComment(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
-	if err := h.cs.EditComment(comment.ID, requester.ID, req.Content); err != nil {
+	if err := h.cs.Edit(comment.ID, requester.ID, req.Content); err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 
@@ -74,7 +74,7 @@ func (h *Handler) deleteComment(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusForbidden, "you are not allowed to delete this comment")
 	}
 
-	if err := h.cs.DeleteComment(comment.ID); err != nil {
+	if err := h.cs.Delete(comment.ID); err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 

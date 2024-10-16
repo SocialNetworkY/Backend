@@ -23,6 +23,8 @@ const _ = grpc.SupportPackageIsVersion7
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type PostServiceClient interface {
 	DeleteUserPosts(ctx context.Context, in *DeleteUserPostsRequest, opts ...grpc.CallOption) (*DeleteUserPostsResponse, error)
+	DeleteUserComments(ctx context.Context, in *DeleteUserCommentsRequest, opts ...grpc.CallOption) (*DeleteUserCommentsResponse, error)
+	DeleteUserLikes(ctx context.Context, in *DeleteUserLikesRequest, opts ...grpc.CallOption) (*DeleteUserLikesResponse, error)
 }
 
 type postServiceClient struct {
@@ -42,11 +44,31 @@ func (c *postServiceClient) DeleteUserPosts(ctx context.Context, in *DeleteUserP
 	return out, nil
 }
 
+func (c *postServiceClient) DeleteUserComments(ctx context.Context, in *DeleteUserCommentsRequest, opts ...grpc.CallOption) (*DeleteUserCommentsResponse, error) {
+	out := new(DeleteUserCommentsResponse)
+	err := c.cc.Invoke(ctx, "/PostService/DeleteUserComments", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *postServiceClient) DeleteUserLikes(ctx context.Context, in *DeleteUserLikesRequest, opts ...grpc.CallOption) (*DeleteUserLikesResponse, error) {
+	out := new(DeleteUserLikesResponse)
+	err := c.cc.Invoke(ctx, "/PostService/DeleteUserLikes", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // PostServiceServer is the server API for PostService service.
 // All implementations must embed UnimplementedPostServiceServer
 // for forward compatibility
 type PostServiceServer interface {
 	DeleteUserPosts(context.Context, *DeleteUserPostsRequest) (*DeleteUserPostsResponse, error)
+	DeleteUserComments(context.Context, *DeleteUserCommentsRequest) (*DeleteUserCommentsResponse, error)
+	DeleteUserLikes(context.Context, *DeleteUserLikesRequest) (*DeleteUserLikesResponse, error)
 	mustEmbedUnimplementedPostServiceServer()
 }
 
@@ -56,6 +78,12 @@ type UnimplementedPostServiceServer struct {
 
 func (UnimplementedPostServiceServer) DeleteUserPosts(context.Context, *DeleteUserPostsRequest) (*DeleteUserPostsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteUserPosts not implemented")
+}
+func (UnimplementedPostServiceServer) DeleteUserComments(context.Context, *DeleteUserCommentsRequest) (*DeleteUserCommentsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteUserComments not implemented")
+}
+func (UnimplementedPostServiceServer) DeleteUserLikes(context.Context, *DeleteUserLikesRequest) (*DeleteUserLikesResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteUserLikes not implemented")
 }
 func (UnimplementedPostServiceServer) mustEmbedUnimplementedPostServiceServer() {}
 
@@ -88,6 +116,42 @@ func _PostService_DeleteUserPosts_Handler(srv interface{}, ctx context.Context, 
 	return interceptor(ctx, in, info, handler)
 }
 
+func _PostService_DeleteUserComments_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteUserCommentsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(PostServiceServer).DeleteUserComments(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/PostService/DeleteUserComments",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(PostServiceServer).DeleteUserComments(ctx, req.(*DeleteUserCommentsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _PostService_DeleteUserLikes_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteUserLikesRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(PostServiceServer).DeleteUserLikes(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/PostService/DeleteUserLikes",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(PostServiceServer).DeleteUserLikes(ctx, req.(*DeleteUserLikesRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // PostService_ServiceDesc is the grpc.ServiceDesc for PostService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -98,6 +162,14 @@ var PostService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "DeleteUserPosts",
 			Handler:    _PostService_DeleteUserPosts_Handler,
+		},
+		{
+			MethodName: "DeleteUserComments",
+			Handler:    _PostService_DeleteUserComments_Handler,
+		},
+		{
+			MethodName: "DeleteUserLikes",
+			Handler:    _PostService_DeleteUserLikes_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

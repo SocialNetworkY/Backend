@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/SocialNetworkY/Backend/internal/post/gateway/report"
 	"github.com/SocialNetworkY/Backend/internal/post/gateway/user"
 	"github.com/SocialNetworkY/Backend/pkg/storage"
 	"gorm.io/driver/mysql"
@@ -16,15 +17,17 @@ import (
 )
 
 type Config struct {
-	DB                  string   `env:"DB"`
-	Port                int      `env:"PORT"`
-	BodyLimit           string   `env:"BODY_LIMIT"`
-	AllowedOrigins      []string `env:"ALlOWED_ORIGINS" envSeparator:","`
-	AuthServiceHttpAddr string   `env:"AUTH_SERVICE_HTTP_ADDR"`
-	AuthServiceGrpcAddr string   `env:"AUTH_SERVICE_GRPC_ADDR"`
-	UserServiceHttpAddr string   `env:"USER_SERVICE_HTTP_ADDR"`
-	UserServiceGrpcAddr string   `env:"USER_SERVICE_GRPC_ADDR"`
-	StorageFolder       string   `env:"STORAGE_FOLDER" envDefault:"storage"`
+	DB                    string   `env:"DB"`
+	Port                  int      `env:"PORT"`
+	BodyLimit             string   `env:"BODY_LIMIT"`
+	AllowedOrigins        []string `env:"ALlOWED_ORIGINS" envSeparator:","`
+	AuthServiceHttpAddr   string   `env:"AUTH_SERVICE_HTTP_ADDR"`
+	AuthServiceGrpcAddr   string   `env:"AUTH_SERVICE_GRPC_ADDR"`
+	UserServiceHttpAddr   string   `env:"USER_SERVICE_HTTP_ADDR"`
+	UserServiceGrpcAddr   string   `env:"USER_SERVICE_GRPC_ADDR"`
+	ReportServiceHttpAddr string   `env:"REPORT_SERVICE_HTTP_ADDR"`
+	ReportServiceGrpcAddr string   `env:"REPORT_SERVICE_GRPC_ADDR"`
+	StorageFolder         string   `env:"STORAGE_FOLDER" envDefault:"storage"`
 }
 
 var (
@@ -50,7 +53,8 @@ func main() {
 
 	authGateway := auth.New(cfg.AuthServiceHttpAddr, cfg.AuthServiceGrpcAddr)
 	postGateway := user.New(cfg.UserServiceHttpAddr, cfg.UserServiceGrpcAddr)
-	services := service.New(repos.Post, repos.Tag, repos.Like, repos.Comment)
+	reportGateway := report.New(cfg.ReportServiceHttpAddr, cfg.ReportServiceGrpcAddr)
+	services := service.New(repos.Post, repos.Tag, repos.Like, repos.Comment, reportGateway)
 
 	if err := http.New(cfg.BodyLimit, cfg.AllowedOrigins, cfg.Port).Init(services.Post, services.Like, services.Comment, authGateway, postGateway, fileStorage).AddStaticFolder("storage", cfg.StorageFolder).Run(); err != nil {
 		log.Fatalf("Http server err: %v", err)

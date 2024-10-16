@@ -57,7 +57,11 @@ func (tr *TagRepository) FindByName(name string) (*model.Tag, error) {
 // FindSome fetches some tags
 func (tr *TagRepository) FindSome(skip, limit int) ([]*model.Tag, error) {
 	var tags []*model.Tag
-	if err := tr.db.Preload("Posts").Offset(skip).Limit(limit).Find(&tags).Error; err != nil {
+	query := tr.db.Preload("Posts").Offset(skip)
+	if limit > 0 {
+		query = query.Limit(limit)
+	}
+	if err := query.Find(&tags).Error; err != nil {
 		return nil, err
 	}
 	return tags, nil
@@ -66,8 +70,33 @@ func (tr *TagRepository) FindSome(skip, limit int) ([]*model.Tag, error) {
 // FindByPost finds some tags by post id
 func (tr *TagRepository) FindByPost(postID uint, skip, limit int) ([]*model.Tag, error) {
 	var tags []*model.Tag
-	if err := tr.db.Preload("Posts").Offset(skip).Limit(limit).Joins("JOIN post_tags ON post_tags.tag_id = tags.id").Where("post_tags.post_id = ?", postID).Find(&tags).Error; err != nil {
+	query := tr.db.Preload("Posts").Joins("JOIN post_tags ON post_tags.tag_id = tags.id").Where("post_tags.post_id = ?", postID).Offset(skip)
+	if limit > 0 {
+		query = query.Limit(limit)
+	}
+	if err := query.Find(&tags).Error; err != nil {
 		return nil, err
 	}
 	return tags, nil
+}
+
+func (tr *TagRepository) ClearAssociations(tagID uint) error {
+	if err := tr.db.Model(&model.Tag{ID: tagID}).Association("Posts").Clear(); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (tr *TagRepository) AddPost(tagID, postID uint) error {
+	if err := tr.db.Model(&model.Tag{ID: tagID}).Association("Posts").Append(&model.Post{ID: postID}); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (tr *TagRepository) RemovePost(tagID, postID uint) error {
+	if err := tr.db.Model(&model.Tag{ID: tagID}).Association("Posts").Delete(&model.Post{ID: postID}); err != nil {
+		return err
+	}
+	return nil
 }

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/SocialNetworkY/Backend/internal/post/gateway/report"
 	"github.com/SocialNetworkY/Backend/internal/post/repository"
 	"gorm.io/driver/mysql"
 	"log"
@@ -12,8 +13,10 @@ import (
 )
 
 type Config struct {
-	DB   string `env:"DB"`
-	Port int    `env:"PORT"`
+	DB                    string `env:"DB"`
+	Port                  int    `env:"PORT"`
+	ReportServiceHttpAddr string `env:"REPORT_SERVICE_HTTP_ADDR"`
+	ReportServiceGrpcAddr string `env:"REPORT_SERVICE_GRPC_ADDR"`
 }
 
 var (
@@ -32,9 +35,10 @@ func main() {
 		log.Fatal(err)
 	}
 
-	services := service.New(repos.Post, repos.Tag, repos.Like, repos.Comment)
+	reportGateway := report.New(cfg.ReportServiceHttpAddr, cfg.ReportServiceGrpcAddr)
+	services := service.New(repos.Post, repos.Tag, repos.Like, repos.Comment, reportGateway)
 
-	if err := grpc.New(cfg.Port).Init(services.Post).Run(); err != nil {
+	if err := grpc.New(cfg.Port).Init(services.Post, services.Comment, services.Like).Run(); err != nil {
 		log.Fatalf("Grpc server err: %v", err)
 	}
 }

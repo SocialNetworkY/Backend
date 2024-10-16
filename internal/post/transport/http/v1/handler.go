@@ -27,8 +27,8 @@ type (
 		Find(id uint) (*model.Comment, error)
 		FindByPost(postID uint, skip, limit int) ([]*model.Comment, error)
 		CommentPost(postID, userID uint, content string) error
-		EditComment(id, userID uint, content string) error
-		DeleteComment(id uint) error
+		Edit(id, userID uint, content string) error
+		Delete(id uint) error
 	}
 
 	AuthGateway interface {

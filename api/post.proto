@@ -3,6 +3,8 @@ option go_package = "/gen";
 
 service PostService {
   rpc DeleteUserPosts(DeleteUserPostsRequest) returns (DeleteUserPostsResponse);
+  rpc DeleteUserComments(DeleteUserCommentsRequest) returns (DeleteUserCommentsResponse);
+  rpc DeleteUserLikes(DeleteUserLikesRequest) returns (DeleteUserLikesResponse);
 }
 
 message DeleteUserPostsRequest {
@@ -10,5 +12,21 @@ message DeleteUserPostsRequest {
 }
 
 message DeleteUserPostsResponse {
+  bool success = 1;
+}
+
+message DeleteUserCommentsRequest {
+  uint64 user_id = 1;
+}
+
+message DeleteUserCommentsResponse {
+  bool success = 1;
+}
+
+message DeleteUserLikesRequest {
+  uint64 user_id = 1;
+}
+
+message DeleteUserLikesResponse {
   bool success = 1;
 }

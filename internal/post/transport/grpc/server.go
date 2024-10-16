@@ -30,8 +30,8 @@ func New(port int) *Server {
 	}
 }
 
-func (s *Server) Init(ps v1.PostService) *Server {
-	handler := v1.New(ps)
+func (s *Server) Init(ps v1.PostService, cs v1.CommentService, ls v1.LikeService) *Server {
+	handler := v1.New(ps, cs, ls)
 	gen.RegisterPostServiceServer(s.grpcServer, handler)
 	return s
 }

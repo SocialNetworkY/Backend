@@ -13,6 +13,7 @@ type (
 		FindByName(name string) (*model.Tag, error)
 		FindSome(skip, limit int) ([]*model.Tag, error)
 		FindByPost(postID uint, skip, limit int) ([]*model.Tag, error)
+		ClearAssociations(tagID uint) error
 	}
 
 	TagService struct {
@@ -33,6 +34,10 @@ func (ts *TagService) Add(tag *model.Tag) error {
 
 // Delete deletes a tag by id
 func (ts *TagService) Delete(id uint) error {
+	if err := ts.repo.ClearAssociations(id); err != nil {
+		return err
+	}
+
 	return ts.repo.Delete(id)
 }
 
@@ -43,7 +48,7 @@ func (ts *TagService) DeleteByName(name string) error {
 		return err
 	}
 
-	return ts.repo.Delete(tag.ID)
+	return ts.Delete(tag.ID)
 }
 
 // Find finds a tag by id

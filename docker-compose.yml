@@ -158,6 +158,8 @@ services:
             AUTH_SERVICE_GRPC_ADDR: auth-grpc-service:8081
             USER_SERVICE_HTTP_ADDR: http://nginx:80/user
             USER_SERVICE_GRPC_ADDR: user-grpc-service:8083
+            REPORT_SERVICE_HTTP_ADDR: http://nginx:80/report
+            REPORT_SERVICE_GRPC_ADDR: report-grpc-service:8087
         volumes:
           - post_storage:/storage
         networks:
@@ -175,6 +177,8 @@ services:
         environment:
             DB: myuser:strongpass@tcp(post-db:3306)/mydb?parseTime=true
             PORT: 8085
+            REPORT_SERVICE_HTTP_ADDR: http://nginx:80/report
+            REPORT_SERVICE_GRPC_ADDR: report-grpc-service:8087
         networks:
             - services
             - post
