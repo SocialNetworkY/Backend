@@ -33,3 +33,35 @@ func (g *Gateway) DeleteUserPosts(ctx context.Context, id uint) error {
 
 	return nil
 }
+
+func (g *Gateway) DeleteUserComments(ctx context.Context, id uint) error {
+	conn, err := grpcutil.ServiceConnection(g.addr)
+	if err != nil {
+		return err
+	}
+	defer conn.Close()
+	client := gen.NewPostServiceClient(conn)
+
+	_, err = client.DeleteUserComments(ctx, &gen.DeleteUserCommentsRequest{UserId: uint64(id)})
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (g *Gateway) DeleteUserLikes(ctx context.Context, id uint) error {
+	conn, err := grpcutil.ServiceConnection(g.addr)
+	if err != nil {
+		return err
+	}
+	defer conn.Close()
+	client := gen.NewPostServiceClient(conn)
+
+	_, err = client.DeleteUserLikes(ctx, &gen.DeleteUserLikesRequest{UserId: uint64(id)})
+	if err != nil {
+		return err
+	}
+
+	return nil
+}

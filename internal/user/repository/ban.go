@@ -46,7 +46,11 @@ func (br *BanRepository) Find(id uint) (*model.Ban, error) {
 
 func (br *BanRepository) FindSome(skip, limit int) ([]*model.Ban, error) {
 	var bans []*model.Ban
-	if err := br.db.Offset(skip).Limit(limit).Find(&bans).Error; err != nil {
+	query := br.db.Offset(skip)
+	if limit > 0 {
+		query = query.Limit(limit)
+	}
+	if err := query.Find(&bans).Error; err != nil {
 		return nil, err
 	}
 	return bans, nil
@@ -54,7 +58,11 @@ func (br *BanRepository) FindSome(skip, limit int) ([]*model.Ban, error) {
 
 func (br *BanRepository) FindByUser(userID uint, skip, limit int) ([]*model.Ban, error) {
 	var bans []*model.Ban
-	if err := br.db.Offset(skip).Limit(limit).Where("user_id = ?", userID).Find(&bans).Error; err != nil {
+	query := br.db.Offset(skip).Where("user_id = ?", userID)
+	if limit > 0 {
+		query = query.Limit(limit)
+	}
+	if err := query.Find(&bans).Error; err != nil {
 		return nil, err
 	}
 	return bans, nil
@@ -62,7 +70,11 @@ func (br *BanRepository) FindByUser(userID uint, skip, limit int) ([]*model.Ban,
 
 func (br *BanRepository) FindByAdmin(adminID uint, skip, limit int) ([]*model.Ban, error) {
 	var bans []*model.Ban
-	if err := br.db.Offset(skip).Limit(limit).Where("admin_id = ?", adminID).Find(&bans).Error; err != nil {
+	query := br.db.Offset(skip).Where("admin_id = ?", adminID)
+	if limit > 0 {
+		query = query.Limit(limit)
+	}
+	if err := query.Find(&bans).Error; err != nil {
 		return nil, err
 	}
 	return bans, nil

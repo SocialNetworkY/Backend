@@ -94,7 +94,11 @@ func (ur *UserRepository) Find(id uint) (*model.User, error) {
 
 func (ur *UserRepository) FindSome(skip, limit int) ([]*model.User, error) {
 	var users []*model.User
-	if err := ur.db.Preload("Bans").Offset(skip).Limit(limit).Find(&users).Error; err != nil {
+	query := ur.db.Preload("Bans").Offset(skip)
+	if limit > 0 {
+		query = query.Limit(limit)
+	}
+	if err := query.Find(&users).Error; err != nil {
 		return nil, err
 	}
 	return users, nil
@@ -118,7 +122,11 @@ func (ur *UserRepository) FindByEmail(email string) (*model.User, error) {
 
 func (ur *UserRepository) FindByNickname(nickname string, skip, limit int) ([]*model.User, error) {
 	var users []*model.User
-	if err := ur.db.Preload("Bans").Offset(skip).Limit(limit).Where("nickname = ?", nickname).Find(&users).Error; err != nil {
+	query := ur.db.Preload("Bans").Where("nickname = ?", nickname).Offset(skip)
+	if limit > 0 {
+		query = query.Limit(limit)
+	}
+	if err := query.Find(&users).Error; err != nil {
 		return nil, err
 	}
 	return users, nil

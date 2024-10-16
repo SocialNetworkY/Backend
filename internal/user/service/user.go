@@ -31,6 +31,12 @@ type (
 
 	PostGateway interface {
 		DeleteUserPosts(ctx context.Context, id uint) error
+		DeleteUserComments(ctx context.Context, id uint) error
+		DeleteUserLikes(ctx context.Context, id uint) error
+	}
+
+	ReportGateway interface {
+		DeleteUserReports(ctx context.Context, userID uint) error
 	}
 
 	ImageStorage interface {
@@ -41,6 +47,7 @@ type (
 		repo UserRepo
 		ag   AuthGateway
 		pg   PostGateway
+		rg   ReportGateway
 		is   ImageStorage
 	}
 )
@@ -50,11 +57,12 @@ var (
 	ErrUserEmailTaken    = errors.New("email is already taken")
 )
 
-func NewUserService(repo UserRepo, is ImageStorage, ag AuthGateway, pg PostGateway) *UserService {
+func NewUserService(repo UserRepo, is ImageStorage, ag AuthGateway, pg PostGateway, rg ReportGateway) *UserService {
 	return &UserService{
 		repo: repo,
 		ag:   ag,
 		pg:   pg,
+		rg:   rg,
 		is:   is,
 	}
 }
@@ -206,13 +214,21 @@ func (us *UserService) Delete(id uint) error {
 		return err
 	}
 
+	if err := us.pg.DeleteUserComments(context.Background(), id); err != nil {
+		return err
+	}
+
+	if err := us.pg.DeleteUserLikes(context.Background(), id); err != nil {
+		return err
+	}
+
+	if err := us.rg.DeleteUserReports(context.Background(), id); err != nil {
+		return err
+	}
+
 	if err := us.ag.DeleteUser(context.Background(), id); err != nil {
 		return err
 	}
 
-	if err := us.repo.Delete(user); err != nil {
-		return err
-	}
-
-	return nil
+	return us.repo.Delete(user)
 }

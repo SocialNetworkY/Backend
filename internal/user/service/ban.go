@@ -44,6 +44,14 @@ func (bs *BanService) Ban(userID, adminID uint, reason string, duration time.Dur
 		return err
 	}
 
+	if err := bs.pg.DeleteUserComments(context.Background(), userID); err != nil {
+		return err
+	}
+
+	if err := bs.pg.DeleteUserLikes(context.Background(), userID); err != nil {
+		return err
+	}
+
 	return bs.repo.Add(ban)
 }
 

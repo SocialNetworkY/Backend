@@ -93,6 +93,8 @@ services:
             AUTH_SERVICE_GRPC_ADDR: auth-grpc-service:8081
             POST_SERVICE_HTTP_ADDR: http://nginx:80/post
             POST_SERVICE_GRPC_ADDR: post-grpc-service:8085
+            REPORT_SERVICE_HTTP_ADDR: http://nginx:80/report
+            REPORT_SERVICE_GRPC_ADDR: report-grpc-service:8087
         volumes:
             - user_storage:/storage
         networks:
@@ -115,6 +117,8 @@ services:
             AUTH_SERVICE_GRPC_ADDR: auth-grpc-service:8081
             POST_SERVICE_HTTP_ADDR: http://nginx:80/post
             POST_SERVICE_GRPC_ADDR: post-grpc-service:8085
+            REPORT_SERVICE_HTTP_ADDR: http://nginx:80/report
+            REPORT_SERVICE_GRPC_ADDR: report-grpc-service:8087
         volumes:
             - user_storage:/storage
         networks:

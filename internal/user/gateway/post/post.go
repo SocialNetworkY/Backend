@@ -18,3 +18,11 @@ func New(httpAddr, grpcAddr string) *Gateway {
 func (g *Gateway) DeleteUserPosts(ctx context.Context, id uint) error {
 	return g.grpc.DeleteUserPosts(ctx, id)
 }
+
+func (g *Gateway) DeleteUserComments(ctx context.Context, id uint) error {
+	return g.grpc.DeleteUserComments(ctx, id)
+}
+
+func (g *Gateway) DeleteUserLikes(ctx context.Context, id uint) error {
+	return g.grpc.DeleteUserLikes(ctx, id)
+}
