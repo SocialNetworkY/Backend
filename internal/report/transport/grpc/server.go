@@ -3,6 +3,8 @@ package grpc
 import (
 	"context"
 	"fmt"
+	v1 "github.com/SocialNetworkY/Backend/internal/report/transport/grpc/v1"
+	"github.com/SocialNetworkY/Backend/pkg/gen"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 	"log"
@@ -28,7 +30,9 @@ func New(port int) *Server {
 	}
 }
 
-func (s *Server) Init() *Server {
+func (s *Server) Init(rs v1.ReportService) *Server {
+	handler := v1.New(rs)
+	gen.RegisterReportServiceServer(s.grpcServer, handler)
 	return s
 }
 

@@ -28,7 +28,7 @@ services:
             JWT_DURATION: "1h"
             JWT_REFRESH_SECRET: "refreshPass"
             JWT_REFRESH_DURATION: "168h"
-            USER_SERVICE_HTTP_ADDR: user-http-service:8082
+            USER_SERVICE_HTTP_ADDR: http://nginx:80/user
             USER_SERVICE_GRPC_ADDR: user-grpc-service:8083
         networks:
             - services
@@ -50,7 +50,7 @@ services:
             JWT_DURATION: "1h"
             JWT_REFRESH_SECRET: "refreshPass"
             JWT_REFRESH_DURATION: "168h"
-            USER_SERVICE_HTTP_ADDR: user-http-service:8082
+            USER_SERVICE_HTTP_ADDR: http://nginx:80/user
             USER_SERVICE_GRPC_ADDR: user-grpc-service:8083
         networks:
             - services
@@ -89,9 +89,9 @@ services:
             BODY_LIMIT: 50MB
             ALLOWED_ORIGINS: "*"
             STORAGE_FOLDER: ./storage
-            AUTH_SERVICE_HTTP_ADDR: auth-http-service:8080
+            AUTH_SERVICE_HTTP_ADDR: http://nginx:80/auth
             AUTH_SERVICE_GRPC_ADDR: auth-grpc-service:8081
-            POST_SERVICE_HTTP_ADDR: post-http-service:8084
+            POST_SERVICE_HTTP_ADDR: http://nginx:80/post
             POST_SERVICE_GRPC_ADDR: post-grpc-service:8085
         volumes:
             - user_storage:/storage
@@ -111,9 +111,9 @@ services:
             DB: myuser:strongpass@tcp(user-db:3306)/mydb?parseTime=true
             PORT: 8083
             STORAGE_FOLDER: ./storage
-            AUTH_SERVICE_HTTP_ADDR: auth-http-service:8080
+            AUTH_SERVICE_HTTP_ADDR: http://nginx:80/auth
             AUTH_SERVICE_GRPC_ADDR: auth-grpc-service:8081
-            POST_SERVICE_HTTP_ADDR: post-http-service:8084
+            POST_SERVICE_HTTP_ADDR: http://nginx:80/post
             POST_SERVICE_GRPC_ADDR: post-grpc-service:8085
         volumes:
             - user_storage:/storage
@@ -154,9 +154,9 @@ services:
             BODY_LIMIT: 500MB
             ALLOWED_ORIGINS: "*"
             STORAGE_FOLDER: ./storage
-            AUTH_SERVICE_HTTP_ADDR: auth-http-service:8080
+            AUTH_SERVICE_HTTP_ADDR: http://nginx:80/auth
             AUTH_SERVICE_GRPC_ADDR: auth-grpc-service:8081
-            USER_SERVICE_HTTP_ADDR: user-http-service:8082
+            USER_SERVICE_HTTP_ADDR: http://nginx:80/user
             USER_SERVICE_GRPC_ADDR: user-grpc-service:8083
         volumes:
           - post_storage:/storage
@@ -201,7 +201,64 @@ services:
             timeout: 20s
             retries: 10
 
+    report-http-service:
+        build:
+            context: .
+            dockerfile: cmd/report/http/Dockerfile
+        container_name: report-http-service
+        environment:
+            DB: myuser:strongpass@tcp(report-db:3306)/mydb?parseTime=true
+            PORT: 8086
+            BODY_LIMIT: 20MB
+            ALLOWED_ORIGINS: "*"
+            AUTH_SERVICE_HTTP_ADDR: http://nginx:80/auth
+            AUTH_SERVICE_GRPC_ADDR: auth-grpc-service:8081
+            USER_SERVICE_HTTP_ADDR: http://nginx:80/user
+            USER_SERVICE_GRPC_ADDR: user-grpc-service:8083
+            POST_SERVICE_HTTP_ADDR: http://nginx:80/post
+            POST_SERVICE_GRPC_ADDR: post-grpc-service:8085
+        networks:
+            - services
+            - report
+        depends_on:
+            report-db:
+                condition: service_healthy
 
+    report-grpc-service:
+        build:
+            context: .
+            dockerfile: cmd/report/grpc/Dockerfile
+        container_name: report-grpc-service
+        environment:
+            DB: myuser:strongpass@tcp(report-db:3306)/mydb?parseTime=true
+            PORT: 8087
+            POST_SERVICE_HTTP_ADDR: http://nginx:80/post
+            POST_SERVICE_GRPC_ADDR: post-grpc-service:8085
+        networks:
+            - services
+            - report
+        depends_on:
+            report-db:
+                condition: service_healthy
+
+    report-db:
+        image: mysql:latest
+        container_name: report-db
+        environment:
+            MYSQL_DATABASE: mydb
+            MYSQL_USER: myuser
+            MYSQL_PASSWORD: strongpass
+            MYSQL_ROOT_PASSWORD: verystrongpass
+        ports:
+            - "5680:3306"
+        volumes:
+            - report_db_data:/var/lib/mysql
+        networks:
+            - report
+        healthcheck:
+            test: [ "CMD", "mysqladmin", "ping", "-h", "localhost" ]
+            timeout: 20s
+            retries: 10
 
 volumes:
     auth_db_data:
@@ -234,9 +291,16 @@ volumes:
             type: none
             o: bind
             device: ./storage/post
+    report_db_data:
+        driver: local
+        driver_opts:
+            type: none
+            o: bind
+            device: ./db/report
 
 networks:
-  services:
-  auth:
-  user:
-  post:
+    services:
+    auth:
+    user:
+    post:
+    report:

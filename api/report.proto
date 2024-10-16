@@ -1,0 +1,23 @@
+syntax = "proto3";
+option go_package = "/gen";
+
+service ReportService {
+  rpc DeleteUserReports(DeleteUserReportsRequest) returns (DeleteUserReportsResponse);
+  rpc DeletePostReports(DeletePostReportsRequest) returns (DeletePostReportsResponse);
+}
+
+message DeleteUserReportsRequest {
+  uint64 user_id = 1;
+}
+
+message DeleteUserReportsResponse {
+  bool success = 1;
+}
+
+message DeletePostReportsRequest {
+  uint64 post_id = 1;
+}
+
+message DeletePostReportsResponse {
+  bool success = 1;
+}

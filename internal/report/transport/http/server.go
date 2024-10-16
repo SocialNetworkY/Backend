@@ -2,11 +2,13 @@ package http
 
 import (
 	"fmt"
-	"github.com/SocialNetworkY/Backend/internal/report/transport/http/v1"
-	"github.com/SocialNetworkY/Backend/pkg/binder"
-	"github.com/SocialNetworkY/Backend/pkg/validator"
 	"log"
 	"net/http"
+
+	"github.com/SocialNetworkY/Backend/internal/report/transport/http/v1"
+
+	"github.com/SocialNetworkY/Backend/pkg/binder"
+	"github.com/SocialNetworkY/Backend/pkg/validator"
 
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
@@ -48,12 +50,6 @@ func New(bodyLimit string, allowedOrigins []string, port int) *Server {
 		echo: e,
 		addr: fmt.Sprintf(":%d", port),
 	}
-}
-
-// AddStaticFolder adds a static folder to the server
-func (s *Server) AddStaticFolder(path string, folder string) *Server {
-	s.echo.Static(path, folder)
-	return s
 }
 
 func (s *Server) Init(rs v1.ReportService, ag v1.AuthGateway, ug v1.UserGateway) *Server {

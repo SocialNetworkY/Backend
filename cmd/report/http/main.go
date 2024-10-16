@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/SocialNetworkY/Backend/internal/report/gateway/post"
 	"github.com/SocialNetworkY/Backend/internal/report/transport/http"
 	"log"
 
@@ -21,6 +22,8 @@ type Config struct {
 	AuthServiceGrpcAddr string   `env:"AUTH_SERVICE_GRPC_ADDR"`
 	UserServiceHttpAddr string   `env:"USER_SERVICE_HTTP_ADDR"`
 	UserServiceGrpcAddr string   `env:"USER_SERVICE_GRPC_ADDR"`
+	PostServiceHttpAddr string   `env:"POST_SERVICE_HTTP_ADDR"`
+	PostServiceGrpcAddr string   `env:"POST_SERVICE_GRPC_ADDR"`
 }
 
 var (
@@ -41,9 +44,10 @@ func main() {
 
 	authGateway := auth.New(cfg.AuthServiceHttpAddr, cfg.AuthServiceGrpcAddr)
 	userGateway := user.New(cfg.UserServiceHttpAddr, cfg.UserServiceGrpcAddr)
-	services := service.New(repos.Report)
+	postGateway := post.New(cfg.PostServiceHttpAddr, cfg.PostServiceGrpcAddr)
+	services := service.New(repos.Report, postGateway)
 
-	if err := http.New(cfg.BodyLimit, cfg.AllowedOrigins, cfg.Port).Init(services.Report, authGateway, userGateway); err != nil {
-		log.Fatalf("Grpc server err: %v", err)
+	if err := http.New(cfg.BodyLimit, cfg.AllowedOrigins, cfg.Port).Init(services.Report, authGateway, userGateway).Run(); err != nil {
+		log.Fatalf("Http server err: %v", err)
 	}
 }

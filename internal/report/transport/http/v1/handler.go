@@ -17,6 +17,7 @@ type (
 		GetByPost(postID uint, skip, limit int, status string) ([]*model.Report, error)
 		GetByUser(userID uint, skip, limit int, status string) ([]*model.Report, error)
 		GetByAdmin(adminID uint, skip, limit int, status string) ([]*model.Report, error)
+		Delete(reportID uint) error
 	}
 
 	AuthGateway interface {

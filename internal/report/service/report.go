@@ -1,6 +1,10 @@
 package service
 
-import "github.com/SocialNetworkY/Backend/internal/report/model"
+import (
+	"context"
+	"errors"
+	"github.com/SocialNetworkY/Backend/internal/report/model"
+)
 
 type (
 	ReportRepo interface {
@@ -17,18 +21,33 @@ type (
 		GetByAdmin(adminID uint, skip, limit int, status string) ([]*model.Report, error)
 	}
 
+	PostGateway interface {
+		PostInfo(ctx context.Context, postID uint) (*model.Post, error)
+	}
+
 	Report struct {
 		repo ReportRepo
+		pg   PostGateway
 	}
 )
 
-func NewReport(repo ReportRepo) *Report {
+func NewReport(repo ReportRepo, pg PostGateway) *Report {
 	return &Report{
 		repo: repo,
+		pg:   pg,
 	}
 }
 
 func (r *Report) Create(userID, postID uint, reason string) (*model.Report, error) {
+	_, err := r.pg.PostInfo(context.Background(), postID)
+	if err != nil {
+		return nil, errors.New("post not found")
+	}
+
+	_, err = r.repo.GetByPostUser(postID, userID)
+	if err == nil {
+		return nil, errors.New("report already exists")
+	}
 
 	report := &model.Report{
 		UserID: userID,

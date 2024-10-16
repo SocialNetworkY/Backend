@@ -1,10 +1,9 @@
 package main
 
 import (
+	"github.com/SocialNetworkY/Backend/internal/report/gateway/post"
 	"log"
 
-	"github.com/SocialNetworkY/Backend/internal/report/gateway/auth"
-	"github.com/SocialNetworkY/Backend/internal/report/gateway/user"
 	"github.com/SocialNetworkY/Backend/internal/report/repository"
 	"github.com/SocialNetworkY/Backend/internal/report/service"
 	"github.com/SocialNetworkY/Backend/internal/report/transport/grpc"
@@ -16,10 +15,8 @@ import (
 type Config struct {
 	DB                  string `env:"DB"`
 	Port                int    `env:"PORT"`
-	AuthServiceHttpAddr string `env:"AUTH_SERVICE_HTTP_ADDR"`
-	AuthServiceGrpcAddr string `env:"AUTH_SERVICE_GRPC_ADDR"`
-	UserServiceHttpAddr string `env:"USER_SERVICE_HTTP_ADDR"`
-	UserServiceGrpcAddr string `env:"USER_SERVICE_GRPC_ADDR"`
+	PostServiceHttpAddr string `env:"POST_SERVICE_HTTP_ADDR"`
+	PostServiceGrpcAddr string `env:"POST_SERVICE_GRPC_ADDR"`
 }
 
 var (
@@ -38,11 +35,10 @@ func main() {
 		log.Fatal(err)
 	}
 
-	_ = auth.New(cfg.AuthServiceHttpAddr, cfg.AuthServiceGrpcAddr)
-	_ = user.New(cfg.UserServiceHttpAddr, cfg.UserServiceGrpcAddr)
-	_ = service.New(repos.Report)
+	postGateway := post.New(cfg.PostServiceHttpAddr, cfg.PostServiceGrpcAddr)
+	services := service.New(repos.Report, postGateway)
 
-	if err := grpc.New(cfg.Port).Init().Run(); err != nil {
+	if err := grpc.New(cfg.Port).Init(services.Report).Run(); err != nil {
 		log.Fatalf("Grpc server err: %v", err)
 	}
 }
