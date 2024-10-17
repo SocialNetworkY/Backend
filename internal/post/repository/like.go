@@ -48,11 +48,10 @@ func (lr *LikeRepository) Find(id uint) (*model.Like, error) {
 // FindSome fetches some likes
 func (lr *LikeRepository) FindSome(skip, limit int) ([]*model.Like, error) {
 	var likes []*model.Like
-	query := lr.db.Offset(skip)
-	if limit > 0 {
-		query = query.Limit(limit)
+	if limit < 0 {
+		skip = -1
 	}
-	if err := query.Find(&likes).Error; err != nil {
+	if err := lr.db.Offset(skip).Limit(limit).Find(&likes).Error; err != nil {
 		return nil, err
 	}
 	return likes, nil
@@ -61,11 +60,10 @@ func (lr *LikeRepository) FindSome(skip, limit int) ([]*model.Like, error) {
 // FindByPost finds some likes by post id
 func (lr *LikeRepository) FindByPost(postID uint, skip, limit int) ([]*model.Like, error) {
 	var likes []*model.Like
-	query := lr.db.Offset(skip).Where("post_id = ?", postID)
-	if limit > 0 {
-		query = query.Limit(limit)
+	if limit < 0 {
+		skip = -1
 	}
-	if err := query.Find(&likes).Error; err != nil {
+	if err := lr.db.Offset(skip).Where("post_id = ?", postID).Limit(limit).Find(&likes).Error; err != nil {
 		return nil, err
 	}
 	return likes, nil
@@ -74,11 +72,10 @@ func (lr *LikeRepository) FindByPost(postID uint, skip, limit int) ([]*model.Lik
 // FindByUser finds some likes by user id
 func (lr *LikeRepository) FindByUser(userID uint, skip, limit int) ([]*model.Like, error) {
 	var likes []*model.Like
-	query := lr.db.Offset(skip).Where("user_id = ?", userID)
-	if limit > 0 {
-		query = query.Limit(limit)
+	if limit < 0 {
+		skip = -1
 	}
-	if err := query.Find(&likes).Error; err != nil {
+	if err := lr.db.Offset(skip).Where("user_id = ?", userID).Limit(limit).Find(&likes).Error; err != nil {
 		return nil, err
 	}
 	return likes, nil

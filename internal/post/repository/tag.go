@@ -57,11 +57,10 @@ func (tr *TagRepository) FindByName(name string) (*model.Tag, error) {
 // FindSome fetches some tags
 func (tr *TagRepository) FindSome(skip, limit int) ([]*model.Tag, error) {
 	var tags []*model.Tag
-	query := tr.db.Preload("Posts").Offset(skip)
-	if limit > 0 {
-		query = query.Limit(limit)
+	if limit < 0 {
+		skip = -1
 	}
-	if err := query.Find(&tags).Error; err != nil {
+	if err := tr.db.Preload("Posts").Offset(skip).Limit(limit).Find(&tags).Error; err != nil {
 		return nil, err
 	}
 	return tags, nil
@@ -70,11 +69,10 @@ func (tr *TagRepository) FindSome(skip, limit int) ([]*model.Tag, error) {
 // FindByPost finds some tags by post id
 func (tr *TagRepository) FindByPost(postID uint, skip, limit int) ([]*model.Tag, error) {
 	var tags []*model.Tag
-	query := tr.db.Preload("Posts").Joins("JOIN post_tags ON post_tags.tag_id = tags.id").Where("post_tags.post_id = ?", postID).Offset(skip)
-	if limit > 0 {
-		query = query.Limit(limit)
+	if limit < 0 {
+		skip = -1
 	}
-	if err := query.Find(&tags).Error; err != nil {
+	if err := tr.db.Preload("Posts").Joins("JOIN post_tags ON post_tags.tag_id = tags.id").Where("post_tags.post_id = ?", postID).Offset(skip).Limit(limit).Find(&tags).Error; err != nil {
 		return nil, err
 	}
 	return tags, nil

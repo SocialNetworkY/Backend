@@ -48,11 +48,10 @@ func (cr *CommentRepository) Find(id uint) (*model.Comment, error) {
 // FindSome fetches some comments
 func (cr *CommentRepository) FindSome(skip, limit int) ([]*model.Comment, error) {
 	var comments []*model.Comment
-	query := cr.db.Offset(skip)
-	if limit > 0 {
-		query = query.Limit(limit)
+	if limit < 0 {
+		skip = -1
 	}
-	if err := query.Find(&comments).Error; err != nil {
+	if err := cr.db.Offset(skip).Limit(limit).Find(&comments).Error; err != nil {
 		return nil, err
 	}
 	return comments, nil
@@ -61,11 +60,10 @@ func (cr *CommentRepository) FindSome(skip, limit int) ([]*model.Comment, error)
 // FindByPost finds some comments by post id
 func (cr *CommentRepository) FindByPost(postID uint, skip, limit int) ([]*model.Comment, error) {
 	var comments []*model.Comment
-	query := cr.db.Offset(skip).Where("post_id = ?", postID)
-	if limit > 0 {
-		query = query.Limit(limit)
+	if limit < 0 {
+		skip = -1
 	}
-	if err := query.Find(&comments).Error; err != nil {
+	if err := cr.db.Offset(skip).Where("post_id = ?", postID).Limit(limit).Find(&comments).Error; err != nil {
 		return nil, err
 	}
 	return comments, nil
@@ -74,11 +72,10 @@ func (cr *CommentRepository) FindByPost(postID uint, skip, limit int) ([]*model.
 // FindByUser finds some comments by user id
 func (cr *CommentRepository) FindByUser(userID uint, skip, limit int) ([]*model.Comment, error) {
 	var comments []*model.Comment
-	query := cr.db.Offset(skip).Where("user_id = ?", userID)
-	if limit > 0 {
-		query = query.Limit(limit)
+	if limit < 0 {
+		skip = -1
 	}
-	if err := query.Find(&comments).Error; err != nil {
+	if err := cr.db.Offset(skip).Where("user_id = ?", userID).Limit(limit).Find(&comments).Error; err != nil {
 		return nil, err
 	}
 	return comments, nil

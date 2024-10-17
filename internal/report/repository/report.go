@@ -49,10 +49,10 @@ func (r *Report) GetByPostUser(postID, userID uint) (*model.Report, error) {
 
 func (r *Report) GetSome(skip, limit int, status string) ([]*model.Report, error) {
 	var reports []*model.Report
-	query := r.db.Offset(skip)
-	if limit > 0 {
-		query = query.Limit(limit)
+	if limit < 0 {
+		skip = 0
 	}
+	query := r.db.Offset(skip).Limit(limit)
 	if status != "" {
 		query = query.Where("status = ?", status)
 	}
@@ -62,10 +62,10 @@ func (r *Report) GetSome(skip, limit int, status string) ([]*model.Report, error
 
 func (r *Report) GetByPost(postID uint, skip, limit int, status string) ([]*model.Report, error) {
 	var reports []*model.Report
-	query := r.db.Where("post_id = ?", postID).Offset(skip)
-	if limit > 0 {
-		query = query.Limit(limit)
+	if limit < 0 {
+		skip = 0
 	}
+	query := r.db.Where("post_id = ?", postID).Offset(skip).Limit(limit)
 	if status != "" {
 		query = query.Where("status = ?", status)
 	}
@@ -75,10 +75,10 @@ func (r *Report) GetByPost(postID uint, skip, limit int, status string) ([]*mode
 
 func (r *Report) GetByUser(userID uint, skip, limit int, status string) ([]*model.Report, error) {
 	var reports []*model.Report
-	query := r.db.Where("user_id = ?", userID).Offset(skip)
-	if limit > 0 {
-		query = query.Limit(limit)
+	if limit < 0 {
+		skip = 0
 	}
+	query := r.db.Where("user_id = ?", userID).Offset(skip).Limit(limit)
 	if status != "" {
 		query = query.Where("status = ?", status)
 	}
@@ -88,10 +88,10 @@ func (r *Report) GetByUser(userID uint, skip, limit int, status string) ([]*mode
 
 func (r *Report) GetByAdmin(adminID uint, skip, limit int, status string) ([]*model.Report, error) {
 	var reports []*model.Report
-	query := r.db.Where("admin_id", adminID).Offset(skip)
-	if limit > 0 {
-		query = query.Limit(limit)
+	if limit < 0 {
+		skip = 0
 	}
+	query := r.db.Where("admin_id", adminID).Offset(skip).Limit(limit)
 	if status != "" {
 		query = query.Where("status = ?", status)
 	}
