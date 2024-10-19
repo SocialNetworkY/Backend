@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/SocialNetworkY/Backend/internal/user/elasticsearch"
 	"github.com/SocialNetworkY/Backend/internal/user/gateway/post"
 	"github.com/SocialNetworkY/Backend/internal/user/gateway/report"
 	"github.com/SocialNetworkY/Backend/internal/user/repository"
@@ -21,6 +22,8 @@ type Config struct {
 	Port                  int      `env:"PORT"`
 	BodyLimit             string   `env:"BODY_LIMIT"`
 	AllowedOrigins        []string `env:"ALlOWED_ORIGINS" envSeparator:","`
+	UserElasticSearchAddr string   `env:"USER_ELASTICSEARCH_ADDR"`
+	BanElasticSearchAddr  string   `env:"BAN_ELASTICSEARCH_ADDR"`
 	AuthServiceHttpAddr   string   `env:"AUTH_SERVICE_HTTP_ADDR"`
 	AuthServiceGrpcAddr   string   `env:"AUTH_SERVICE_GRPC_ADDR"`
 	PostServiceHttpAddr   string   `env:"POST_SERVICE_HTTP_ADDR"`
@@ -41,7 +44,17 @@ func init() {
 }
 
 func main() {
-	repos, err := repository.New(mysql.Open(cfg.DB))
+	userElastic, err := elasticsearch.NewUser(cfg.UserElasticSearchAddr)
+	if err != nil {
+		log.Fatalf("User Elasticsearch err: %v", err)
+	}
+
+	banElastic, err := elasticsearch.NewBan(cfg.BanElasticSearchAddr)
+	if err != nil {
+		log.Fatalf("Ban Elasticsearch err: %v", err)
+	}
+
+	repos, err := repository.New(mysql.Open(cfg.DB), userElastic, banElastic)
 	if err != nil {
 		log.Fatal(err)
 	}

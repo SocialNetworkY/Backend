@@ -5,13 +5,23 @@ import (
 	"gorm.io/gorm"
 )
 
-type UserRepository struct {
-	db *gorm.DB
-}
+type (
+	UserSearch interface {
+		Index(user *model.User) error
+		Delete(id uint) error
+		Search(query string, skip, limit int) ([]uint, error)
+	}
 
-func NewUserRepository(db *gorm.DB) *UserRepository {
+	UserRepository struct {
+		db *gorm.DB
+		s  UserSearch
+	}
+)
+
+func NewUserRepository(db *gorm.DB, s UserSearch) *UserRepository {
 	return &UserRepository{
 		db: db,
+		s:  s,
 	}
 }
 
@@ -19,21 +29,21 @@ func (ur *UserRepository) Add(user *model.User) error {
 	if err := ur.db.Create(user).Error; err != nil {
 		return err
 	}
-	return nil
+	return ur.s.Index(user)
 }
 
 func (ur *UserRepository) Save(user *model.User) error {
 	if err := ur.db.Save(user).Error; err != nil {
 		return err
 	}
-	return nil
+	return ur.s.Index(user)
 }
 
 func (ur *UserRepository) Delete(user *model.User) error {
 	if err := ur.db.Delete(user).Error; err != nil {
 		return err
 	}
-	return nil
+	return ur.s.Delete(user.ID)
 }
 
 func (ur *UserRepository) ExistsByLogin(login string) (bool, error) {
@@ -127,5 +137,19 @@ func (ur *UserRepository) FindByNickname(nickname string, skip, limit int) ([]*m
 	if err := ur.db.Preload("Bans").Where("nickname = ?", nickname).Offset(skip).Limit(limit).Find(&users).Error; err != nil {
 		return nil, err
 	}
+	return users, nil
+}
+
+func (ur *UserRepository) Search(query string, skip, limit int) ([]*model.User, error) {
+	usersIDs, err := ur.s.Search(query, skip, limit)
+	if err != nil {
+		return nil, err
+	}
+
+	var users []*model.User
+	if err := ur.db.Preload("Bans").Where("id IN ?", usersIDs).Find(&users).Error; err != nil {
+		return nil, err
+	}
+
 	return users, nil
 }

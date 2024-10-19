@@ -22,6 +22,12 @@ func (h *Handler) initAdminApi(group *echo.Group) {
 			initUserEndpoints(users.Group(fmt.Sprintf("/@:%s", paramUsername), h.setUserByUsernameFromParam))
 		}
 
+		bans := admin.Group("/bans")
+		{
+			bans.GET("", h.getBans)
+			bans.GET("/search", h.searchBans)
+		}
+
 		admin.POST("/unban", h.unbanByBanID)
 	}
 }
@@ -127,4 +133,29 @@ func (h *Handler) getUserBans(c echo.Context) error {
 	}{
 		Bans: user.Bans,
 	})
+}
+
+func (h *Handler) getBans(c echo.Context) error {
+	skip, limit := skipLimitQuery(c)
+	bans, err := h.bs.FindSome(skip, limit)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+
+	return c.JSON(http.StatusOK, bans)
+}
+
+func (h *Handler) searchBans(c echo.Context) error {
+	query := c.QueryParam(queryQuery)
+	if query == "" {
+		return echo.NewHTTPError(http.StatusBadRequest, "missing query parameter")
+	}
+
+	skip, limit := skipLimitQuery(c)
+	bans, err := h.bs.Search(query, skip, limit)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+
+	return c.JSON(http.StatusOK, bans)
 }

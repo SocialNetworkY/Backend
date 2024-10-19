@@ -12,8 +12,10 @@ type (
 		Save(ban *model.Ban) error
 		Delete(id uint) error
 		Find(id uint) (*model.Ban, error)
+		FindSome(skip, limit int) ([]*model.Ban, error)
 		FindByUser(userID uint, skip, limit int) ([]*model.Ban, error)
 		FindByAdmin(adminID uint, skip, limit int) ([]*model.Ban, error)
+		Search(query string, skip, limit int) ([]*model.Ban, error)
 	}
 
 	BanService struct {
@@ -76,4 +78,14 @@ func (bs *BanService) Find(id uint) (*model.Ban, error) {
 // FindByUser returns all bans for a user
 func (bs *BanService) FindByUser(userID uint, skip, limit int) ([]*model.Ban, error) {
 	return bs.repo.FindByUser(userID, skip, limit)
+}
+
+// FindSome returns some bans
+func (bs *BanService) FindSome(skip, limit int) ([]*model.Ban, error) {
+	return bs.repo.FindSome(skip, limit)
+}
+
+// Search returns bans by query
+func (bs *BanService) Search(query string, skip, limit int) ([]*model.Ban, error) {
+	return bs.repo.Search(query, skip, limit)
 }

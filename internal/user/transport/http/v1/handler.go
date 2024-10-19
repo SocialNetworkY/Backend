@@ -20,11 +20,14 @@ type (
 		ChangeNickname(id uint, nickname string) error
 		ChangeAvatar(id uint, file io.ReadSeeker) error
 		Delete(id uint) error
+		Search(query string, skip, limit int) ([]*model.User, error)
 	}
 
 	BanService interface {
 		Ban(userID, adminID uint, reason string, duration time.Duration) error
 		Unban(banID, adminID uint, reason string) error
+		FindSome(skip, limit int) ([]*model.Ban, error)
+		Search(query string, skip, limit int) ([]*model.Ban, error)
 		Find(id uint) (*model.Ban, error)
 		FindByUser(userID uint, skip, limit int) ([]*model.Ban, error)
 	}

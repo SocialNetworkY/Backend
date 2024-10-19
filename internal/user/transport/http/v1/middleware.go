@@ -11,8 +11,16 @@ import (
 const (
 	userLocals      = "user"
 	requesterLocals = "requester"
-	paramUserID     = "userID"
-	paramUsername   = "username"
+
+	paramUserID   = "userID"
+	paramUsername = "username"
+
+	queryQuery = "query"
+	skipQuery  = "skip"
+	limitQuery = "limit"
+
+	defaultSkip  = 0
+	defaultLimit = 10
 )
 
 func (h *Handler) authenticationMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
@@ -97,4 +105,17 @@ func getUintParam(c echo.Context, key string) (uint, error) {
 	}
 
 	return uint(id), nil
+}
+
+func skipLimitQuery(c echo.Context) (int, int) {
+	skip := defaultSkip
+	if s, err := strconv.Atoi(c.QueryParam(skipQuery)); err == nil {
+		skip = s
+	}
+	limit := defaultLimit
+	if l, err := strconv.Atoi(c.QueryParam(limitQuery)); err == nil {
+		limit = l
+	}
+
+	return skip, limit
 }

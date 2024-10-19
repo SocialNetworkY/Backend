@@ -22,6 +22,7 @@ type (
 		FindByUsername(username string) (*model.User, error)
 		FindByEmail(email string) (*model.User, error)
 		FindByNickname(nickname string, skip, limit int) ([]*model.User, error)
+		Search(query string, skip, limit int) ([]*model.User, error)
 	}
 
 	AuthGateway interface {
@@ -231,4 +232,8 @@ func (us *UserService) Delete(id uint) error {
 	}
 
 	return us.repo.Delete(user)
+}
+
+func (us *UserService) Search(query string, skip, limit int) ([]*model.User, error) {
+	return us.repo.Search(query, skip, limit)
 }

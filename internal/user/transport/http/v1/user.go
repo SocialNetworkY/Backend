@@ -19,6 +19,7 @@ func (h *Handler) initUserApi(group *echo.Group) {
 
 	users := group.Group("/users")
 	{
+		users.GET("/search", h.searchUsers)
 		initUserEndpoints(users.Group(fmt.Sprintf("/@:%s", paramUsername), h.setUserByUsernameFromParam))
 		initUserEndpoints(users.Group(fmt.Sprintf("/:%s", paramUserID), h.setUserByIDFromParam))
 	}
@@ -147,4 +148,20 @@ func (h *Handler) deleteUser(c echo.Context) error {
 	}
 
 	return c.NoContent(http.StatusOK)
+}
+
+func (h *Handler) searchUsers(c echo.Context) error {
+	query := c.QueryParam(queryQuery)
+	if query == "" {
+		return echo.NewHTTPError(http.StatusBadRequest, "missing query parameter")
+	}
+
+	skip, limit := skipLimitQuery(c)
+
+	users, err := h.us.Search(query, skip, limit)
+	if err != nil {
+		return err
+	}
+
+	return c.JSON(http.StatusOK, users)
 }

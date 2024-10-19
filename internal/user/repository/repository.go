@@ -14,7 +14,7 @@ type Repository struct {
 	Ban  *BanRepository
 }
 
-func New(dialector gorm.Dialector) (*Repository, error) {
+func New(dialector gorm.Dialector, us UserSearch, bs BanSearch) (*Repository, error) {
 	log.Printf("Connecting %s...\n", dialector.Name())
 	db, err := gorm.Open(dialector, &gorm.Config{
 		Logger: logger.Default.LogMode(logger.Silent),
@@ -31,7 +31,7 @@ func New(dialector gorm.Dialector) (*Repository, error) {
 	log.Println("AutoMigrating completed")
 
 	return &Repository{
-		User: NewUserRepository(db),
-		Ban:  NewBanRepository(db),
+		User: NewUserRepository(db, us),
+		Ban:  NewBanRepository(db, bs),
 	}, nil
 }

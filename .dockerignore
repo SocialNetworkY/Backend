@@ -1,5 +1,7 @@
 Makefile
 .env
 .gitignore
+/kubernetes
 /db
 /storage
+/elastic
