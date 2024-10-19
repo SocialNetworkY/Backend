@@ -4,14 +4,15 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"log"
+	"strings"
+
 	"github.com/SocialNetworkY/Backend/internal/user/model"
 	"github.com/elastic/go-elasticsearch/v8"
 	"github.com/elastic/go-elasticsearch/v8/typedapi/core/search"
 	"github.com/elastic/go-elasticsearch/v8/typedapi/types"
 	"github.com/elastic/go-elasticsearch/v8/typedapi/types/enums/textquerytype"
 	"golang.org/x/net/context"
-	"log"
-	"strings"
 )
 
 type (
@@ -97,8 +98,9 @@ func (b *Ban) Search(query string, skip, limit int) ([]uint, error) {
 	}*/
 
 	res, err := b.client.Search().Index(banIndex).
-		From(skip).Size(limit).
 		Request(&search.Request{
+			From: &skip,
+			Size: &limit,
 			Query: &types.Query{
 				Bool: &types.BoolQuery{
 					Should: should,
