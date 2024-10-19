@@ -13,7 +13,7 @@ type Repository struct {
 	Report *Report
 }
 
-func New(dialector gorm.Dialector) (*Repository, error) {
+func New(dialector gorm.Dialector, rs ReportSearch) (*Repository, error) {
 	log.Printf("Connecting %s...\n", dialector.Name())
 	db, err := gorm.Open(dialector, &gorm.Config{
 		Logger: logger.Default.LogMode(logger.Silent),
@@ -30,6 +30,6 @@ func New(dialector gorm.Dialector) (*Repository, error) {
 	log.Println("AutoMigrating completed")
 
 	return &Repository{
-		Report: NewReport(db),
+		Report: NewReport(db, rs),
 	}, nil
 }

@@ -2,11 +2,12 @@ package v1
 
 import (
 	"fmt"
+	"net/http"
+	"strconv"
+
 	"github.com/SocialNetworkY/Backend/internal/report/model"
 	"github.com/SocialNetworkY/Backend/pkg/constant"
 	"github.com/labstack/echo/v4"
-	"net/http"
-	"strconv"
 )
 
 const (
@@ -15,6 +16,7 @@ const (
 	reportLocals    = "report"
 	requesterLocals = "requester"
 
+	queryQuery = "query"
 	skipQuery  = "skip"
 	limitQuery = "limit"
 

@@ -2,15 +2,18 @@ package v1
 
 import (
 	"fmt"
+	"net/http"
+
 	"github.com/SocialNetworkY/Backend/internal/report/model"
 	"github.com/labstack/echo/v4"
-	"net/http"
 )
 
 func (h *Handler) initReportApi(api *echo.Group) {
 	reports := api.Group("/reports", h.authMiddleware, h.banMiddleware)
 	{
 		reports.POST("", h.postReport)
+		reports.GET("/search", h.search, h.adminMiddleware)
+
 		report := reports.Group(fmt.Sprintf("/:%s", reportIDParam), h.setReportByIDMiddleware, h.checkAccessMiddleware)
 		{
 			report.GET("", h.get)
@@ -135,4 +138,20 @@ func (h *Handler) reject(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, report)
+}
+
+func (h *Handler) search(c echo.Context) error {
+	skip, limit := skipLimitQuery(c)
+
+	query := c.QueryParam(queryQuery)
+	if query == "" {
+		return echo.NewHTTPError(http.StatusBadRequest, "query is required")
+	}
+
+	reports, err := h.rs.Search(query, skip, limit)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+
+	return c.JSON(http.StatusOK, reports)
 }

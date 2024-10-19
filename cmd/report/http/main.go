@@ -1,9 +1,11 @@
 package main
 
 import (
+	"log"
+
+	"github.com/SocialNetworkY/Backend/internal/report/elasticsearch"
 	"github.com/SocialNetworkY/Backend/internal/report/gateway/post"
 	"github.com/SocialNetworkY/Backend/internal/report/transport/http"
-	"log"
 
 	"github.com/SocialNetworkY/Backend/internal/report/gateway/auth"
 	"github.com/SocialNetworkY/Backend/internal/report/gateway/user"
@@ -14,16 +16,17 @@ import (
 )
 
 type Config struct {
-	DB                  string   `env:"DB"`
-	Port                int      `env:"PORT"`
-	BodyLimit           string   `env:"BODY_LIMIT"`
-	AllowedOrigins      []string `env:"ALlOWED_ORIGINS" envSeparator:","`
-	AuthServiceHttpAddr string   `env:"AUTH_SERVICE_HTTP_ADDR"`
-	AuthServiceGrpcAddr string   `env:"AUTH_SERVICE_GRPC_ADDR"`
-	UserServiceHttpAddr string   `env:"USER_SERVICE_HTTP_ADDR"`
-	UserServiceGrpcAddr string   `env:"USER_SERVICE_GRPC_ADDR"`
-	PostServiceHttpAddr string   `env:"POST_SERVICE_HTTP_ADDR"`
-	PostServiceGrpcAddr string   `env:"POST_SERVICE_GRPC_ADDR"`
+	DB                      string   `env:"DB"`
+	Port                    int      `env:"PORT"`
+	BodyLimit               string   `env:"BODY_LIMIT"`
+	AllowedOrigins          []string `env:"ALlOWED_ORIGINS" envSeparator:","`
+	ReportElasticSearchAddr string   `env:"REPORT_ELASTICSEARCH_ADDR"`
+	AuthServiceHttpAddr     string   `env:"AUTH_SERVICE_HTTP_ADDR"`
+	AuthServiceGrpcAddr     string   `env:"AUTH_SERVICE_GRPC_ADDR"`
+	UserServiceHttpAddr     string   `env:"USER_SERVICE_HTTP_ADDR"`
+	UserServiceGrpcAddr     string   `env:"USER_SERVICE_GRPC_ADDR"`
+	PostServiceHttpAddr     string   `env:"POST_SERVICE_HTTP_ADDR"`
+	PostServiceGrpcAddr     string   `env:"POST_SERVICE_GRPC_ADDR"`
 }
 
 var (
@@ -37,7 +40,12 @@ func init() {
 }
 
 func main() {
-	repos, err := repository.New(mysql.Open(cfg.DB))
+	reportSearch, err := elasticsearch.NewReport(cfg.ReportElasticSearchAddr)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	repos, err := repository.New(mysql.Open(cfg.DB), reportSearch)
 	if err != nil {
 		log.Fatal(err)
 	}

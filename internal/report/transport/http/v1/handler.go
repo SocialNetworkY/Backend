@@ -2,9 +2,10 @@ package v1
 
 import (
 	"context"
+	"log"
+
 	"github.com/SocialNetworkY/Backend/internal/report/model"
 	"github.com/labstack/echo/v4"
-	"log"
 )
 
 type (
@@ -18,6 +19,7 @@ type (
 		GetByUser(userID uint, skip, limit int, status string) ([]*model.Report, error)
 		GetByAdmin(adminID uint, skip, limit int, status string) ([]*model.Report, error)
 		Delete(reportID uint) error
+		Search(query string, skip, limit int) ([]*model.Report, error)
 	}
 
 	AuthGateway interface {

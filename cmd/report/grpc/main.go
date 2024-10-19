@@ -1,8 +1,10 @@
 package main
 
 import (
-	"github.com/SocialNetworkY/Backend/internal/report/gateway/post"
 	"log"
+
+	"github.com/SocialNetworkY/Backend/internal/report/elasticsearch"
+	"github.com/SocialNetworkY/Backend/internal/report/gateway/post"
 
 	"github.com/SocialNetworkY/Backend/internal/report/repository"
 	"github.com/SocialNetworkY/Backend/internal/report/service"
@@ -13,10 +15,11 @@ import (
 )
 
 type Config struct {
-	DB                  string `env:"DB"`
-	Port                int    `env:"PORT"`
-	PostServiceHttpAddr string `env:"POST_SERVICE_HTTP_ADDR"`
-	PostServiceGrpcAddr string `env:"POST_SERVICE_GRPC_ADDR"`
+	DB                      string `env:"DB"`
+	Port                    int    `env:"PORT"`
+	ReportElasticSearchAddr string `env:"REPORT_ELASTICSEARCH_ADDR"`
+	PostServiceHttpAddr     string `env:"POST_SERVICE_HTTP_ADDR"`
+	PostServiceGrpcAddr     string `env:"POST_SERVICE_GRPC_ADDR"`
 }
 
 var (
@@ -30,7 +33,12 @@ func init() {
 }
 
 func main() {
-	repos, err := repository.New(mysql.Open(cfg.DB))
+	reportSearch, err := elasticsearch.NewReport(cfg.ReportElasticSearchAddr)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	repos, err := repository.New(mysql.Open(cfg.DB), reportSearch)
 	if err != nil {
 		log.Fatal(err)
 	}

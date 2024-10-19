@@ -241,6 +241,7 @@ services:
             PORT: 8086
             BODY_LIMIT: 20MB
             ALLOWED_ORIGINS: "*"
+            REPORT_ELASTICSEARCH_ADDR: http://nginx:80/elastic
             AUTH_SERVICE_HTTP_ADDR: http://nginx:80/auth
             AUTH_SERVICE_GRPC_ADDR: auth-grpc-service:8081
             USER_SERVICE_HTTP_ADDR: http://nginx:80/user
@@ -262,6 +263,7 @@ services:
         environment:
             DB: myuser:strongpass@tcp(report-db:3306)/mydb?parseTime=true
             PORT: 8087
+            REPORT_ELASTICSEARCH_ADDR: http://nginx:80/elastic
             POST_SERVICE_HTTP_ADDR: http://nginx:80/post
             POST_SERVICE_GRPC_ADDR: post-grpc-service:8085
         networks:
