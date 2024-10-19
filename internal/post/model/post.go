@@ -4,8 +4,9 @@ import (
 	"database/sql/driver"
 	"encoding/json"
 	"errors"
-	"gorm.io/gorm"
 	"time"
+
+	"gorm.io/gorm"
 )
 
 // StringArray is a custom type for []string
@@ -27,7 +28,7 @@ func (a *StringArray) Scan(value interface{}) error {
 }
 
 type Post struct {
-	ID             uint        `json:"id" gorm:"primary_key"`
+	ID             uint        `json:"id" gorm:"primaryKey"`
 	UserID         uint        `json:"user_id"`
 	Title          string      `json:"title"`
 	Content        string      `json:"content"`
