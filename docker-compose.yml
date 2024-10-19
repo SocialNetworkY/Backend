@@ -13,6 +13,18 @@ services:
             - user-http-service
             - post-http-service
 
+    elastic:
+        image: docker.elastic.co/elasticsearch/elasticsearch:8.15.3
+        container_name: elastic
+        environment:
+            discovery.type: single-node
+            xpack.security.enabled: false
+            xpack.security.http.ssl.enabled: false
+        networks:
+            - services
+        volumes:
+            - elastic:/usr/share/elasticsearch/data
+
     auth-http-service:
         build:
             context: .
@@ -89,8 +101,8 @@ services:
             BODY_LIMIT: 50MB
             ALLOWED_ORIGINS: "*"
             STORAGE_FOLDER: ./storage
-            USER_ELASTICSEARCH_ADDR: http://nginx:80/user/elastic
-            BAN_ELASTICSEARCH_ADDR: http://nginx:80/user/elastic
+            USER_ELASTICSEARCH_ADDR: http://nginx:80/elastic
+            BAN_ELASTICSEARCH_ADDR: http://nginx:80/elastic
             AUTH_SERVICE_HTTP_ADDR: http://nginx:80/auth
             AUTH_SERVICE_GRPC_ADDR: auth-grpc-service:8081
             POST_SERVICE_HTTP_ADDR: http://nginx:80/post
@@ -115,8 +127,8 @@ services:
             DB: myuser:strongpass@tcp(user-db:3306)/mydb?parseTime=true
             PORT: 8083
             STORAGE_FOLDER: ./storage
-            USER_ELASTICSEARCH_ADDR: http://nginx:80/user/elastic
-            BAN_ELASTICSEARCH_ADDR: http://nginx:80/user/elastic
+            USER_ELASTICSEARCH_ADDR: http://nginx:80/elastic
+            BAN_ELASTICSEARCH_ADDR: http://nginx:80/elastic
             AUTH_SERVICE_HTTP_ADDR: http://nginx:80/auth
             AUTH_SERVICE_GRPC_ADDR: auth-grpc-service:8081
             POST_SERVICE_HTTP_ADDR: http://nginx:80/post
@@ -150,18 +162,6 @@ services:
             test: [ "CMD", "mysqladmin", "ping", "-h", "localhost" ]
             timeout: 20s
             retries: 10
-
-    user-elastic:
-        image: docker.elastic.co/elasticsearch/elasticsearch:8.15.3
-        container_name: user-elastic
-        environment:
-            discovery.type: single-node
-            xpack.security.enabled: false
-            xpack.security.http.ssl.enabled: false
-        networks:
-            - services
-        volumes:
-            -   user-elastic:/usr/share/elasticsearch/data
 
     post-http-service:
         build:
@@ -285,6 +285,12 @@ services:
             retries: 10
 
 volumes:
+    elastic:
+        driver: local
+        driver_opts:
+            type: none
+            o: bind
+            device: ./elastic
     auth_db_data:
         driver: local
         driver_opts:
@@ -303,12 +309,6 @@ volumes:
             type: none
             o: bind
             device: ./storage/user
-    user-elastic:
-        driver: local
-        driver_opts:
-            type: none
-            o: bind
-            device: ./elastic/user
     post_db_data:
         driver: local
         driver_opts:
