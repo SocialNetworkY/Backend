@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"errors"
+
 	"github.com/SocialNetworkY/Backend/internal/report/model"
 )
 
@@ -11,8 +12,6 @@ type (
 		Add(report *model.Report) error
 		Save(report *model.Report) error
 		Delete(id uint) error
-		DeleteByUser(userID uint) error
-		DeleteByPost(postID uint) error
 		Get(id uint) (*model.Report, error)
 		GetByPostUser(postID, userID uint) (*model.Report, error)
 		GetSome(skip, limit int, status string) ([]*model.Report, error)
@@ -104,11 +103,33 @@ func (r *Report) Delete(reportID uint) error {
 }
 
 func (r *Report) DeleteByUser(userID uint) error {
-	return r.repo.DeleteByUser(userID)
+	reports, err := r.repo.GetByUser(userID, 0, -1, "")
+	if err != nil {
+		return err
+	}
+
+	for _, report := range reports {
+		if err := r.Delete(report.ID); err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 func (r *Report) DeleteByPost(postID uint) error {
-	return r.repo.DeleteByPost(postID)
+	reports, err := r.repo.GetByPost(postID, 0, -1, "")
+	if err != nil {
+		return err
+	}
+
+	for _, report := range reports {
+		if err := r.Delete(report.ID); err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 func (r *Report) Get(reportID uint) (*model.Report, error) {

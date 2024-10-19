@@ -27,14 +27,6 @@ func (r *Report) Delete(id uint) error {
 	return r.db.Delete(&model.Report{}, id).Error
 }
 
-func (r *Report) DeleteByUser(userID uint) error {
-	return r.db.Where("user_id = ?", userID).Delete(&model.Report{}).Error
-}
-
-func (r *Report) DeleteByPost(postID uint) error {
-	return r.db.Where("post_id = ?", postID).Delete(&model.Report{}).Error
-}
-
 func (r *Report) Get(id uint) (*model.Report, error) {
 	var report model.Report
 	err := r.db.First(&report, id).Error
