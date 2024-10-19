@@ -2,15 +2,18 @@ package v1
 
 import (
 	"fmt"
+	"net/http"
+
 	"github.com/SocialNetworkY/Backend/internal/post/model"
 	"github.com/SocialNetworkY/Backend/pkg/constant"
 	"github.com/labstack/echo/v4"
-	"net/http"
 )
 
 func (h *Handler) initCommentsApi(api *echo.Group) {
 	comments := api.Group("/comments")
 	{
+		comments.GET("/search", h.searchComments)
+
 		commentID := comments.Group(fmt.Sprintf("/:%s", commentIDParam), h.setCommentByIDMiddleware)
 		{
 			commentID.PUT("", h.changeComment, h.authenticationMiddleware)
@@ -79,4 +82,19 @@ func (h *Handler) deleteComment(c echo.Context) error {
 	}
 
 	return c.NoContent(http.StatusNoContent)
+}
+
+func (h *Handler) searchComments(c echo.Context) error {
+	skip, limit := skipLimitQuery(c)
+	query := c.QueryParam(queryQuery)
+	if query == "" {
+		return echo.NewHTTPError(http.StatusBadRequest, "query is required")
+	}
+
+	comments, err := h.cs.Search(query, skip, limit)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+
+	return c.JSON(http.StatusOK, comments)
 }

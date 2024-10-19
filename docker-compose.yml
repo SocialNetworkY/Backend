@@ -174,6 +174,9 @@ services:
             BODY_LIMIT: 500MB
             ALLOWED_ORIGINS: "*"
             STORAGE_FOLDER: ./storage
+            POST_ELASTICSEARCH_ADDR: http://nginx:80/elastic
+            COMMENT_ELASTICSEARCH_ADDR: http://nginx:80/elastic
+            TAG_ELASTICSEARCH_ADDR: http://nginx:80/elastic
             AUTH_SERVICE_HTTP_ADDR: http://nginx:80/auth
             AUTH_SERVICE_GRPC_ADDR: auth-grpc-service:8081
             USER_SERVICE_HTTP_ADDR: http://nginx:80/user
@@ -197,6 +200,9 @@ services:
         environment:
             DB: myuser:strongpass@tcp(post-db:3306)/mydb?parseTime=true
             PORT: 8085
+            POST_ELASTICSEARCH_ADDR: http://nginx:80/elastic
+            COMMENT_ELASTICSEARCH_ADDR: http://nginx:80/elastic
+            TAG_ELASTICSEARCH_ADDR: http://nginx:80/elastic
             REPORT_SERVICE_HTTP_ADDR: http://nginx:80/report
             REPORT_SERVICE_GRPC_ADDR: report-grpc-service:8087
         networks:

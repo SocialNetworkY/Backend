@@ -2,10 +2,11 @@ package v1
 
 import (
 	"context"
-	"github.com/SocialNetworkY/Backend/internal/post/model"
-	"github.com/labstack/echo/v4"
 	"io"
 	"log"
+
+	"github.com/SocialNetworkY/Backend/internal/post/model"
+	"github.com/labstack/echo/v4"
 )
 
 type (
@@ -16,6 +17,7 @@ type (
 		Find(id uint) (*model.Post, error)
 		FindSome(skip, limit int) ([]*model.Post, error)
 		FindByUser(userID uint, skip, limit int) ([]*model.Post, error)
+		Search(query string, skip, limit int) ([]*model.Post, error)
 	}
 
 	LikeService interface {
@@ -29,6 +31,7 @@ type (
 		CommentPost(postID, userID uint, content string) error
 		Edit(id, userID uint, content string) error
 		Delete(id uint) error
+		Search(query string, skip, limit int) ([]*model.Comment, error)
 	}
 
 	AuthGateway interface {

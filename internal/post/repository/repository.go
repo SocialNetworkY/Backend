@@ -16,7 +16,7 @@ type Repository struct {
 	Tag     *TagRepository
 }
 
-func New(dialector gorm.Dialector) (*Repository, error) {
+func New(dialector gorm.Dialector, ps PostSearch, cs CommentSearch, ts TagSearch) (*Repository, error) {
 	log.Printf("Connecting %s...\n", dialector.Name())
 	db, err := gorm.Open(dialector, &gorm.Config{
 		Logger: logger.Default.LogMode(logger.Silent),
@@ -33,9 +33,9 @@ func New(dialector gorm.Dialector) (*Repository, error) {
 	log.Println("AutoMigrating completed")
 
 	return &Repository{
-		Post:    NewPostRepository(db),
-		Comment: NewCommentRepository(db),
+		Post:    NewPostRepository(db, ps),
+		Comment: NewCommentRepository(db, cs),
 		Like:    NewLikeRepository(db),
-		Tag:     NewTagRepository(db),
+		Tag:     NewTagRepository(db, ts),
 	}, nil
 }

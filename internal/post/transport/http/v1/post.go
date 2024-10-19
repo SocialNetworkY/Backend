@@ -2,13 +2,14 @@ package v1
 
 import (
 	"fmt"
-	"github.com/SocialNetworkY/Backend/internal/post/model"
-	"github.com/SocialNetworkY/Backend/pkg/constant"
-	"github.com/labstack/echo/v4"
 	"mime/multipart"
 	"net/http"
 	"strings"
 	"time"
+
+	"github.com/SocialNetworkY/Backend/internal/post/model"
+	"github.com/SocialNetworkY/Backend/pkg/constant"
+	"github.com/labstack/echo/v4"
 )
 
 const (
@@ -20,6 +21,7 @@ func (h *Handler) initPostApi(api *echo.Group) {
 	posts := api.Group("/posts")
 	{
 		posts.GET("", h.getPosts)
+		posts.GET("/search", h.searchPosts)
 		posts.POST("", h.createPost, h.authenticationMiddleware, h.banMiddleware)
 		posts.GET(fmt.Sprintf("/users/:%s", userIDParam), h.getPostsByUserID, h.setUserByIDMiddleware)
 
@@ -374,4 +376,20 @@ func (h *Handler) commentPost(c echo.Context) error {
 	}
 
 	return c.NoContent(http.StatusNoContent)
+}
+
+func (h *Handler) searchPosts(c echo.Context) error {
+	skip, limit := skipLimitQuery(c)
+
+	query := c.QueryParam(queryQuery)
+	if query == "" {
+		return echo.NewHTTPError(http.StatusBadRequest, "query is required")
+	}
+
+	posts, err := h.ps.Search(query, skip, limit)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+
+	return c.JSON(http.StatusOK, posts)
 }

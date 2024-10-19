@@ -2,11 +2,12 @@ package v1
 
 import (
 	"fmt"
+	"net/http"
+	"strconv"
+
 	"github.com/SocialNetworkY/Backend/internal/post/model"
 	"github.com/SocialNetworkY/Backend/pkg/constant"
 	"github.com/labstack/echo/v4"
-	"net/http"
-	"strconv"
 )
 
 const (
@@ -21,6 +22,7 @@ const (
 
 	skipQuery  = "skip"
 	limitQuery = "limit"
+	queryQuery = "query"
 
 	defaultSkip  = 0
 	defaultLimit = 10

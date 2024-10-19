@@ -1,10 +1,12 @@
 package main
 
 import (
+	"log"
+
+	"github.com/SocialNetworkY/Backend/internal/post/elasticsearch"
 	"github.com/SocialNetworkY/Backend/internal/post/gateway/report"
 	"github.com/SocialNetworkY/Backend/internal/post/repository"
 	"gorm.io/driver/mysql"
-	"log"
 
 	"github.com/SocialNetworkY/Backend/internal/post/service"
 	"github.com/SocialNetworkY/Backend/internal/post/transport/grpc"
@@ -13,10 +15,13 @@ import (
 )
 
 type Config struct {
-	DB                    string `env:"DB"`
-	Port                  int    `env:"PORT"`
-	ReportServiceHttpAddr string `env:"REPORT_SERVICE_HTTP_ADDR"`
-	ReportServiceGrpcAddr string `env:"REPORT_SERVICE_GRPC_ADDR"`
+	DB                       string `env:"DB"`
+	Port                     int    `env:"PORT"`
+	PostElasticSearchAddr    string `env:"POST_ELASTICSEARCH_ADDR"`
+	TagElasticSearchAddr     string `env:"TAG_ELASTICSEARCH_ADDR"`
+	CommentElasticSearchAddr string `env:"COMMENT_ELASTICSEARCH_ADDR"`
+	ReportServiceHttpAddr    string `env:"REPORT_SERVICE_HTTP_ADDR"`
+	ReportServiceGrpcAddr    string `env:"REPORT_SERVICE_GRPC_ADDR"`
 }
 
 var (
@@ -30,7 +35,22 @@ func init() {
 }
 
 func main() {
-	repos, err := repository.New(mysql.Open(cfg.DB))
+	postSearch, err := elasticsearch.NewPost(cfg.PostElasticSearchAddr)
+	if err != nil {
+		log.Fatalf("Post Elasticsearch err: %v", err)
+	}
+
+	tagSearch, err := elasticsearch.NewTag(cfg.TagElasticSearchAddr)
+	if err != nil {
+		log.Fatalf("Tag Elasticsearch err: %v", err)
+	}
+
+	commentSearch, err := elasticsearch.NewComment(cfg.CommentElasticSearchAddr)
+	if err != nil {
+		log.Fatalf("Comment Elasticsearch err: %v", err)
+	}
+
+	repos, err := repository.New(mysql.Open(cfg.DB), postSearch, commentSearch, tagSearch)
 	if err != nil {
 		log.Fatal(err)
 	}
