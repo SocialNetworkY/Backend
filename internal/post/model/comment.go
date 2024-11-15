@@ -11,7 +11,7 @@ type Comment struct {
 	UserID   uint   `json:"user_id"`
 	PostID   uint   `json:"post_id"`
 	Content  string `json:"content"`
-	Edited   bool   `json:"edited"`
+	Edited   bool   `json:"edited" gorm:"-"`
 	EditedBy uint   `json:"edited_by"`
 
 	CreatedAt time.Time      `json:"created_at"`

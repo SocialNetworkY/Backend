@@ -1,10 +1,11 @@
 package validator
 
 import (
-	"github.com/dlclark/regexp2"
-	"github.com/go-playground/validator"
-	"github.com/labstack/echo/v4"
 	"net/http"
+
+	"github.com/dlclark/regexp2"
+	"github.com/go-playground/validator/v10"
+	"github.com/labstack/echo/v4"
 )
 
 type EchoCustomValidator struct {
@@ -12,8 +13,8 @@ type EchoCustomValidator struct {
 }
 
 var (
-	usernameRegex = regexp2.MustCompile("^[a-zA-Z0-9]{3,20}$", 0)
-	passwordRegex = regexp2.MustCompile("^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d]{8,}$", 0)
+	usernameRegex = regexp2.MustCompile("^[a-zA-Z0-9]{3,52}$", 0)
+	passwordRegex = regexp2.MustCompile("^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d]{8,255}$", 0)
 )
 
 func NewEchoCustomValidator() *EchoCustomValidator {
