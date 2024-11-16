@@ -12,6 +12,7 @@ services:
             - auth-http-service
             - user-http-service
             - post-http-service
+            - report-http-service
 
     elastic:
         image: docker.elastic.co/elasticsearch/elasticsearch:8.15.3
@@ -101,8 +102,8 @@ services:
             BODY_LIMIT: 50MB
             ALLOWED_ORIGINS: "*"
             STORAGE_FOLDER: ./storage
-            USER_ELASTICSEARCH_ADDR: http://nginx:80/elastic
-            BAN_ELASTICSEARCH_ADDR: http://nginx:80/elastic
+            USER_ELASTICSEARCH_ADDR: http://elastic:9200
+            BAN_ELASTICSEARCH_ADDR: http://elastic:9200
             AUTH_SERVICE_HTTP_ADDR: http://nginx:80/auth
             AUTH_SERVICE_GRPC_ADDR: auth-grpc-service:8081
             POST_SERVICE_HTTP_ADDR: http://nginx:80/post
@@ -117,6 +118,8 @@ services:
         depends_on:
             user-db:
                condition: service_healthy
+            elastic:
+                condition: service_started
 
     user-grpc-service:
         build:
@@ -127,8 +130,8 @@ services:
             DB: myuser:strongpass@tcp(user-db:3306)/mydb?parseTime=true
             PORT: 8083
             STORAGE_FOLDER: ./storage
-            USER_ELASTICSEARCH_ADDR: http://nginx:80/elastic
-            BAN_ELASTICSEARCH_ADDR: http://nginx:80/elastic
+            USER_ELASTICSEARCH_ADDR: http://elastic:9200
+            BAN_ELASTICSEARCH_ADDR: http://elastic:9200
             AUTH_SERVICE_HTTP_ADDR: http://nginx:80/auth
             AUTH_SERVICE_GRPC_ADDR: auth-grpc-service:8081
             POST_SERVICE_HTTP_ADDR: http://nginx:80/post
@@ -143,6 +146,8 @@ services:
         depends_on:
             user-db:
                 condition: service_healthy
+            elastic:
+                condition: service_started
 
     user-db:
         image: mysql:latest
@@ -174,9 +179,9 @@ services:
             BODY_LIMIT: 500MB
             ALLOWED_ORIGINS: "*"
             STORAGE_FOLDER: ./storage
-            POST_ELASTICSEARCH_ADDR: http://nginx:80/elastic
-            COMMENT_ELASTICSEARCH_ADDR: http://nginx:80/elastic
-            TAG_ELASTICSEARCH_ADDR: http://nginx:80/elastic
+            POST_ELASTICSEARCH_ADDR: http://elastic:9200
+            COMMENT_ELASTICSEARCH_ADDR: http://elastic:9200
+            TAG_ELASTICSEARCH_ADDR: http://elastic:9200
             AUTH_SERVICE_HTTP_ADDR: http://nginx:80/auth
             AUTH_SERVICE_GRPC_ADDR: auth-grpc-service:8081
             USER_SERVICE_HTTP_ADDR: http://nginx:80/user
@@ -191,6 +196,8 @@ services:
         depends_on:
             post-db:
                 condition: service_healthy
+            elastic:
+                condition: service_started
 
     post-grpc-service:
         build:
@@ -200,9 +207,9 @@ services:
         environment:
             DB: myuser:strongpass@tcp(post-db:3306)/mydb?parseTime=true
             PORT: 8085
-            POST_ELASTICSEARCH_ADDR: http://nginx:80/elastic
-            COMMENT_ELASTICSEARCH_ADDR: http://nginx:80/elastic
-            TAG_ELASTICSEARCH_ADDR: http://nginx:80/elastic
+            POST_ELASTICSEARCH_ADDR: http://elastic:9200
+            COMMENT_ELASTICSEARCH_ADDR: http://elastic:9200
+            TAG_ELASTICSEARCH_ADDR: http://elastic:9200
             REPORT_SERVICE_HTTP_ADDR: http://nginx:80/report
             REPORT_SERVICE_GRPC_ADDR: report-grpc-service:8087
         networks:
@@ -211,6 +218,8 @@ services:
         depends_on:
             post-db:
                 condition: service_healthy
+            elastic:
+                condition: service_started
 
     post-db:
         image: mysql:latest
@@ -241,7 +250,7 @@ services:
             PORT: 8086
             BODY_LIMIT: 20MB
             ALLOWED_ORIGINS: "*"
-            REPORT_ELASTICSEARCH_ADDR: http://nginx:80/elastic
+            REPORT_ELASTICSEARCH_ADDR: http://elastic:9200
             AUTH_SERVICE_HTTP_ADDR: http://nginx:80/auth
             AUTH_SERVICE_GRPC_ADDR: auth-grpc-service:8081
             USER_SERVICE_HTTP_ADDR: http://nginx:80/user
@@ -254,6 +263,8 @@ services:
         depends_on:
             report-db:
                 condition: service_healthy
+            elastic:
+                condition: service_started
 
     report-grpc-service:
         build:
@@ -263,7 +274,7 @@ services:
         environment:
             DB: myuser:strongpass@tcp(report-db:3306)/mydb?parseTime=true
             PORT: 8087
-            REPORT_ELASTICSEARCH_ADDR: http://nginx:80/elastic
+            REPORT_ELASTICSEARCH_ADDR: http://elastic:9200
             POST_SERVICE_HTTP_ADDR: http://nginx:80/post
             POST_SERVICE_GRPC_ADDR: post-grpc-service:8085
         networks:
@@ -272,6 +283,8 @@ services:
         depends_on:
             report-db:
                 condition: service_healthy
+            elastic:
+                condition: service_started
 
     report-db:
         image: mysql:latest
