@@ -19,6 +19,9 @@ services:
         container_name: elastic
         environment:
             discovery.type: single-node
+            cluster.routing.allocation.disk.watermark.low: 10gb
+            cluster.routing.allocation.disk.watermark.high: 5gb
+            cluster.routing.allocation.disk.watermark.flood_stage: 1gb
             xpack.security.enabled: false
             xpack.security.http.ssl.enabled: false
         networks:
