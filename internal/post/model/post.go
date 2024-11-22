@@ -40,6 +40,7 @@ type Post struct {
 	CommentsAmount uint        `json:"comments_amount" gorm:"-"`
 	Likes          []*Like     `json:"likes"`
 	LikesAmount    uint        `json:"likes_amount" gorm:"-"`
+	Liked          bool        `json:"is_liked" gorm:"-"`
 	PostedAt       time.Time   `json:"posted_at"`
 	Edited         bool        `json:"edited" gorm:"-"`
 	EditedBy       uint        `json:"edited_by"`
@@ -54,6 +55,12 @@ func (p *Post) AfterFind(tx *gorm.DB) (err error) {
 	p.TagsAmount = uint(len(p.Tags))
 	p.CommentsAmount = uint(len(p.Comments))
 	p.LikesAmount = uint(len(p.Likes))
+	for _, like := range p.Likes {
+		if p.UserID == like.UserID {
+			p.Liked = true
+			break
+		}
+	}
 	p.Edited = p.EditedBy != 0
 	return nil
 }
