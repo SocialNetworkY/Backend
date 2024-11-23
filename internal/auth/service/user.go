@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"errors"
+
 	"github.com/SocialNetworkY/Backend/internal/auth/model"
 	"github.com/SocialNetworkY/Backend/pkg/constant"
 )
@@ -132,11 +133,6 @@ func (us *UserService) Activate(activationToken string) (accessToken, refreshTok
 		return "", "", err
 	}
 
-	accessToken, refreshToken, err = us.tokenService.Generate(user.ID)
-	if err != nil {
-		return "", "", err
-	}
-
 	if err := us.userGateway.CreateUser(context.Background(), user.ID, constant.RoleUser, user.Username, user.Email); err != nil {
 		return "", "", err
 	}
@@ -147,6 +143,11 @@ func (us *UserService) Activate(activationToken string) (accessToken, refreshTok
 	}
 
 	if err := us.activationTokenService.Delete(token.UserID); err != nil {
+		return "", "", err
+	}
+
+	accessToken, refreshToken, err = us.tokenService.Generate(user.ID)
+	if err != nil {
 		return "", "", err
 	}
 
