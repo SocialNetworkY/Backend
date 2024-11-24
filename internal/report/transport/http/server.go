@@ -34,7 +34,8 @@ func New(bodyLimit string, allowedOrigins []string, port int) *Server {
 	}))
 
 	corsConfig := middleware.CORSConfig{
-		AllowOrigins: allowedOrigins,
+		AllowOrigins:     allowedOrigins,
+		AllowCredentials: true,
 	}
 	e.Use(middleware.CORSWithConfig(corsConfig))
 

@@ -2,11 +2,12 @@ package http
 
 import (
 	"fmt"
+	"log"
+	"net/http"
+
 	"github.com/SocialNetworkY/Backend/internal/user/transport/http/v1"
 	"github.com/SocialNetworkY/Backend/pkg/binder"
 	"github.com/SocialNetworkY/Backend/pkg/validator"
-	"log"
-	"net/http"
 
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
@@ -32,7 +33,8 @@ func New(bodyLimit string, allowedOrigins []string, port int) *Server {
 	}))
 
 	corsConfig := middleware.CORSConfig{
-		AllowOrigins: allowedOrigins,
+		AllowOrigins:     allowedOrigins,
+		AllowCredentials: true,
 	}
 	e.Use(middleware.CORSWithConfig(corsConfig))
 
