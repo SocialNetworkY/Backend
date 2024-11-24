@@ -38,7 +38,7 @@ services:
             DB: myuser:strongpass@tcp(auth-db:3306)/mydb?parseTime=true
             PORT: 8080
             BODY_LIMIT: 20MB
-            ALLOWED_ORIGINS: "*"
+            ALLOWED_ORIGINS: "http://localhost:3000"
             HASH_SALT: "hashSalt"
             JWT_SECRET: "accessPass"
             JWT_DURATION: "1h"
@@ -103,7 +103,7 @@ services:
             DB: myuser:strongpass@tcp(user-db:3306)/mydb?parseTime=true
             PORT: 8082
             BODY_LIMIT: 50MB
-            ALLOWED_ORIGINS: "*"
+            ALLOWED_ORIGINS: "http://localhost:3000"
             STORAGE_FOLDER: ./storage
             USER_ELASTICSEARCH_ADDR: http://elastic:9200
             BAN_ELASTICSEARCH_ADDR: http://elastic:9200
@@ -180,7 +180,7 @@ services:
             DB: myuser:strongpass@tcp(post-db:3306)/mydb?parseTime=true
             PORT: 8084
             BODY_LIMIT: 500MB
-            ALLOWED_ORIGINS: "*"
+            ALLOWED_ORIGINS: "http://localhost:3000"
             STORAGE_FOLDER: ./storage
             POST_ELASTICSEARCH_ADDR: http://elastic:9200
             COMMENT_ELASTICSEARCH_ADDR: http://elastic:9200
@@ -252,7 +252,7 @@ services:
             DB: myuser:strongpass@tcp(report-db:3306)/mydb?parseTime=true
             PORT: 8086
             BODY_LIMIT: 20MB
-            ALLOWED_ORIGINS: "*"
+            ALLOWED_ORIGINS: "http://localhost:3000"
             REPORT_ELASTICSEARCH_ADDR: http://elastic:9200
             AUTH_SERVICE_HTTP_ADDR: http://nginx:80/auth
             AUTH_SERVICE_GRPC_ADDR: auth-grpc-service:8081
