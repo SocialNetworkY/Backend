@@ -22,7 +22,7 @@ type Config struct {
 	DB                       string   `env:"DB"`
 	Port                     int      `env:"PORT"`
 	BodyLimit                string   `env:"BODY_LIMIT"`
-	AllowedOrigins           []string `env:"ALlOWED_ORIGINS" envSeparator:","`
+	AllowedOrigins           []string `env:"ALLOWED_ORIGINS" envSeparator:","`
 	PostElasticSearchAddr    string   `env:"POST_ELASTICSEARCH_ADDR"`
 	TagElasticSearchAddr     string   `env:"TAG_ELASTICSEARCH_ADDR"`
 	CommentElasticSearchAddr string   `env:"COMMENT_ELASTICSEARCH_ADDR"`

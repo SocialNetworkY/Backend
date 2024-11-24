@@ -1,10 +1,11 @@
 package main
 
 import (
-	"github.com/SocialNetworkY/Backend/internal/auth/repository"
-	"gorm.io/driver/mysql"
 	"log"
 	"time"
+
+	"github.com/SocialNetworkY/Backend/internal/auth/repository"
+	"gorm.io/driver/mysql"
 
 	"github.com/SocialNetworkY/Backend/internal/auth/gateway/user"
 	"github.com/SocialNetworkY/Backend/internal/auth/service"
@@ -20,7 +21,7 @@ type Config struct {
 	DB                  string        `env:"DB"`
 	Port                int           `env:"PORT"`
 	BodyLimit           string        `env:"BODY_LIMIT"`
-	AllowedOrigins      []string      `env:"ALlOWED_ORIGINS" envSeparator:","`
+	AllowedOrigins      []string      `env:"ALLOWED_ORIGINS" envSeparator:","`
 	HashSalt            string        `env:"HASH_SALT"`
 	JWTSecret           string        `env:"JWT_SECRET"`
 	JWTDuration         time.Duration `env:"JWT_DURATION"`

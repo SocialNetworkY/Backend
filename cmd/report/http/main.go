@@ -19,7 +19,7 @@ type Config struct {
 	DB                      string   `env:"DB"`
 	Port                    int      `env:"PORT"`
 	BodyLimit               string   `env:"BODY_LIMIT"`
-	AllowedOrigins          []string `env:"ALlOWED_ORIGINS" envSeparator:","`
+	AllowedOrigins          []string `env:"ALLOWED_ORIGINS" envSeparator:","`
 	ReportElasticSearchAddr string   `env:"REPORT_ELASTICSEARCH_ADDR"`
 	AuthServiceHttpAddr     string   `env:"AUTH_SERVICE_HTTP_ADDR"`
 	AuthServiceGrpcAddr     string   `env:"AUTH_SERVICE_GRPC_ADDR"`
