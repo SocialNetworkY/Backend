@@ -12,7 +12,7 @@ require (
 	github.com/golang-jwt/jwt/v4 v4.5.0
 	github.com/hashicorp/consul/api v1.29.4
 	github.com/labstack/echo/v4 v4.12.0
-	github.com/stretchr/testify v1.9.0
+	github.com/stretchr/testify v1.10.0
 	golang.org/x/net v0.27.0
 	google.golang.org/api v0.171.0
 	google.golang.org/grpc v1.65.0
@@ -61,6 +61,7 @@ require (
 	github.com/mitchellh/go-homedir v1.1.0 // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
 	github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 // indirect
+	github.com/stretchr/objx v0.5.2 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/fasttemplate v1.2.2 // indirect
 	go.opencensus.io v0.24.0 // indirect
