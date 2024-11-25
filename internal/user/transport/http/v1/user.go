@@ -2,11 +2,12 @@ package v1
 
 import (
 	"fmt"
+	"mime/multipart"
+	"net/http"
+
 	"github.com/SocialNetworkY/Backend/internal/user/model"
 	"github.com/SocialNetworkY/Backend/pkg/constant"
 	"github.com/labstack/echo/v4"
-	"mime/multipart"
-	"net/http"
 )
 
 func (h *Handler) initUserApi(group *echo.Group) {
@@ -32,12 +33,12 @@ func (h *Handler) getUser(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, struct {
-		UserID   uint   `json:"user_id"`
+		ID       uint   `json:"id"`
 		Username string `json:"username"`
 		Nickname string `json:"nickname"`
 		Avatar   string `json:"avatar"`
 	}{
-		UserID:   user.ID,
+		ID:       user.ID,
 		Username: user.Username,
 		Nickname: user.Nickname,
 		Avatar:   user.Avatar,
