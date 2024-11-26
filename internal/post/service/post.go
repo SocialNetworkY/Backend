@@ -18,6 +18,7 @@ type (
 		FindByTag(tagID uint, skip, limit int) ([]*model.Post, error)
 		ClearAssociations(postID uint) error
 		Search(query string, skip, limit int) ([]*model.Post, error)
+		Statistic() (*model.PostStatistic, error)
 	}
 
 	ReportGateway interface {
@@ -230,4 +231,8 @@ func (ps *PostService) Search(query string, skip, limit int) ([]*model.Post, err
 
 	log.Printf("Found posts: %v\n", posts)
 	return posts, nil
+}
+
+func (ps *PostService) Statistic() (*model.PostStatistic, error) {
+	return ps.repo.Statistic()
 }

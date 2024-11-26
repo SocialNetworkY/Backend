@@ -1,7 +1,11 @@
 package repository
 
 import (
+	"log"
+	"time"
+
 	"github.com/SocialNetworkY/Backend/internal/user/model"
+	"github.com/SocialNetworkY/Backend/pkg/constant"
 	"gorm.io/gorm"
 )
 
@@ -152,4 +156,29 @@ func (ur *UserRepository) Search(query string, skip, limit int) ([]*model.User, 
 	}
 
 	return users, nil
+}
+
+func (ur *UserRepository) Statistic() (*model.UserStatistic, error) {
+	log.Println("Getting user statistics")
+
+	var stat model.UserStatistic
+	err := ur.db.Model(&model.User{}).
+		Select("COUNT(*) AS total, "+
+			"SUM(CASE WHEN role > ? THEN 1 ELSE 0 END) AS admin, "+
+			"SUM(CASE WHEN EXISTS ("+
+			"  SELECT 1 FROM bans WHERE bans.user_id = users.id AND bans.expired_at > ? AND bans.unban_reason = ''"+
+			") THEN 1 ELSE 0 END) AS banned, "+
+			"SUM(CASE WHEN NOT EXISTS ("+
+			"  SELECT 1 FROM bans WHERE bans.user_id = users.id AND bans.expired_at > ? AND bans.unban_reason = ''"+
+			") THEN 1 ELSE 0 END) AS active",
+			constant.RoleUser, time.Now(), time.Now()).
+		Scan(&stat).Error
+
+	if err != nil {
+		log.Printf("Error getting user statistics: %v\n", err)
+		return nil, err
+	}
+
+	log.Printf("User statistics found: %+v\n", stat)
+	return &stat, nil
 }

@@ -2,11 +2,12 @@ package v1
 
 import (
 	"context"
-	"github.com/SocialNetworkY/Backend/internal/user/model"
-	"github.com/labstack/echo/v4"
 	"io"
 	"log"
 	"time"
+
+	"github.com/SocialNetworkY/Backend/internal/user/model"
+	"github.com/labstack/echo/v4"
 )
 
 type (
@@ -21,6 +22,7 @@ type (
 		ChangeAvatar(id uint, file io.ReadSeeker) error
 		Delete(id uint) error
 		Search(query string, skip, limit int) ([]*model.User, error)
+		Statistic() (*model.UserStatistic, error)
 	}
 
 	BanService interface {
@@ -30,6 +32,7 @@ type (
 		Search(query string, skip, limit int) ([]*model.Ban, error)
 		Find(id uint) (*model.Ban, error)
 		FindByUser(userID uint, skip, limit int) ([]*model.Ban, error)
+		Statistic() (*model.BanStatistic, error)
 	}
 
 	AuthGateway interface {

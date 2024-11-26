@@ -13,6 +13,7 @@ func (h *Handler) initCommentsApi(api *echo.Group) {
 	comments := api.Group("/comments")
 	{
 		comments.GET("/search", h.searchComments)
+		comments.GET("/stats", h.commentsStats, h.authenticationMiddleware, h.adminMiddleware)
 
 		commentID := comments.Group(fmt.Sprintf("/:%s", commentIDParam), h.setCommentByIDMiddleware)
 		{
@@ -97,4 +98,12 @@ func (h *Handler) searchComments(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, comments)
+}
+
+func (h *Handler) commentsStats(c echo.Context) error {
+	stats, err := h.cs.Statistic()
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+	return c.JSON(http.StatusOK, stats)
 }

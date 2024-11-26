@@ -2,8 +2,9 @@ package service
 
 import (
 	"context"
-	"github.com/SocialNetworkY/Backend/internal/user/model"
 	"time"
+
+	"github.com/SocialNetworkY/Backend/internal/user/model"
 )
 
 type (
@@ -16,6 +17,7 @@ type (
 		FindByUser(userID uint, skip, limit int) ([]*model.Ban, error)
 		FindByAdmin(adminID uint, skip, limit int) ([]*model.Ban, error)
 		Search(query string, skip, limit int) ([]*model.Ban, error)
+		Statistic() (*model.BanStatistic, error)
 	}
 
 	BanService struct {
@@ -88,4 +90,8 @@ func (bs *BanService) FindSome(skip, limit int) ([]*model.Ban, error) {
 // Search returns bans by query
 func (bs *BanService) Search(query string, skip, limit int) ([]*model.Ban, error) {
 	return bs.repo.Search(query, skip, limit)
+}
+
+func (bs *BanService) Statistic() (*model.BanStatistic, error) {
+	return bs.repo.Statistic()
 }

@@ -1,6 +1,9 @@
 package repository
 
 import (
+	"log"
+	"time"
+
 	"github.com/SocialNetworkY/Backend/internal/user/model"
 	"gorm.io/gorm"
 )
@@ -99,4 +102,24 @@ func (br *BanRepository) Search(query string, skip, limit int) ([]*model.Ban, er
 	}
 
 	return bans, nil
+}
+
+func (br *BanRepository) Statistic() (*model.BanStatistic, error) {
+	log.Println("Getting ban statistics")
+
+	var stat model.BanStatistic
+	err := br.db.Model(&model.Ban{}).
+		Select("COUNT(*) AS total, "+
+			"SUM(CASE WHEN expired_at > ? AND unban_reason = '' THEN 1 ELSE 0 END) AS banned, "+
+			"SUM(CASE WHEN unban_reason != '' THEN 1 ELSE 0 END) AS unbanned",
+			time.Now()).
+		Scan(&stat).Error
+
+	if err != nil {
+		log.Printf("Error getting ban statistics: %v\n", err)
+		return nil, err
+	}
+
+	log.Printf("Ban statistics found: %+v\n", stat)
+	return &stat, nil
 }

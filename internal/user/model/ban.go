@@ -1,8 +1,9 @@
 package model
 
 import (
-	"gorm.io/gorm"
 	"time"
+
+	"gorm.io/gorm"
 )
 
 type Ban struct {
@@ -27,4 +28,10 @@ type Ban struct {
 func (b *Ban) AfterFind(tx *gorm.DB) (err error) {
 	b.Active = b.ExpiredAt.After(time.Now()) && b.UnbanReason == ""
 	return nil
+}
+
+type BanStatistic struct {
+	Total    int64 `json:"total"`
+	Banned   int64 `json:"banned"`
+	Unbanned int64 `json:"unbanned"`
 }

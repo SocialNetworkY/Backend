@@ -23,3 +23,8 @@ func (c *Comment) AfterFind(tx *gorm.DB) (err error) {
 	c.Edited = c.EditedBy != 0
 	return
 }
+
+type CommentStatistic struct {
+	Total  uint64 `json:"total"`
+	Edited uint64 `json:"edited"`
+}

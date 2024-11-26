@@ -22,6 +22,7 @@ func (h *Handler) initPostApi(api *echo.Group) {
 	{
 		posts.GET("", h.getPosts)
 		posts.GET("/search", h.searchPosts)
+		posts.GET("/stats", h.postsStats, h.authenticationMiddleware, h.adminMiddleware)
 		posts.POST("", h.createPost, h.authenticationMiddleware, h.banMiddleware)
 		posts.GET(fmt.Sprintf("/users/:%s", userIDParam), h.getPostsByUserID, h.setUserByIDMiddleware)
 
@@ -392,4 +393,12 @@ func (h *Handler) searchPosts(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, posts)
+}
+
+func (h *Handler) postsStats(c echo.Context) error {
+	stats, err := h.ps.Statistic()
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+	return c.JSON(http.StatusOK, stats)
 }

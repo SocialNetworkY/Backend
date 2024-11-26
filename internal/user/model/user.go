@@ -1,9 +1,10 @@
 package model
 
 import (
+	"time"
+
 	"github.com/SocialNetworkY/Backend/pkg/constant"
 	"gorm.io/gorm"
-	"time"
 )
 
 type User struct {
@@ -33,4 +34,11 @@ func (u *User) AfterFind(tx *gorm.DB) (err error) {
 
 	u.Admin = u.Role > constant.RoleUser
 	return nil
+}
+
+type UserStatistic struct {
+	Total  uint64 `json:"total"`
+	Admin  uint64 `json:"admin"`
+	Banned uint64 `json:"banned"`
+	Active uint64 `json:"active"`
 }

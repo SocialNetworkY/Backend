@@ -4,8 +4,9 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/SocialNetworkY/Backend/internal/user/model"
 	"io"
+
+	"github.com/SocialNetworkY/Backend/internal/user/model"
 )
 
 type (
@@ -23,6 +24,7 @@ type (
 		FindByEmail(email string) (*model.User, error)
 		FindByNickname(nickname string, skip, limit int) ([]*model.User, error)
 		Search(query string, skip, limit int) ([]*model.User, error)
+		Statistic() (*model.UserStatistic, error)
 	}
 
 	AuthGateway interface {
@@ -236,4 +238,8 @@ func (us *UserService) Delete(id uint) error {
 
 func (us *UserService) Search(query string, skip, limit int) ([]*model.User, error) {
 	return us.repo.Search(query, skip, limit)
+}
+
+func (us *UserService) Statistic() (*model.UserStatistic, error) {
+	return us.repo.Statistic()
 }

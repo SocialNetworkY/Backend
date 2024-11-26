@@ -137,3 +137,21 @@ func (cr *CommentRepository) Search(query string, skip, limit int) ([]*model.Com
 	log.Printf("Comments found: %v\n", comments)
 	return comments, nil
 }
+
+func (cr *CommentRepository) Statistic() (*model.CommentStatistic, error) {
+	log.Println("Getting comment statistics")
+
+	var stat model.CommentStatistic
+	err := cr.db.Model(&model.Comment{}).
+		Select("COUNT(*) AS total, " +
+			"SUM(CASE WHEN edited_by != 0 THEN 1 ELSE 0 END) AS edited").
+		Scan(&stat).Error
+
+	if err != nil {
+		log.Printf("Error getting comment statistics: %v\n", err)
+		return nil, err
+	}
+
+	log.Printf("Comment statistics found: %+v\n", stat)
+	return &stat, nil
+}

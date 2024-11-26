@@ -18,6 +18,7 @@ type (
 		FindSome(skip, limit int) ([]*model.Post, error)
 		FindByUser(userID uint, skip, limit int) ([]*model.Post, error)
 		Search(query string, skip, limit int) ([]*model.Post, error)
+		Statistic() (*model.PostStatistic, error)
 	}
 
 	LikeService interface {
@@ -32,6 +33,7 @@ type (
 		Edit(id, userID uint, content string) error
 		Delete(id uint) error
 		Search(query string, skip, limit int) ([]*model.Comment, error)
+		Statistic() (*model.CommentStatistic, error)
 	}
 
 	AuthGateway interface {

@@ -2,10 +2,11 @@ package v1
 
 import (
 	"fmt"
-	"github.com/SocialNetworkY/Backend/internal/user/model"
-	"github.com/labstack/echo/v4"
 	"net/http"
 	"time"
+
+	"github.com/SocialNetworkY/Backend/internal/user/model"
+	"github.com/labstack/echo/v4"
 )
 
 func (h *Handler) initAdminApi(group *echo.Group) {
@@ -18,6 +19,7 @@ func (h *Handler) initAdminApi(group *echo.Group) {
 	{
 		users := admin.Group("/users")
 		{
+			users.GET("/stats", h.getUsersStats)
 			initUserEndpoints(users.Group(fmt.Sprintf("/:%s", paramUserID), h.setUserByIDFromParam))
 			initUserEndpoints(users.Group(fmt.Sprintf("/@:%s", paramUsername), h.setUserByUsernameFromParam))
 		}
@@ -25,6 +27,7 @@ func (h *Handler) initAdminApi(group *echo.Group) {
 		bans := admin.Group("/bans")
 		{
 			bans.GET("", h.getBans)
+			bans.GET("/stats", h.getBansStats)
 			bans.GET("/search", h.searchBans)
 		}
 
@@ -158,4 +161,20 @@ func (h *Handler) searchBans(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, bans)
+}
+
+func (h *Handler) getBansStats(c echo.Context) error {
+	stats, err := h.bs.Statistic()
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+	return c.JSON(http.StatusOK, stats)
+}
+
+func (h *Handler) getUsersStats(c echo.Context) error {
+	stats, err := h.us.Statistic()
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+	return c.JSON(http.StatusOK, stats)
 }

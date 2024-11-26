@@ -178,3 +178,22 @@ func (pr *PostRepository) Search(query string, skip, limit int) ([]*model.Post, 
 	log.Printf("Found posts by query: %v\n", posts)
 	return posts, nil
 }
+
+func (pr *PostRepository) Statistic() (*model.PostStatistic, error) {
+	log.Println("Getting post statistics")
+
+	var stat model.PostStatistic
+	err := pr.db.Model(&model.Post{}).
+		Select("COUNT(*) AS total, " +
+			"SUM(CASE WHEN edited_by != 0 THEN 1 ELSE 0 END) AS edited, " +
+			"(SELECT COUNT(*) FROM likes WHERE deleted_at IS NULL) AS likes").
+		Scan(&stat).Error
+
+	if err != nil {
+		log.Printf("Error getting post statistics: %v\n", err)
+		return nil, err
+	}
+
+	log.Printf("Post statistics found: %+v\n", stat)
+	return &stat, nil
+}

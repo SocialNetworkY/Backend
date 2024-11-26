@@ -68,3 +68,9 @@ func (p *Post) AfterFind(tx *gorm.DB) (err error) {
 	p.Edited = p.EditedBy != 0
 	return nil
 }
+
+type PostStatistic struct {
+	Total  uint64 `json:"total"`
+	Edited uint64 `json:"edited"`
+	Likes  uint64 `json:"likes"`
+}

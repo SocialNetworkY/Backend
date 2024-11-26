@@ -16,6 +16,7 @@ type (
 		FindByPost(postID uint, skip, limit int) ([]*model.Comment, error)
 		FindByUser(userID uint, skip, limit int) ([]*model.Comment, error)
 		Search(query string, skip, limit int) ([]*model.Comment, error)
+		Statistic() (*model.CommentStatistic, error)
 	}
 
 	CommentService struct {
@@ -143,4 +144,8 @@ func (cs *CommentService) Search(query string, skip, limit int) ([]*model.Commen
 	}
 	log.Printf("Comments found: %v\n", comments)
 	return comments, nil
+}
+
+func (cs *CommentService) Statistic() (*model.CommentStatistic, error) {
+	return cs.repo.Statistic()
 }

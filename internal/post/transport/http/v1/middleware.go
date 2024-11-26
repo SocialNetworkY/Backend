@@ -120,6 +120,21 @@ func (h *Handler) setCommentByIDMiddleware(next echo.HandlerFunc) echo.HandlerFu
 	}
 }
 
+func (h *Handler) adminMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		requester, ok := c.Get(requesterLocals).(*model.User)
+		if !ok {
+			return echo.NewHTTPError(http.StatusUnauthorized, "failed to get requester")
+		}
+
+		if requester.Role < constant.RoleAdminLvl1 {
+			return echo.NewHTTPError(http.StatusForbidden, fmt.Sprintln("You are not admin."))
+		}
+
+		return next(c)
+	}
+}
+
 func getUintParam(c echo.Context, key string) (uint, error) {
 	param := c.Param(key)
 	if param == "" {
