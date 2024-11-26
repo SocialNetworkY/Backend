@@ -4,6 +4,7 @@ import (
 	"database/sql/driver"
 	"encoding/json"
 	"errors"
+	"sort"
 	"time"
 
 	"gorm.io/gorm"
@@ -61,6 +62,9 @@ func (p *Post) AfterFind(tx *gorm.DB) (err error) {
 			break
 		}
 	}
+	sort.Slice(p.Comments, func(i, j int) bool {
+		return p.Comments[i].CreatedAt.After(p.Comments[j].CreatedAt)
+	})
 	p.Edited = p.EditedBy != 0
 	return nil
 }

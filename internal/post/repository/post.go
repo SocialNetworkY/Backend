@@ -2,6 +2,7 @@ package repository
 
 import (
 	"log"
+	"sort"
 
 	"github.com/SocialNetworkY/Backend/internal/post/model"
 	"gorm.io/gorm"
@@ -91,6 +92,9 @@ func (pr *PostRepository) FindSome(skip, limit int) ([]*model.Post, error) {
 		return nil, err
 	}
 	log.Printf("Found some posts: %v\n", posts)
+	sort.Slice(posts, func(i, j int) bool {
+		return posts[i].PostedAt.After(posts[j].PostedAt)
+	})
 	return posts, nil
 }
 
@@ -105,6 +109,9 @@ func (pr *PostRepository) FindByUser(userID uint, skip, limit int) ([]*model.Pos
 		return nil, err
 	}
 	log.Printf("Found posts by user: %v\n", posts)
+	sort.Slice(posts, func(i, j int) bool {
+		return posts[i].PostedAt.After(posts[j].PostedAt)
+	})
 	return posts, nil
 }
 
@@ -119,6 +126,9 @@ func (pr *PostRepository) FindByTag(tagID uint, skip, limit int) ([]*model.Post,
 		return nil, err
 	}
 	log.Printf("Found posts by tag: %v\n", posts)
+	sort.Slice(posts, func(i, j int) bool {
+		return posts[i].PostedAt.After(posts[j].PostedAt)
+	})
 	return posts, nil
 }
 
