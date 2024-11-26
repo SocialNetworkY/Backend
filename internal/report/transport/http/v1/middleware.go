@@ -16,9 +16,10 @@ const (
 	reportLocals    = "report"
 	requesterLocals = "requester"
 
-	queryQuery = "query"
-	skipQuery  = "skip"
-	limitQuery = "limit"
+	statusQuery = "status"
+	queryQuery  = "query"
+	skipQuery   = "skip"
+	limitQuery  = "limit"
 
 	defaultSkip  = 0
 	defaultLimit = 10

@@ -1,8 +1,9 @@
 package model
 
 import (
-	"gorm.io/gorm"
 	"time"
+
+	"gorm.io/gorm"
 )
 
 const (
@@ -31,4 +32,11 @@ func (r *Report) AfterFind(tx *gorm.DB) (err error) {
 		r.Closed = true
 	}
 	return nil
+}
+
+type ReportStatistic struct {
+	Total    int64 `json:"total"`
+	Pending  int64 `json:"pending"`
+	Answered int64 `json:"answered"`
+	Rejected int64 `json:"rejected"`
 }

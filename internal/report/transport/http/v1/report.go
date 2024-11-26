@@ -13,6 +13,8 @@ func (h *Handler) initReportApi(api *echo.Group) {
 	{
 		reports.POST("", h.postReport)
 		reports.GET("/search", h.search, h.adminMiddleware)
+		reports.GET("/stats", h.getStats, h.adminMiddleware)
+		reports.GET("", h.getReports, h.adminMiddleware)
 
 		report := reports.Group(fmt.Sprintf("/:%s", reportIDParam), h.setReportByIDMiddleware, h.checkAccessMiddleware)
 		{
@@ -149,6 +151,25 @@ func (h *Handler) search(c echo.Context) error {
 	}
 
 	reports, err := h.rs.Search(query, skip, limit)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+
+	return c.JSON(http.StatusOK, reports)
+}
+
+func (h *Handler) getStats(c echo.Context) error {
+	stats, err := h.rs.Statistic()
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+	return c.JSON(http.StatusOK, stats)
+}
+
+func (h *Handler) getReports(c echo.Context) error {
+	skip, limit := skipLimitQuery(c)
+
+	reports, err := h.rs.GetSome(skip, limit, c.QueryParam(statusQuery))
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}

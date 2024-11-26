@@ -20,6 +20,7 @@ type (
 		GetByUser(userID uint, skip, limit int, status string) ([]*model.Report, error)
 		GetByAdmin(adminID uint, skip, limit int, status string) ([]*model.Report, error)
 		Search(query string, skip, limit int) ([]*model.Report, error)
+		Statistic() (*model.ReportStatistic, error)
 	}
 
 	PostGateway interface {
@@ -225,4 +226,8 @@ func (r *Report) Search(query string, skip, limit int) ([]*model.Report, error) 
 	}
 	log.Printf("Reports found: %v\n", reports)
 	return reports, nil
+}
+
+func (r *Report) Statistic() (*model.ReportStatistic, error) {
+	return r.repo.Statistic()
 }

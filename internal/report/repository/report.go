@@ -186,3 +186,24 @@ func (r *Report) Search(query string, skip, limit int) ([]*model.Report, error) 
 	log.Printf("Found reports: %v\n", reports)
 	return reports, nil
 }
+
+func (r *Report) Statistic() (*model.ReportStatistic, error) {
+	log.Println("Getting report statistic")
+
+	var stat model.ReportStatistic
+	err := r.db.Model(&Report{}).
+		Select("COUNT(*) AS total, "+
+			"SUM(CASE WHEN status = ? THEN 1 ELSE 0 END) AS pending, "+
+			"SUM(CASE WHEN status = ? THEN 1 ELSE 0 END) AS answered, "+
+			"SUM(CASE WHEN status = ? THEN 1 ELSE 0 END) AS rejected",
+			model.ReportStatusPending, model.ReportStatusAnswered, model.ReportStatusRejected).
+		Scan(&stat).Error
+
+	if err != nil {
+		log.Printf("Error getting report statistic: %v\n", err)
+		return nil, err
+	}
+
+	log.Printf("Report statistic found: %+v\n", stat)
+	return &stat, nil
+}

@@ -20,6 +20,7 @@ type (
 		GetByAdmin(adminID uint, skip, limit int, status string) ([]*model.Report, error)
 		Delete(reportID uint) error
 		Search(query string, skip, limit int) ([]*model.Report, error)
+		Statistic() (*model.ReportStatistic, error)
 	}
 
 	AuthGateway interface {
