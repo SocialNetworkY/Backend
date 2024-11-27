@@ -19,6 +19,7 @@ func (h *Handler) initAdminApi(group *echo.Group) {
 	{
 		users := admin.Group("/users")
 		{
+			users.GET("", h.getUsers)
 			users.GET("/stats", h.getUsersStats)
 			initUserEndpoints(users.Group(fmt.Sprintf("/:%s", paramUserID), h.setUserByIDFromParam))
 			initUserEndpoints(users.Group(fmt.Sprintf("/@:%s", paramUsername), h.setUserByUsernameFromParam))
@@ -177,4 +178,14 @@ func (h *Handler) getUsersStats(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 	return c.JSON(http.StatusOK, stats)
+}
+
+func (h *Handler) getUsers(c echo.Context) error {
+	skip, limit := skipLimitQuery(c)
+	users, err := h.us.FindSome(skip, limit)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+
+	return c.JSON(http.StatusOK, users)
 }

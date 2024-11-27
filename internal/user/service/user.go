@@ -106,6 +106,10 @@ func (us *UserService) Find(id uint) (*model.User, error) {
 	return us.repo.Find(id)
 }
 
+func (us *UserService) FindSome(skip, limit int) ([]*model.User, error) {
+	return us.repo.FindSome(skip, limit)
+}
+
 func (us *UserService) FindByUsername(username string) (*model.User, error) {
 	return us.repo.FindByUsername(username)
 }

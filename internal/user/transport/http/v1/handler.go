@@ -23,6 +23,7 @@ type (
 		Delete(id uint) error
 		Search(query string, skip, limit int) ([]*model.User, error)
 		Statistic() (*model.UserStatistic, error)
+		FindSome(skip, limit int) ([]*model.User, error)
 	}
 
 	BanService interface {
